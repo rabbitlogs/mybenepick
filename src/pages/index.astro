@@ -1,0 +1,53 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from '../components/PostCard.astro';
+
+const posts = (await getCollection('blog'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 8);
+---
+
+<BaseLayout
+  title="혜택픽 — 놓치기 쉬운 정부 지원금, 대신 찾아드려요"
+  description="새로 생기거나 바뀐 정부 지원금·제도를 대상자별로 정리해드려요. 신청 조건, 방법, 놓치기 쉬운 디테일까지 한 번에 확인하세요."
+>
+  <section class="hero">
+    <div class="hero-img"><img src="/images/hero-squirrel.png" alt="도토리를 든 혜택픽 다람쥐 캐릭터" width="180" height="180" fetchpriority="high" /></div>
+    <div class="hero-text">
+      <h1>놓치기 쉬운 혜택,<br />대신 찾아드려요.</h1>
+      <p class="hero-sub">새로 생기거나 바뀐 정부 지원금,<br class="mobile-br" /> 대상자별로 정리해드려요.</p>
+    </div>
+  </section>
+
+  <section class="latest">
+    <h2 class="section-title">최신 글</h2>
+    {posts.map((post) => (
+      <PostCard
+        href={`/blog/${post.id.replace('.md', '')}`}
+        title={post.data.title}
+        description={post.data.description}
+        category={post.data.category}
+        pubDate={post.data.pubDate}
+      />
+    ))}
+  </section>
+
+  <style>
+    .hero { display: flex; align-items: center; gap: 2.5rem; padding: 3rem 0 2.5rem; }
+    .hero-img { flex: 0 0 160px; }
+    .hero-img img { width: 100%; height: auto; display: block; }
+    .hero-text { flex: 1; }
+    .hero h1 { font-family: var(--font-display); font-weight: 800; font-size: 2rem; line-height: 1.35; letter-spacing: -0.02em; margin: 0 0 1rem; color: var(--ink); }
+    .hero-sub { font-size: 1.1rem; color: var(--muted); margin: 0; }
+    .mobile-br { display: none; }
+    .section-title { font-weight: 800; font-size: 1.1rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem; display: inline-block; }
+
+    @media (max-width: 640px) {
+      .hero { flex-direction: column; text-align: center; gap: 1.2rem; padding: 2rem 0 1.5rem; }
+      .hero-img { flex: none; width: 150px; }
+      .hero h1 { font-size: 1.7rem; }
+      .mobile-br { display: inline; }
+    }
+  </style>
+</BaseLayout>

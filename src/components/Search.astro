@@ -1,0 +1,188 @@
+---
+// 검색 UI (1단계: 프론트엔드만)
+// - 헤더의 돋보기 버튼 + 전체화면 검색 모달
+// - 실제 검색 엔진(Pagefind)은 2단계에서 연결한다.
+const { lang = 'ko' } = Astro.props;
+const txt = {
+  ko: { label: '검색', placeholder: '검색어를 입력하세요', empty: '검색어를 입력해 보세요.', noResult: '검색 결과가 없습니다.' },
+  en: { label: 'Search', placeholder: 'Type to search', empty: 'Type something to search.', noResult: 'No results found.' },
+};
+const t = txt[lang];
+---
+
+<button class="search-btn" aria-label={t.label} data-search-open>
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="11" cy="11" r="8"></circle>
+    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+  </svg>
+</button>
+
+<div class="search-modal" data-search-modal>
+  <div class="search-box">
+    <div class="search-input-row">
+      <svg class="search-input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="text" class="search-input" placeholder={t.placeholder} data-search-input autocomplete="off" />
+      <button class="search-close" type="button" aria-label="close" data-search-close>&times;</button>
+    </div>
+    <div class="search-results" data-search-results>
+      <p class="search-hint">{t.empty}</p>
+    </div>
+  </div>
+</div>
+
+<script is:inline define:vars={{ emptyMsg: t.empty, noResultMsg: t.noResult, lang }}>
+  (function () {
+    const openBtns = document.querySelectorAll('[data-search-open]');
+    const modal = document.querySelector('[data-search-modal]');
+    const closeBtn = document.querySelector('[data-search-close]');
+    const input = document.querySelector('[data-search-input]');
+    const results = document.querySelector('[data-search-results]');
+    if (!modal || !input) return;
+
+    let pagefind = null;
+    let pagefindLoading = null;
+
+    // Pagefind는 빌드 후에만 /pagefind/pagefind.js 가 생성된다.
+    // 검색창을 처음 열 때 한 번만 불러온다(초기 페이지 로드 속도에 영향 없게).
+    function loadPagefind() {
+      if (pagefind) return Promise.resolve(pagefind);
+      if (pagefindLoading) return pagefindLoading;
+      pagefindLoading = import('/pagefind/pagefind.js')
+        .then((mod) => {
+          pagefind = mod;
+          return pagefind;
+        })
+        .catch(() => null); // 로컬 미리보기 등 색인이 없을 때 조용히 무시
+      return pagefindLoading;
+    }
+
+    const open = () => {
+      modal.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+      loadPagefind();
+      setTimeout(() => input.focus(), 50);
+    };
+    const close = () => {
+      modal.classList.remove('is-open');
+      document.body.style.overflow = '';
+      input.value = '';
+      results.innerHTML = '<p class="search-hint">' + emptyMsg + '</p>';
+    };
+
+    openBtns.forEach((b) => b.addEventListener('click', open));
+    if (closeBtn) closeBtn.addEventListener('click', close);
+    modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('is-open')) close();
+    });
+
+    const render = async (hits) => {
+      if (!hits.length) {
+        results.innerHTML = '<p class="search-hint">' + noResultMsg + '</p>';
+        return;
+      }
+      // Pagefind 검색 결과(hits)는 기본적으로 url이 없고 data()를 호출해야 얻을 수 있다.
+      // 그래서 먼저 데이터를 불러온 뒤, 그 안의 url로 언어를 거른다.
+      const allItems = await Promise.all(hits.slice(0, 20).map((h) => h.data()));
+      const items = allItems
+        .filter((d) => d && d.url)
+        .filter((d) => (lang === 'en' ? d.url.includes('/en/') : !d.url.includes('/en/')))
+        .slice(0, 8);
+
+      if (!items.length) {
+        results.innerHTML = '<p class="search-hint">' + noResultMsg + '</p>';
+        return;
+      }
+
+      results.innerHTML = items.map((d) => {
+        const title = d.meta && d.meta.title ? d.meta.title : d.url;
+        const excerpt = d.excerpt || '';
+        return (
+          '<a class="search-result" href="' + d.url + '">' +
+          '<span class="search-result-title">' + title + '</span>' +
+          '<span class="search-result-excerpt">' + excerpt + '</span>' +
+          '</a>'
+        );
+      }).join('');
+    };
+
+    let timer = null;
+    input.addEventListener('input', () => {
+      clearTimeout(timer);
+      const q = input.value.trim();
+      if (!q) { results.innerHTML = '<p class="search-hint">' + emptyMsg + '</p>'; return; }
+      timer = setTimeout(async () => {
+        const pf = await loadPagefind();
+        if (!pf) { results.innerHTML = '<p class="search-hint">' + noResultMsg + '</p>'; return; }
+        const search = await pf.search(q);
+        render(search.results);
+      }, 250);
+    });
+  })();
+</script>
+
+<style>
+  .search-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px; padding: 0;
+    background: none; border: none; cursor: pointer;
+    color: var(--primary); border-radius: 999px;
+    transition: background 0.15s;
+  }
+  .search-btn:hover { background: rgba(44,95,87,0.08); }
+
+  /* 기본은 숨김. .is-open 일 때만 표시. (hidden 속성 대신 클래스로 확실히 제어) */
+  .search-modal {
+    display: none;
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(20,20,20,0.45);
+    justify-content: center;
+    padding: 12vh 1rem 1rem;
+  }
+  .search-modal.is-open { display: flex; }
+
+  .search-box {
+    width: 100%; max-width: 600px; height: fit-content;
+    background: var(--color-bg, #faf8f3); border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25); overflow: hidden;
+  }
+  .search-input-row {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 1rem 1.1rem; border-bottom: 1px solid var(--line);
+  }
+  .search-input-icon { color: var(--muted); flex-shrink: 0; }
+  .search-input {
+    flex: 1; border: none; background: none; outline: none;
+    font-size: 1.05rem; color: var(--ink); font-family: inherit;
+  }
+  .search-close {
+    background: none; border: none; font-size: 1.6rem; line-height: 1;
+    color: var(--muted); cursor: pointer; padding: 0 0.2rem;
+  }
+  .search-results { padding: 0.6rem 0.6rem 1rem; max-height: 50vh; overflow-y: auto; }
+  .search-hint { color: var(--muted); font-size: 0.95rem; text-align: center; margin: 1rem 0; }
+
+  /* 검색 결과는 JS가 런타임에 innerHTML로 주입한다.
+     Astro의 <style>은 기본적으로 scoped(클래스에 해시를 붙임)라
+     이렇게 동적으로 삽입된 요소에는 적용되지 않는다.
+     그래서 결과 카드 관련 스타일만 :global()로 감싸 전역으로 적용한다. */
+  :global(.search-result) {
+    display: block; padding: 0.7rem 0.6rem; border-radius: 8px;
+    text-decoration: none; color: inherit; transition: background 0.12s;
+  }
+  :global(.search-result:hover) { background: rgba(44,95,87,0.07); }
+  :global(.search-result-title) {
+    display: block; font-weight: 700; font-size: 0.98rem; color: var(--ink);
+    margin-bottom: 0.2rem;
+  }
+  :global(.search-result-excerpt) {
+    display: block; font-size: 0.85rem; color: var(--muted); line-height: 1.5;
+  }
+  :global(.search-result-excerpt mark) {
+    background: rgba(217,148,65,0.35); color: inherit; border-radius: 2px;
+    padding: 0 0.1em; font-weight: 600;
+  }
+</style>

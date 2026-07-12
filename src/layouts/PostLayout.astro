@@ -1,0 +1,340 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import AdSense from '../components/AdSense.astro';
+
+// ⚠️ BaseLayout.astro의 ADSENSE_ENABLED와 함께 켜고 끄세요.
+// false인 동안은 광고 슬롯 마크업 자체를 본문에 넣지 않습니다(빈 <ins> 태그 노출 방지).
+const ADSENSE_ENABLED = false;
+
+const { title, description, pubDate, category, tags = [], slug, thumbnail } = Astro.props;
+
+const catName = {
+  'self-employed': '소상공인', youth: '청년', parenting: '육아·출산',
+  common: '전국민·중장년',
+};
+const dateStr = new Date(pubDate).toLocaleDateString('ko-KR', {
+  year: 'numeric', month: 'long', day: 'numeric',
+});
+
+// JSON-LD (Article 구조화 데이터)
+const siteUrl = 'https://mybenepick.com';
+const pageUrl = siteUrl + '/blog/' + slug;
+const ogImage = thumbnail ? siteUrl + thumbnail : siteUrl + '/og-thumbnail.jpg';
+const isoDate = new Date(pubDate).toISOString();
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description: description,
+  image: ogImage,
+  datePublished: isoDate,
+  dateModified: isoDate,
+  author: {
+    '@type': 'Organization',
+    name: '혜택픽',
+    url: siteUrl,
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: '혜택픽',
+    logo: {
+      '@type': 'ImageObject',
+      url: siteUrl + '/squirrel-logo.png',
+    },
+  },
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': pageUrl,
+  },
+};
+---
+
+<BaseLayout title={title} description={description} showAds={true}>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  <article class="post">
+    <div class="post-meta">
+      <span class="cat">{catName[category]}</span>
+      <span class="date">{dateStr}</span>
+    </div>
+    <h1>{title}</h1>
+    <p class="subtitle">{description}</p>
+
+    <div class="prose">
+      <slot />
+    </div>
+
+    {tags && tags.length > 0 && (
+      <div class="post-tags">
+        {tags.map((tag) => (
+          <span class="tag">#{tag}</span>
+        ))}
+      </div>
+    )}
+
+    <script is:inline>
+      document.addEventListener('DOMContentLoaded', () => {
+        // 본문(.prose) 안의 "내부 링크"를 새 탭으로 열리게 한다.
+        const prose = document.querySelector('.prose');
+        if (!prose) return;
+
+        const markers = Array.from(prose.querySelectorAll('strong')).filter(
+          (el) => el.textContent.trim() === '더 읽어보기'
+        );
+        let excludeFrom = null;
+        if (markers.length) {
+          excludeFrom = markers[0].closest('p') || markers[0];
+        }
+
+        const isExcluded = (a) => {
+          if (!excludeFrom) return false;
+          const pos = excludeFrom.compareDocumentPosition(a);
+          return !!(pos & Node.DOCUMENT_POSITION_FOLLOWING) || excludeFrom.contains(a);
+        };
+
+        prose.querySelectorAll('a[href]').forEach((a) => {
+          const href = a.getAttribute('href') || '';
+          if (href.startsWith('#')) return;
+          if (a.target === '_blank') return;
+          if (isExcluded(a)) return;
+          a.setAttribute('target', '_blank');
+          a.setAttribute('rel', 'noopener noreferrer');
+        });
+      });
+    </script>
+
+    <!--
+      광고 원본 1칸(숨김). JS가 본문 글자수를 재서 2~3개로 복제·배치한다.
+        0~3,500자 : 2개 (첫 소제목 뒤 + 태그 뒤)
+        3,500자+  : 3개 (도입 뒤 + 중간 소제목 뒤 + 태그 뒤)
+      ⚠️ 애드센스 승인 전에는 ADSENSE_ENABLED=false라 아예 렌더링 안 됨.
+    -->
+    {ADSENSE_ENABLED && <template id="ad-template"><AdSense /></template>}
+
+    {ADSENSE_ENABLED && (
+    <script is:inline>
+      document.addEventListener('DOMContentLoaded', () => {
+        const article = document.querySelector('.post');
+        const prose = document.querySelector('.prose');
+        const tags = document.querySelector('.post-tags');
+        const tpl = document.getElementById('ad-template');
+        if (!article || !prose || !tpl) return;
+
+        const len = (prose.textContent || '').replace(/\s/g, '').length;
+        const count = len >= 3500 ? 3 : 2;
+
+        const makeAd = () => tpl.content.firstElementChild.cloneNode(true);
+        const placed = [];
+
+        const insertBeforeInProse = (node) => {
+          const ad = makeAd();
+          node.parentNode.insertBefore(ad, node);
+          placed.push(ad);
+        };
+        const appendAfterTags = () => {
+          const ad = makeAd();
+          ad.classList.add('ad-last');
+          if (tags) tags.insertAdjacentElement('afterend', ad);
+          else article.appendChild(ad);
+          placed.push(ad);
+        };
+
+        const h2s = prose.querySelectorAll('h2');
+        const firstAdAnchor = h2s[1] || h2s[0];
+
+        if (count === 2) {
+          if (firstAdAnchor) insertBeforeInProse(firstAdAnchor);
+          appendAfterTags();
+        } else {
+          if (firstAdAnchor) insertBeforeInProse(firstAdAnchor);
+          if (h2s.length >= 3) {
+            insertBeforeInProse(h2s[Math.floor(h2s.length / 2)]);
+          } else if (h2s[1] && h2s[1] !== firstAdAnchor) {
+            insertBeforeInProse(h2s[1]);
+          }
+          appendAfterTags();
+        }
+
+        placed.forEach(() => {
+          try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+        });
+
+        placed.forEach((slot) => {
+          const ins = slot.querySelector('ins.adsbygoogle');
+          if (!ins) return;
+
+          let tries = 0;
+          const checker = setInterval(() => {
+            tries++;
+            const status = ins.getAttribute('data-ad-status');
+            const iframe = ins.querySelector('iframe');
+
+            if (status === 'unfilled') {
+              slot.remove();
+              clearInterval(checker);
+            } else if (iframe && iframe.offsetHeight > 0) {
+              clearInterval(checker);
+            } else if (tries >= 12) {
+              slot.remove();
+              clearInterval(checker);
+            }
+          }, 250);
+        });
+      });
+    </script>
+    )}
+
+    <!-- 라이트박스: 본문(.prose) 안의 이미지를 클릭하면 확대 팝업으로 보여준다. -->
+    <div id="lightbox" class="lightbox" hidden>
+      <button type="button" class="lightbox-close" aria-label="닫기">✕</button>
+      <img class="lightbox-img" src="" alt="" />
+      <p class="lightbox-caption"></p>
+    </div>
+
+    <script is:inline>
+      document.addEventListener('DOMContentLoaded', () => {
+        const prose = document.querySelector('.prose');
+        const lightbox = document.getElementById('lightbox');
+        if (!prose || !lightbox) return;
+
+        const lbImg = lightbox.querySelector('.lightbox-img');
+        const lbCaption = lightbox.querySelector('.lightbox-caption');
+        const lbClose = lightbox.querySelector('.lightbox-close');
+        let lastFocused = null;
+
+        const openLightbox = (img) => {
+          lastFocused = document.activeElement;
+          lbImg.src = img.currentSrc || img.src;
+          lbImg.alt = img.alt || '';
+          if (img.alt) {
+            lbCaption.textContent = img.alt;
+            lbCaption.hidden = false;
+          } else {
+            lbCaption.textContent = '';
+            lbCaption.hidden = true;
+          }
+          lightbox.hidden = false;
+          document.body.style.overflow = 'hidden';
+          lbClose.focus();
+        };
+
+        const closeLightbox = () => {
+          lightbox.hidden = true;
+          lbImg.src = '';
+          document.body.style.overflow = '';
+          if (lastFocused) lastFocused.focus();
+        };
+
+        prose.querySelectorAll('img').forEach((img) => {
+          img.classList.add('lightbox-trigger');
+
+          const wrap = document.createElement('span');
+          wrap.className = 'lightbox-zoom-wrap';
+          wrap.tabIndex = 0;
+          wrap.setAttribute('role', 'button');
+          wrap.setAttribute('aria-label', '이미지 확대');
+          img.parentNode.insertBefore(wrap, img);
+          wrap.appendChild(img);
+
+          wrap.addEventListener('click', () => openLightbox(img));
+          wrap.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              openLightbox(img);
+            }
+          });
+        });
+
+        lbClose.addEventListener('click', closeLightbox);
+        lightbox.addEventListener('click', (e) => {
+          if (e.target === lightbox) closeLightbox();
+        });
+        document.addEventListener('keydown', (e) => {
+          if (!lightbox.hidden && e.key === 'Escape') closeLightbox();
+        });
+      });
+    </script>
+  </article>
+
+  <style>
+    .post { padding: 2.5rem 0; }
+    .post-meta { display: flex; gap: 0.75rem; align-items: center; font-size: 0.85rem; margin-bottom: 1rem; }
+    .cat { color: var(--accent); font-weight: 700; }
+    .date { color: var(--muted); }
+    .post h1 {
+      font-size: 2rem; font-weight: 800; line-height: 1.3; margin: 0 0 0.6rem;
+      letter-spacing: -0.03em;
+    }
+    .post-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 2rem 0 0.5rem; }
+    .post-tags .tag {
+      font-size: 0.85rem; color: var(--primary); background: rgba(201,102,63,0.08);
+      border: 1px solid rgba(201,102,63,0.18); border-radius: 999px; padding: 0.25rem 0.75rem;
+    }
+    .subtitle {
+      font-size: 1.05rem; color: var(--muted); line-height: 1.6;
+      margin: 0 0 1.8rem; font-weight: 400;
+    }
+    .post :global(.ad-slot.ad-last) { margin-bottom: 0; }
+
+    .post :global(.prose .lightbox-zoom-wrap) {
+      position: relative;
+      display: block;
+      cursor: pointer;
+      border-radius: 8px;
+      margin: 1.5rem auto 0.1rem;
+      max-width: 100%;
+    }
+    .post :global(.prose .lightbox-zoom-wrap img) {
+      transition: filter 0.15s;
+      margin: 0;
+      display: block;
+    }
+    .post :global(.prose .lightbox-zoom-wrap:hover img),
+    .post :global(.prose .lightbox-zoom-wrap:focus-visible img) {
+      filter: brightness(0.93);
+    }
+    .post :global(.prose .lightbox-zoom-wrap:focus-visible) {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+  </style>
+
+  <style is:global>
+    .lightbox {
+      position: fixed; inset: 0; z-index: 999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 0.9rem; padding: 2.5rem 1.25rem;
+      background: rgba(43, 36, 29, 0.92);
+      cursor: zoom-out;
+    }
+    .lightbox[hidden] { display: none; }
+    .lightbox-img {
+      max-width: 100%; max-height: 80vh;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+      cursor: default;
+    }
+    .lightbox-caption {
+      margin: 0; max-width: 640px;
+      color: #f4ece0; font-size: 0.92rem; line-height: 1.6;
+      text-align: center; cursor: default;
+    }
+    .lightbox-caption[hidden] { display: none; }
+    .lightbox-close {
+      position: absolute; top: 1.1rem; right: 1.25rem;
+      width: 40px; height: 40px;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.1); border: none; border-radius: 999px;
+      color: #fff; font-size: 1.1rem; line-height: 1; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .lightbox-close:hover { background: rgba(255,255,255,0.22); }
+    .lightbox-close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+    @media (max-width: 640px) {
+      .lightbox { padding: 1.5rem 1rem; }
+      .lightbox-img { max-height: 72vh; }
+      .lightbox-close { top: 0.7rem; right: 0.8rem; width: 36px; height: 36px; }
+    }
+  </style>
+</BaseLayout>

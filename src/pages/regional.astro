@@ -1,0 +1,65 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from '../components/PostCard.astro';
+import AdSenseList from '../components/AdSenseList.astro';
+
+// ⚠️ BaseLayout.astro의 ADSENSE_ENABLED와 함께 켜고 끄세요.
+const ADSENSE_ENABLED = false;
+
+// "지역특화" 태그가 붙은 글만 모아 보여주는 페이지.
+// 카테고리(대상자)와 별개로, 거주지 기준 혜택을 한 곳에서 찾을 수 있게 하는 전용 메뉴.
+const posts = (await getCollection('blog'))
+  .filter((p) => (p.data.contentTags || []).includes('regional'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<BaseLayout
+  title="지역별 혜택 — 혜택픽"
+  description="지자체별로 다른 지역 특화 지원금만 모았어요. 거주지 기준으로 놓치기 쉬운 혜택을 확인하세요."
+  showAds={true}
+>
+  <section class="cat-list" style="padding-top: 1.2rem;">
+    <h1 style="font-size: 2rem; margin: 0 0 0.6rem;">📍 지역별 혜택</h1>
+    <p style="font-size: 0.98rem; color: var(--muted); line-height: 1.7; margin: 0 0 1.8rem;">
+      지자체별로 다른 지역 특화 지원금만 모았어요. 거주지 기준으로 확인해보세요.
+    </p>
+    {posts.length === 0 && (
+      <p style="color: var(--muted); padding: 2rem 0;">아직 등록된 글이 없어요. 곧 채워질 예정이에요.</p>
+    )}
+    {posts.map((post, i) => (
+      <>
+        <PostCard
+          href={`/blog/${post.id.replace('.md', '')}`}
+          title={post.data.title}
+          description={post.data.description}
+          category={post.data.category}
+          pubDate={post.data.pubDate}
+        />
+        {(i + 1) % 4 === 0 && i !== posts.length - 1 && ADSENSE_ENABLED && <AdSenseList />}
+      </>
+    ))}
+  </section>
+
+  {ADSENSE_ENABLED && (
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', () => {
+      const slots = document.querySelectorAll('.cat-list .ad-slot');
+      slots.forEach((slot) => {
+        try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+        const ins = slot.querySelector('ins.adsbygoogle');
+        if (!ins) return;
+        let tries = 0;
+        const checker = setInterval(() => {
+          tries++;
+          const status = ins.getAttribute('data-ad-status');
+          const iframe = ins.querySelector('iframe');
+          if (status === 'unfilled') { slot.remove(); clearInterval(checker); }
+          else if (iframe && iframe.offsetHeight > 0) { clearInterval(checker); }
+          else if (tries >= 12) { slot.remove(); clearInterval(checker); }
+        }, 250);
+      });
+    });
+  </script>
+  )}
+</BaseLayout>

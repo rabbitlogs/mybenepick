@@ -1,0 +1,65 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from '../components/PostCard.astro';
+import AdSenseList from '../components/AdSenseList.astro';
+
+// ⚠️ BaseLayout.astro의 ADSENSE_ENABLED와 함께 켜고 끄세요.
+const ADSENSE_ENABLED = false;
+
+// "신설·변경" 태그가 붙은 글만 모아 보여주는 페이지.
+// 재방문자가 "뭐 새로 바뀐 거 없나" 확인하러 오는 패턴을 위한 전용 메뉴.
+const posts = (await getCollection('blog'))
+  .filter((p) => (p.data.contentTags || []).includes('new'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<BaseLayout
+  title="최신 업데이트 — 혜택픽"
+  description="새로 생기거나 바뀐 정부 지원금·제도만 모아봤어요. 시행일이 얼마 안 남은 것부터 확인하세요."
+  showAds={true}
+>
+  <section class="cat-list" style="padding-top: 1.2rem;">
+    <h1 style="font-size: 2rem; margin: 0 0 0.6rem;">🆕 최신 업데이트</h1>
+    <p style="font-size: 0.98rem; color: var(--muted); line-height: 1.7; margin: 0 0 1.8rem;">
+      새로 생기거나 바뀐 제도만 모았어요. 시행일이 임박한 순으로 확인해보세요.
+    </p>
+    {posts.length === 0 && (
+      <p style="color: var(--muted); padding: 2rem 0;">아직 등록된 글이 없어요. 곧 채워질 예정이에요.</p>
+    )}
+    {posts.map((post, i) => (
+      <>
+        <PostCard
+          href={`/blog/${post.id.replace('.md', '')}`}
+          title={post.data.title}
+          description={post.data.description}
+          category={post.data.category}
+          pubDate={post.data.pubDate}
+        />
+        {(i + 1) % 4 === 0 && i !== posts.length - 1 && ADSENSE_ENABLED && <AdSenseList />}
+      </>
+    ))}
+  </section>
+
+  {ADSENSE_ENABLED && (
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', () => {
+      const slots = document.querySelectorAll('.cat-list .ad-slot');
+      slots.forEach((slot) => {
+        try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+        const ins = slot.querySelector('ins.adsbygoogle');
+        if (!ins) return;
+        let tries = 0;
+        const checker = setInterval(() => {
+          tries++;
+          const status = ins.getAttribute('data-ad-status');
+          const iframe = ins.querySelector('iframe');
+          if (status === 'unfilled') { slot.remove(); clearInterval(checker); }
+          else if (iframe && iframe.offsetHeight > 0) { clearInterval(checker); }
+          else if (tries >= 12) { slot.remove(); clearInterval(checker); }
+        }, 250);
+      });
+    });
+  </script>
+  )}
+</BaseLayout>

@@ -1,0 +1,63 @@
+---
+// ─────────────────────────────────────────────
+//  애드센스 광고 한 칸 (사각형 반응형)
+//  ⚠️ TODO: rabbitlogs.com과 같은 애드센스 계정(AD_CLIENT)을 그대로 씁니다.
+//  단, 이 컴포넌트는 애드센스 사이트 승인 전까지 렌더링되지 않습니다
+//  (BaseLayout.astro / PostLayout.astro / category, new, regional 페이지의
+//  ADSENSE_ENABLED = false 스위치로 제어). 승인 완료 후:
+//    1. 애드센스 대시보드 > 사이트 추가 > mybenepick.com 등록
+//    2. 광고 단위 만들기에서 AD_SLOT 값 발급받아 아래에 교체
+//    3. ADSENSE_ENABLED를 true로 전부 변경
+// ─────────────────────────────────────────────
+const AD_CLIENT = 'ca-pub-9488002130804570';
+const AD_SLOT = 'REPLACE_WITH_NEW_AD_SLOT';
+---
+
+<div class="ad-slot" aria-label="광고">
+  <span class="ad-label">광고</span>
+  <ins
+    class="adsbygoogle"
+    style="display:block;"
+    data-ad-client={AD_CLIENT}
+    data-ad-slot={AD_SLOT}
+    data-ad-format="rectangle"
+    data-full-width-responsive="false"
+  ></ins>
+</div>
+
+<style>
+  .ad-slot {
+    margin: 2.5rem 0;
+    padding: 1.25rem;
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+    text-align: center;
+  }
+  .ad-label {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  .ad-slot .adsbygoogle {
+    display: block;
+    margin: 0 auto;
+    max-width: 336px;
+  }
+  .ad-slot .adsbygoogle iframe {
+    display: block;
+    margin: 0 auto;
+    max-width: 336px;
+  }
+  @media (max-width: 640px) {
+    .ad-slot .adsbygoogle,
+    .ad-slot .adsbygoogle iframe {
+      max-width: 300px;
+    }
+  }
+  .ad-slot:has(ins[data-ad-status="unfilled"]) {
+    display: none;
+  }
+</style>

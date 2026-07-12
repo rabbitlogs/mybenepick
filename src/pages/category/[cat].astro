@@ -1,0 +1,106 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import AdSenseList from '../../components/AdSenseList.astro';
+
+// ⚠️ BaseLayout.astro의 ADSENSE_ENABLED와 함께 켜고 끄세요.
+const ADSENSE_ENABLED = false;
+
+export async function getStaticPaths() {
+  return [
+    { params: { cat: 'self-employed' } },
+    { params: { cat: 'youth' } },
+    { params: { cat: 'parenting' } },
+    { params: { cat: 'common' } },
+  ];
+}
+
+const { cat } = Astro.params;
+const catName = {
+  'self-employed': '소상공인·자영업자',
+  youth: '청년',
+  parenting: '육아·출산',
+  common: '전국민·중장년',
+};
+const catDesc = {
+  'self-employed': [
+    '소상공인·자영업자를 위한 지원금과 제도를 모았어요.',
+    '창업, 운영, 노란우산공제 같은 실질적인 정보를 다룹니다.',
+  ],
+  youth: [
+    '청년을 위한 지원금과 제도를 모았어요.',
+    '전세자금대출, 청년내일저축계좌 같은 자격조건과 신청방법을 다룹니다.',
+  ],
+  parenting: [
+    '육아와 출산 관련 지원금과 제도를 모았어요.',
+    '한부모가족 지원, 아동수당, 부모급여 등을 정리합니다.',
+  ],
+  common: [
+    '소득이나 나이 상관없이 전국민이 대상인 지원금과, 중장년·은퇴 준비 관련 제도를 모았어요.',
+    '에너지 바우처, 재난지원금부터 국민연금까지 폭넓게 다룹니다.',
+  ],
+};
+
+const posts = (await getCollection('blog'))
+  .filter((p) => p.data.category === cat)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<BaseLayout title={`${catName[cat]} — 혜택픽`} description={catDesc[cat].join(' ')} showAds={true}>
+  <section class="cat-list" style="padding-top: 1.2rem;">
+    <h1 style="font-size: 2rem; margin: 0 0 0.6rem;">{catName[cat]}</h1>
+    <p style="font-size: 0.98rem; color: var(--muted); line-height: 1.7; margin: 0 0 1.8rem;">
+      {catDesc[cat].map((line, i) => (<>{i > 0 && <><br class="cat-desc-br" /> </>}{line}</>))}
+    </p>
+    <style>
+      @media (max-width: 640px) { .cat-desc-br { display: none; } }
+    </style>
+    {posts.length === 0 && (
+      <p style="color: var(--muted); padding: 2rem 0;">아직 등록된 글이 없어요. 곧 채워질 예정이에요.</p>
+    )}
+    {posts.map((post, i) => (
+      <>
+        <PostCard
+          href={`/blog/${post.id.replace('.md', '')}`}
+          title={post.data.title}
+          description={post.data.description}
+          category={post.data.category}
+          pubDate={post.data.pubDate}
+        />
+        {(i + 1) % 4 === 0 && i !== posts.length - 1 && ADSENSE_ENABLED && <AdSenseList />}
+      </>
+    ))}
+  </section>
+
+  {ADSENSE_ENABLED && (
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', () => {
+      const slots = document.querySelectorAll('.cat-list .ad-slot');
+      slots.forEach((slot) => {
+        try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+
+        const ins = slot.querySelector('ins.adsbygoogle');
+        if (!ins) return;
+
+        let tries = 0;
+        const checker = setInterval(() => {
+          tries++;
+          const status = ins.getAttribute('data-ad-status');
+          const iframe = ins.querySelector('iframe');
+
+          if (status === 'unfilled') {
+            slot.remove();
+            clearInterval(checker);
+          } else if (iframe && iframe.offsetHeight > 0) {
+            clearInterval(checker);
+          } else if (tries >= 12) {
+            slot.remove();
+            clearInterval(checker);
+          }
+        }, 250);
+      });
+    });
+  </script>
+  )}
+</BaseLayout>

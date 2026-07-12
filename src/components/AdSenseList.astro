@@ -1,0 +1,47 @@
+---
+// ─────────────────────────────────────────────
+//  애드센스 광고 한 칸 (목록 페이지 전용 — 인피드/Fluid)
+//  ⚠️ TODO: 이 컴포넌트도 애드센스 승인 전까지 렌더링되지 않습니다
+//  (각 페이지의 ADSENSE_ENABLED = false 스위치). 승인 후 "인피드 광고"
+//  단위를 새로 만들어 AD_SLOT, AD_LAYOUT_KEY를 교체하세요.
+// ─────────────────────────────────────────────
+const AD_CLIENT = 'ca-pub-9488002130804570';
+const AD_SLOT = 'REPLACE_WITH_NEW_AD_SLOT';
+const AD_LAYOUT_KEY = 'REPLACE_WITH_NEW_LAYOUT_KEY';
+---
+
+<div class="ad-slot" aria-label="광고">
+  <span class="ad-label">광고</span>
+  <ins
+    class="adsbygoogle"
+    style="display:block"
+    data-ad-format="fluid"
+    data-ad-layout-key={AD_LAYOUT_KEY}
+    data-ad-client={AD_CLIENT}
+    data-ad-slot={AD_SLOT}
+  ></ins>
+</div>
+
+<style>
+  .ad-slot {
+    margin: 1.5rem 0;
+    padding: 1rem 1.25rem;
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+    text-align: center;
+  }
+  .ad-label {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+  .ad-slot .adsbygoogle {
+    display: block;
+  }
+  .ad-slot:has(ins[data-ad-status="unfilled"]) {
+    display: none;
+  }
+</style>
