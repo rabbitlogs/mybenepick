@@ -49,6 +49,14 @@ const t = nav;
     {showAds && (
       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9488002130804570" crossorigin="anonymous"></script>
     )}
+    <!-- Google tag (gtag.js) -->
+    <script async is:inline src="https://www.googletagmanager.com/gtag/js?id=G-012T7Y74XY"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-012T7Y74XY');
+    </script>
     <!-- 페이지별 추가 head 태그(예: JSON-LD 구조화 데이터) -->
     <slot name="head" />
   </head>
