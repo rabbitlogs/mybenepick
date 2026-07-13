@@ -1,20 +1,28 @@
 ---
 import { getCollection } from 'astro:content';
 import PostLayout from '../../layouts/PostLayout.astro';
+import { getRelatedPosts } from '../../utils/related-posts.js';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
   return posts.map((post) => ({
     params: { slug: post.id.replace('.md', '') },
-    props: { post },
+    props: { post, allPosts: posts },
   }));
 }
 
-const { post } = Astro.props;
+const { post, allPosts } = Astro.props;
 const { Content } = await post.render();
 const slug = post.id.replace('.md', '');
+const relatedPosts = getRelatedPosts(post, allPosts, 3).map((p) => ({
+  href: `/blog/${p.id.replace('.md', '')}`,
+  title: p.data.title,
+  description: p.data.description,
+  category: p.data.category,
+  pubDate: p.data.pubDate,
+}));
 ---
 
-<PostLayout {...post.data} slug={slug}>
+<PostLayout {...post.data} slug={slug} relatedPosts={relatedPosts}>
   <Content />
 </PostLayout>

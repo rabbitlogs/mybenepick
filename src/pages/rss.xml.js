@@ -9,8 +9,8 @@ export async function GET(context) {
   );
 
   return rss({
-    title: '혜택픽',
-    description: '놓치기 쉬운 정부 지원금과 혜택, 대신 찾아드려요.',
+    title: '혜택 PICK!!',
+    description: '나에게 맞는 정부 지원금과 혜택만, PICK해서 알려드려요.',
     site: context.site,
     items: posts.map((post) => ({
       title: post.data.title,

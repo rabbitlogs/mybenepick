@@ -5,14 +5,19 @@ import Search from '../components/Search.astro';
 // (승인 심사 중에는 광고 스크립트/슬롯이 페이지에 노출되지 않는 게 안전합니다.)
 const ADSENSE_ENABLED = false;
 
-const { title, description, showAds: showAdsProp = false } = Astro.props;
+const { title, description, showAds: showAdsProp = false, image } = Astro.props;
 const showAds = ADSENSE_ENABLED && showAdsProp;
+const ogImageUrl = image || 'https://mybenepick.com/og-thumbnail.jpg';
+const canonicalUrl = new URL(Astro.url.pathname, 'https://mybenepick.com').toString();
 
 const nav = {
   selfEmployed: '소상공인', selfEmployedShort: '소상공인',
+  jobStartup: '취업·창업', jobStartupShort: '취업창업',
   youth: '청년', youthShort: '청년',
   parenting: '육아·출산', parentingShort: '육아출산',
-  common: '전국민·중장년', commonShort: '전국민',
+  housing: '주거', housingShort: '주거',
+  senior: '중장년·시니어', seniorShort: '중장년',
+  common: '전국민 공통', commonShort: '전국민',
   about: '소개 & 문의', privacy: '개인정보처리방침', terms: '이용약관',
 };
 const t = nav;
@@ -23,18 +28,20 @@ const t = nav;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#faf8f3" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="naver-site-verification" content="9ab1a54b5ceb93634d63a86cd8091fb3f8cd045d" />
+    <link rel="canonical" href={canonicalUrl} />
     <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="alternate" type="application/rss+xml" title="혜택픽 RSS" href="/rss.xml" />
+    <link rel="alternate" type="application/rss+xml" title="혜택 PICK!! RSS" href="/rss.xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content="https://mybenepick.com/og-thumbnail.jpg" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImageUrl} />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="https://mybenepick.com/og-thumbnail.jpg" />
+    <meta name="twitter:image" content={ogImageUrl} />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <!-- 다이나믹 서브셋: 페이지에 실제 쓰인 글자만 받아온다 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css" media="print" onload="this.media='all'" />
@@ -48,8 +55,15 @@ const t = nav;
   <body>
     <header class="site-header">
       <div class="wrap header-inner">
-        <a href="/" class="brand"><img src="/squirrel-logo.png" alt="" class="brand-logo" width="44" height="44" /><span class="brand-name">혜택픽</span></a>
+        <a href="/" class="brand"><img src="/squirrel-logo.png" alt="" class="brand-logo" width="44" height="44" /><span class="brand-name">혜택 PICK!!</span></a>
         <div class="header-actions">
+          <a href="/find" class="find-btn" aria-label="나에게 맞는 혜택 찾기">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"></circle>
+              <circle cx="12" cy="12" r="5"></circle>
+              <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"></circle>
+            </svg>
+          </a>
           <Search lang="ko" />
           <a href="/rss.xml" class="rss-btn" aria-label="RSS 피드">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -61,11 +75,14 @@ const t = nav;
         </div>
         <nav class="nav">
           <a href="/category/self-employed"><span class="lbl-full">{t.selfEmployed}</span><span class="lbl-short">{t.selfEmployedShort}</span></a>
+          <a href="/category/job-startup"><span class="lbl-full">{t.jobStartup}</span><span class="lbl-short">{t.jobStartupShort}</span></a>
           <a href="/category/youth"><span class="lbl-full">{t.youth}</span><span class="lbl-short">{t.youthShort}</span></a>
           <a href="/category/parenting"><span class="lbl-full">{t.parenting}</span><span class="lbl-short">{t.parentingShort}</span></a>
+          <a href="/category/housing"><span class="lbl-full">{t.housing}</span><span class="lbl-short">{t.housingShort}</span></a>
+          <a href="/category/senior"><span class="lbl-full">{t.senior}</span><span class="lbl-short">{t.seniorShort}</span></a>
           <a href="/category/common"><span class="lbl-full">{t.common}</span><span class="lbl-short">{t.commonShort}</span></a>
-          <a href="/regional"><span class="lbl-full">📍 지역별</span><span class="lbl-short">📍 지역별</span></a>
-          <a href="/new" class="nav-new"><span class="lbl-full">🆕 최신 업데이트</span><span class="lbl-short">🆕 신규</span></a>
+          <a href="/regional"><span class="lbl-full">지역별</span><span class="lbl-short">지역별</span></a>
+          <a href="/about"><span class="lbl-full">{t.about}</span><span class="lbl-short">소개문의</span></a>
         </nav>
       </div>
     </header>
@@ -78,13 +95,13 @@ const t = nav;
         <a href="/privacy">{t.privacy}</a>
         <a href="/terms">{t.terms}</a>
       </nav>
-      <p>놓치기 쉬운 혜택, 대신 찾아드려요 · © 2026 혜택픽</p>
+      <p>나에게 맞는 혜택만, PICK해서 알려드려요 · © 2026 혜택 PICK!!</p>
     </div></footer>
 
     <style is:global>
       :root {
-        --paper: #faf6ee; --ink: #2b241d; --primary: #c9663f; --accent: #93642c;
-        --muted: #7a7062; --line: #e8dfd0; --color-bg-soft: #f4ece0;
+        --paper: #faf8f3; --ink: #20251f; --primary: #8a5a3f; --accent: #6b5133;
+        --muted: #696760; --line: #e3dfd4; --color-bg-soft: #f3f0e8;
         --font-body: 'Pretendard', -apple-system, system-ui, sans-serif;
         --font-display: 'Pretendard', -apple-system, system-ui, sans-serif;
       }
@@ -99,6 +116,7 @@ const t = nav;
       .brand-logo { height: 40px; width: auto; display: block; border-radius: 50%; }
       .brand-name { font-family: var(--font-display); font-weight: 800; font-size: 1.35rem; letter-spacing: -0.02em; color: var(--primary); }
       .header-actions { display: flex; align-items: center; gap: 0.5rem; order: 2; }
+      .find-btn,
       .rss-btn {
         display: inline-flex; align-items: center; justify-content: center;
         width: 36px; height: 36px; padding: 0;
@@ -106,25 +124,27 @@ const t = nav;
         color: var(--primary); border-radius: 999px;
         transition: background 0.15s;
       }
-      .rss-btn:hover { background: rgba(201,102,63,0.1); }
+      .find-btn:hover,
+      .rss-btn:hover { background: rgba(138, 90, 63,0.1); }
 
       .nav {
         order: 3; flex: 1 0 100%;
-        display: flex; gap: 1.1rem; align-items: center;
-        justify-content: flex-end;
-        padding-top: 0.3rem;
+        display: flex; align-items: center;
+        justify-content: space-between;
+        padding-top: 0.5rem;
+        border-top: 1px solid var(--line);
+        margin-top: 0.5rem;
       }
-      .nav a { text-decoration: none; color: var(--muted); font-size: 0.9rem; font-weight: 500; white-space: nowrap; }
+      .nav a { text-decoration: none; color: var(--muted); font-size: 0.86rem; font-weight: 500; white-space: nowrap; }
       .nav a:hover { color: var(--primary); }
-      .nav a.nav-new { color: var(--primary); font-weight: 700; }
       .lbl-short { display: none; }
 
       @media (max-width: 640px) {
         .header-inner { gap: 0.6rem 0.5rem; }
         .brand { margin-left: 0.5rem; }
         .header-actions { margin-right: 0.5rem; }
-        .nav { justify-content: space-between; gap: 0.3rem 0.2rem; flex-wrap: wrap; }
-        .nav a { font-size: 0.76rem; flex: 1 1 30%; text-align: center; }
+        .nav { justify-content: space-between; gap: 0.45rem 0.2rem; flex-wrap: wrap; }
+        .nav a { font-size: 0.74rem; flex: 1 1 30%; text-align: center; }
         .lbl-full { display: none; }
         .lbl-short { display: inline; }
       }
@@ -185,8 +205,8 @@ const t = nav;
       .prose tbody tr { border-bottom: 1px solid #ddd2bd; }
       .prose thead th { background: var(--primary); color: #fff; font-weight: 700; }
       .prose thead tr th:not(:first-child) { border-left: 1px solid rgba(255,255,255,0.4); }
-      .prose tbody tr:nth-child(even) { background: rgba(201, 102, 63, 0.04); }
-      .prose tbody tr:hover { background: rgba(147, 100, 44, 0.08); }
+      .prose tbody tr:nth-child(even) { background: rgba(138, 90, 63, 0.04); }
+      .prose tbody tr:hover { background: rgba(107, 81, 51, 0.08); }
 
       @media (max-width: 640px) { body { font-size: 16px; } .prose { font-size: 16px; } }
     </style>

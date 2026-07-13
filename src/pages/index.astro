@@ -9,14 +9,15 @@ const posts = (await getCollection('blog'))
 ---
 
 <BaseLayout
-  title="혜택픽 — 놓치기 쉬운 정부 지원금, 대신 찾아드려요"
+  title="혜택 PICK!! — 놓치기 쉬운 정부 지원금, 대신 찾아드려요"
   description="새로 생기거나 바뀐 정부 지원금·제도를 대상자별로 정리해드려요. 신청 조건, 방법, 놓치기 쉬운 디테일까지 한 번에 확인하세요."
 >
   <section class="hero">
-    <div class="hero-img"><img src="/images/hero-squirrel.png" alt="도토리를 든 혜택픽 다람쥐 캐릭터" width="180" height="180" fetchpriority="high" /></div>
+    <div class="hero-img"><img src="/images/hero-squirrel.png" alt="도토리를 든 혜택 PICK!! 다람쥐 캐릭터" width="190" height="190" fetchpriority="high" /></div>
     <div class="hero-text">
-      <h1>놓치기 쉬운 혜택,<br />대신 찾아드려요.</h1>
+      <h1>나에게 맞는 혜택만,<br />PICK해서 알려드려요.</h1>
       <p class="hero-sub">새로 생기거나 바뀐 정부 지원금,<br class="mobile-br" /> 대상자별로 정리해드려요.</p>
+      <a href="/find" class="hero-cta">나이·직업 선택하고 맞는 글 찾기 →</a>
     </div>
   </section>
 
@@ -35,17 +36,24 @@ const posts = (await getCollection('blog'))
 
   <style>
     .hero { display: flex; align-items: center; gap: 2.5rem; padding: 3rem 0 2.5rem; }
-    .hero-img { flex: 0 0 160px; }
+    .hero-img { flex: 0 0 190px; }
     .hero-img img { width: 100%; height: auto; display: block; }
     .hero-text { flex: 1; }
     .hero h1 { font-family: var(--font-display); font-weight: 800; font-size: 2rem; line-height: 1.35; letter-spacing: -0.02em; margin: 0 0 1rem; color: var(--ink); }
-    .hero-sub { font-size: 1.1rem; color: var(--muted); margin: 0; }
+    .hero-sub { font-size: 1.1rem; color: var(--muted); margin: 0 0 1.4rem; }
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.95rem; font-weight: 700; color: #fff;
+      background: var(--primary); padding: 0.7rem 1.3rem; border-radius: 999px;
+      text-decoration: none; transition: opacity 0.15s;
+    }
+    .hero-cta:hover { opacity: 0.88; }
     .mobile-br { display: none; }
     .section-title { font-weight: 800; font-size: 1.1rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem; display: inline-block; }
 
     @media (max-width: 640px) {
       .hero { flex-direction: column; text-align: center; gap: 1.2rem; padding: 2rem 0 1.5rem; }
-      .hero-img { flex: none; width: 150px; }
+      .hero-img { flex: none; width: 180px; }
       .hero h1 { font-size: 1.7rem; }
       .mobile-br { display: inline; }
     }

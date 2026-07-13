@@ -132,7 +132,7 @@ const t = txt[lang];
     color: var(--primary); border-radius: 999px;
     transition: background 0.15s;
   }
-  .search-btn:hover { background: rgba(44,95,87,0.08); }
+  .search-btn:hover { background: rgba(138, 90, 63,0.08); }
 
   /* 기본은 숨김. .is-open 일 때만 표시. (hidden 속성 대신 클래스로 확실히 제어) */
   .search-modal {
@@ -146,7 +146,7 @@ const t = txt[lang];
 
   .search-box {
     width: 100%; max-width: 600px; height: fit-content;
-    background: var(--color-bg, #faf8f3); border-radius: 14px;
+    background: var(--paper, #faf6ee); border-radius: 14px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.25); overflow: hidden;
   }
   .search-input-row {
@@ -173,7 +173,7 @@ const t = txt[lang];
     display: block; padding: 0.7rem 0.6rem; border-radius: 8px;
     text-decoration: none; color: inherit; transition: background 0.12s;
   }
-  :global(.search-result:hover) { background: rgba(44,95,87,0.07); }
+  :global(.search-result:hover) { background: rgba(138, 90, 63,0.07); }
   :global(.search-result-title) {
     display: block; font-weight: 700; font-size: 0.98rem; color: var(--ink);
     margin-bottom: 0.2rem;
@@ -182,7 +182,7 @@ const t = txt[lang];
     display: block; font-size: 0.85rem; color: var(--muted); line-height: 1.5;
   }
   :global(.search-result-excerpt mark) {
-    background: rgba(217,148,65,0.35); color: inherit; border-radius: 2px;
+    background: rgba(212, 168, 122,0.35); color: inherit; border-radius: 2px;
     padding: 0 0.1em; font-weight: 600;
   }
 </style>

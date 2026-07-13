@@ -1,10 +1,9 @@
 ---
+import { CATEGORY_NAMES } from '../data/categories.js';
+
 const { href, title, description, category, pubDate } = Astro.props;
 
-const catName = {
-  'self-employed': '소상공인', youth: '청년', parenting: '육아·출산',
-  common: '전국민·중장년',
-};
+const catName = CATEGORY_NAMES;
 const dateStr = new Date(pubDate).toLocaleDateString('ko-KR', {
   year: 'numeric', month: 'short', day: 'numeric',
 });

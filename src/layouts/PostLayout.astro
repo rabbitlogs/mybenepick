@@ -1,26 +1,29 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import AdSense from '../components/AdSense.astro';
+import PostCard from '../components/PostCard.astro';
+import { CATEGORY_NAMES } from '../data/categories.js';
 
 // ⚠️ BaseLayout.astro의 ADSENSE_ENABLED와 함께 켜고 끄세요.
 // false인 동안은 광고 슬롯 마크업 자체를 본문에 넣지 않습니다(빈 <ins> 태그 노출 방지).
 const ADSENSE_ENABLED = false;
 
-const { title, description, pubDate, category, tags = [], slug, thumbnail } = Astro.props;
+const { title, description, pubDate, updatedDate, category, tags = [], slug, thumbnail, relatedPosts = [] } = Astro.props;
 
-const catName = {
-  'self-employed': '소상공인', youth: '청년', parenting: '육아·출산',
-  common: '전국민·중장년',
-};
+const catName = CATEGORY_NAMES;
 const dateStr = new Date(pubDate).toLocaleDateString('ko-KR', {
   year: 'numeric', month: 'long', day: 'numeric',
 });
+const updatedDateStr = updatedDate
+  ? new Date(updatedDate).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
+  : null;
 
 // JSON-LD (Article 구조화 데이터)
 const siteUrl = 'https://mybenepick.com';
 const pageUrl = siteUrl + '/blog/' + slug;
 const ogImage = thumbnail ? siteUrl + thumbnail : siteUrl + '/og-thumbnail.jpg';
 const isoDate = new Date(pubDate).toISOString();
+const isoModifiedDate = updatedDate ? new Date(updatedDate).toISOString() : isoDate;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -29,15 +32,15 @@ const jsonLd = {
   description: description,
   image: ogImage,
   datePublished: isoDate,
-  dateModified: isoDate,
+  dateModified: isoModifiedDate,
   author: {
     '@type': 'Organization',
-    name: '혜택픽',
+    name: '혜택 PICK!!',
     url: siteUrl,
   },
   publisher: {
     '@type': 'Organization',
-    name: '혜택픽',
+    name: '혜택 PICK!!',
     logo: {
       '@type': 'ImageObject',
       url: siteUrl + '/squirrel-logo.png',
@@ -50,12 +53,13 @@ const jsonLd = {
 };
 ---
 
-<BaseLayout title={title} description={description} showAds={true}>
+<BaseLayout title={title} description={description} showAds={true} image={ogImage}>
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   <article class="post">
     <div class="post-meta">
       <span class="cat">{catName[category]}</span>
       <span class="date">{dateStr}</span>
+      {updatedDateStr && <span class="updated">· {updatedDateStr} 수정</span>}
     </div>
     <h1>{title}</h1>
     <p class="subtitle">{description}</p>
@@ -70,6 +74,23 @@ const jsonLd = {
           <span class="tag">#{tag}</span>
         ))}
       </div>
+    )}
+
+    {relatedPosts && relatedPosts.length > 0 && (
+      <section class="related-posts">
+        <h2 class="related-title">같이 읽으면 좋은 글</h2>
+        <div class="related-list">
+          {relatedPosts.map((rp) => (
+            <PostCard
+              href={rp.href}
+              title={rp.title}
+              description={rp.description}
+              category={rp.category}
+              pubDate={rp.pubDate}
+            />
+          ))}
+        </div>
+      </section>
     )}
 
     <script is:inline>
@@ -261,15 +282,24 @@ const jsonLd = {
     .post-meta { display: flex; gap: 0.75rem; align-items: center; font-size: 0.85rem; margin-bottom: 1rem; }
     .cat { color: var(--accent); font-weight: 700; }
     .date { color: var(--muted); }
+    .updated { color: var(--muted); }
     .post h1 {
       font-size: 2rem; font-weight: 800; line-height: 1.3; margin: 0 0 0.6rem;
       letter-spacing: -0.03em;
     }
     .post-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 2rem 0 0.5rem; }
     .post-tags .tag {
-      font-size: 0.85rem; color: var(--primary); background: rgba(201,102,63,0.08);
-      border: 1px solid rgba(201,102,63,0.18); border-radius: 999px; padding: 0.25rem 0.75rem;
+      font-size: 0.85rem; color: var(--primary); background: rgba(138, 90, 63,0.08);
+      border: 1px solid rgba(138, 90, 63,0.18); border-radius: 999px; padding: 0.25rem 0.75rem;
     }
+    .related-posts { margin-top: 2.8rem; padding-top: 1.8rem; border-top: 1px solid var(--line); }
+    .related-title {
+      font-weight: 800; font-size: 1.1rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem;
+      display: inline-block; margin: 0 0 0.5rem;
+    }
+    .related-list :global(.card) { padding: 1.3rem 0; }
     .subtitle {
       font-size: 1.05rem; color: var(--muted); line-height: 1.6;
       margin: 0 0 1.8rem; font-weight: 400;

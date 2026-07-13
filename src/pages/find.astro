@@ -1,0 +1,242 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { CATEGORY_NAMES } from '../data/categories.js';
+
+// "나에게 맞는 혜택 찾기" — 나이대·직업상태·소득수준을 선택하면
+// eligibility 메타데이터가 일치하는 글만 클라이언트에서 필터링해 보여준다.
+// 정적 사이트라 서버 매칭 로직 없이, 전체 글의 매칭용 메타데이터를 JSON으로
+// 페이지에 심어두고 브라우저에서 필터링하는 방식으로 구현.
+
+const posts = (await getCollection('blog'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const catName = CATEGORY_NAMES;
+
+// 브라우저에서 필터링할 수 있도록 필요한 필드만 뽑아 JSON으로 직렬화
+const postData = posts.map((post) => {
+  const slug = post.id.replace('.md', '');
+  const elig = post.data.eligibility || {};
+  return {
+    href: `/blog/${slug}`,
+    title: post.data.title,
+    description: post.data.description,
+    category: post.data.category,
+    catLabel: catName[post.data.category],
+    pubDate: post.data.pubDate.toISOString(),
+    // 태깅 안 된 축은 "전체 해당"으로 간주 (아래 매칭 로직에서 빈 배열/undefined는 항상 통과)
+    ageRange: elig.ageRange || [],
+    incomeLevel: elig.incomeLevel || 'any',
+    employmentStatus: elig.employmentStatus || [],
+  };
+});
+---
+
+<BaseLayout
+  title="나에게 맞는 혜택 찾기 — 혜택 PICK!!"
+  description="나이대, 직업 상태, 소득 수준을 선택하면 나에게 맞는 정부 지원금 글만 골라 보여드려요."
+>
+  <section class="find-page">
+    <h1>나에게 맞는 혜택 찾기</h1>
+    <p class="find-sub">몇 가지만 선택하면, 조건에 맞는 글만 골라드려요.</p>
+
+    <form id="find-form" class="find-form">
+      <fieldset>
+        <legend>나이대</legend>
+        <div class="chip-group" data-group="age">
+          <button type="button" class="chip" data-value="10s" aria-pressed="false">10대</button>
+          <button type="button" class="chip" data-value="20s" aria-pressed="false">20대</button>
+          <button type="button" class="chip" data-value="30s" aria-pressed="false">30대</button>
+          <button type="button" class="chip" data-value="40s" aria-pressed="false">40대</button>
+          <button type="button" class="chip" data-value="50s" aria-pressed="false">50대</button>
+          <button type="button" class="chip" data-value="60plus" aria-pressed="false">60대 이상</button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>직업 상태</legend>
+        <div class="chip-group" data-group="employment">
+          <button type="button" class="chip" data-value="employed" aria-pressed="false">재직 중</button>
+          <button type="button" class="chip" data-value="self-employed" aria-pressed="false">소상공인·자영업</button>
+          <button type="button" class="chip" data-value="unemployed" aria-pressed="false">구직 중</button>
+          <button type="button" class="chip" data-value="student" aria-pressed="false">학생</button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>소득 수준</legend>
+        <div class="chip-group" data-group="income" data-single="true">
+          <button type="button" class="chip" data-value="any" aria-pressed="false">상관없이 보기</button>
+          <button type="button" class="chip" data-value="low" aria-pressed="false">저소득 (기초생활수급 등)</button>
+          <button type="button" class="chip" data-value="middle" aria-pressed="false">중위소득 이하</button>
+        </div>
+      </fieldset>
+
+      <button type="button" id="find-reset" class="find-reset">선택 초기화</button>
+    </form>
+
+    <div id="find-results" class="find-results">
+      <p class="find-count" id="find-count" aria-live="polite"></p>
+      <div id="find-list"></div>
+    </div>
+  </section>
+
+  <script type="application/json" id="find-data" set:html={JSON.stringify(postData)} />
+
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', () => {
+      const allPosts = JSON.parse(document.getElementById('find-data').textContent);
+      const form = document.getElementById('find-form');
+      const listEl = document.getElementById('find-list');
+      const countEl = document.getElementById('find-count');
+
+      const selected = { age: new Set(), employment: new Set(), income: new Set() };
+
+      function formatDate(iso) {
+        const d = new Date(iso);
+        return d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric' });
+      }
+
+      function matches(post) {
+        // 나이대: 선택한 게 없으면 전체 통과. 선택했으면 글의 ageRange와 교집합 있어야 함.
+        // 글 자체에 ageRange 태깅이 없으면(전체 해당) 항상 통과.
+        if (selected.age.size > 0 && post.ageRange.length > 0) {
+          const hit = post.ageRange.some((a) => selected.age.has(a));
+          if (!hit) return false;
+        }
+        // 직업 상태: 위와 동일한 방식. 글에 'any'가 포함되어 있으면 항상 통과.
+        if (selected.employment.size > 0 && post.employmentStatus.length > 0) {
+          if (!post.employmentStatus.includes('any')) {
+            const hit = post.employmentStatus.some((e) => selected.employment.has(e));
+            if (!hit) return false;
+          }
+        }
+        // 소득 수준: 단일 선택. '상관없이 보기'거나 미선택이면 필터링 안 함.
+        // - 저소득(low) 선택 시: incomeLevel이 'low' 또는 'any'인 글만 통과
+        // - 중위소득(middle) 선택 시: 'low'는 'middle'보다 엄격한 기준이라 해당자도 볼 수 있으니
+        //   'low' | 'middle' | 'any' 전부 통과시킴 (제외하지 않음)
+        if (selected.income.size > 0 && !selected.income.has('any')) {
+          const wanted = [...selected.income][0];
+          if (wanted === 'low' && post.incomeLevel !== 'low' && post.incomeLevel !== 'any') return false;
+          // wanted === 'middle'인 경우는 모든 incomeLevel 값이 통과 대상이라 별도 처리 불필요
+        }
+        return true;
+      }
+
+      function render() {
+        const anySelected = selected.age.size + selected.employment.size + selected.income.size > 0;
+        const filtered = anySelected ? allPosts.filter(matches) : allPosts;
+
+        countEl.textContent = anySelected
+          ? `조건에 맞는 글 ${filtered.length}개`
+          : `전체 글 ${allPosts.length}개 (조건을 선택하면 좁혀드려요)`;
+
+        if (filtered.length === 0) {
+          listEl.innerHTML = '<p class="find-empty">아직 조건에 딱 맞는 글이 없어요. 조건을 좀 더 넓혀보시겠어요?</p>';
+          return;
+        }
+
+        listEl.innerHTML = filtered.map((p) => `
+          <a href="${p.href}" class="find-card">
+            <div class="find-card-meta">
+              <span class="find-card-cat">${p.catLabel}</span>
+              <span class="find-card-date">${formatDate(p.pubDate)}</span>
+            </div>
+            <h3>${p.title}</h3>
+            <p>${p.description}</p>
+          </a>
+        `).join('');
+      }
+
+      function setChipActive(chip, isActive) {
+        chip.classList.toggle('active', isActive);
+        chip.setAttribute('aria-pressed', String(isActive));
+      }
+
+      form.querySelectorAll('.chip-group').forEach((group) => {
+        const groupName = group.dataset.group;
+        const isSingle = group.dataset.single === 'true';
+
+        group.querySelectorAll('.chip').forEach((chip) => {
+          chip.addEventListener('click', () => {
+            const value = chip.dataset.value;
+            if (isSingle) {
+              const wasActive = chip.classList.contains('active');
+              group.querySelectorAll('.chip').forEach((c) => setChipActive(c, false));
+              selected[groupName].clear();
+              if (!wasActive) {
+                setChipActive(chip, true);
+                selected[groupName].add(value);
+              }
+            } else {
+              const nowActive = !chip.classList.contains('active');
+              setChipActive(chip, nowActive);
+              if (nowActive) selected[groupName].add(value);
+              else selected[groupName].delete(value);
+            }
+            render();
+          });
+        });
+      });
+
+      document.getElementById('find-reset').addEventListener('click', () => {
+        form.querySelectorAll('.chip').forEach((c) => setChipActive(c, false));
+        selected.age.clear();
+        selected.employment.clear();
+        selected.income.clear();
+        render();
+      });
+
+      render();
+    });
+  </script>
+
+  <style>
+    .find-page { padding: 1.2rem 0 2rem; }
+    .find-page h1 { font-size: 1.8rem; font-weight: 800; margin: 0 0 0.4rem; letter-spacing: -0.02em; }
+    .find-sub { color: var(--muted); font-size: 0.98rem; margin: 0 0 1.8rem; }
+
+    .find-form fieldset {
+      border: none; padding: 0; margin: 0 0 1.4rem;
+    }
+    .find-form legend {
+      font-weight: 700; font-size: 0.92rem; color: var(--ink);
+      padding: 0; margin-bottom: 0.6rem;
+    }
+    .chip-group { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .chip {
+      font-family: var(--font-body); font-size: 0.88rem; font-weight: 500;
+      padding: 0.45rem 0.9rem; border-radius: 999px;
+      border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .chip:hover { border-color: var(--primary); }
+    .chip.active {
+      background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 700;
+    }
+
+    .find-reset {
+      font-family: var(--font-body); font-size: 0.85rem; color: var(--muted);
+      background: none; border: none; text-decoration: underline; cursor: pointer;
+      padding: 0; margin-top: 0.2rem;
+    }
+    .find-reset:hover { color: var(--primary); }
+
+    .find-results { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+    .find-count { font-size: 0.88rem; color: var(--muted); margin: 0 0 1rem; font-weight: 600; }
+    .find-empty { color: var(--muted); padding: 1.5rem 0; }
+
+    .find-card {
+      display: block; text-decoration: none; color: inherit;
+      padding: 1.4rem 0; border-bottom: 1px solid var(--line);
+      transition: transform 0.15s;
+    }
+    .find-card:hover { transform: translateX(4px); }
+    .find-card:hover h3 { color: var(--primary); }
+    .find-card-meta { display: flex; gap: 0.6rem; font-size: 0.8rem; margin-bottom: 0.4rem; }
+    .find-card-cat { color: var(--accent); font-weight: 600; }
+    .find-card-date { color: var(--muted); }
+    .find-card h3 { font-size: 1.25rem; margin: 0 0 0.3rem; transition: color 0.15s; }
+    .find-card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+  </style>
+</BaseLayout>
