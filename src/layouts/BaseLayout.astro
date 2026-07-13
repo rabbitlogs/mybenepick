@@ -11,11 +11,11 @@ const ogImageUrl = image || 'https://mybenepick.com/og-thumbnail.jpg';
 const canonicalUrl = new URL(Astro.url.pathname, 'https://mybenepick.com').toString();
 
 const nav = {
-  selfEmployed: '소상공인', selfEmployedShort: '소상공인',
-  jobStartup: '취업·창업', jobStartupShort: '취업창업',
   youth: '청년', youthShort: '청년',
+  jobStartup: '취업·창업', jobStartupShort: '취업창업',
   parenting: '육아·출산', parentingShort: '육아출산',
   housing: '주거', housingShort: '주거',
+  selfEmployed: '소상공인', selfEmployedShort: '소상공인',
   senior: '중장년·시니어', seniorShort: '중장년',
   common: '전국민 공통', commonShort: '전국민',
   about: '소개 & 문의', privacy: '개인정보처리방침', terms: '이용약관',
@@ -34,7 +34,7 @@ const t = nav;
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
     <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="alternate" type="application/rss+xml" title="혜택 PICK!! RSS" href="/rss.xml" />
+    <link rel="alternate" type="application/rss+xml" title="혜택PICK!! RSS" href="/rss.xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -64,7 +64,7 @@ const t = nav;
   <body>
     <header class="site-header">
       <div class="wrap header-inner">
-        <a href="/" class="brand"><img src="/squirrel-logo.png" alt="" class="brand-logo" width="44" height="44" /><span class="brand-name">혜택 PICK!!</span></a>
+        <a href="/" class="brand"><img src="/squirrel-logo.png" alt="" class="brand-logo" width="34" height="40" /><span class="brand-name">혜택PICK!!</span></a>
         <div class="header-actions">
           <a href="/find" class="find-btn" aria-label="나에게 맞는 혜택 찾기">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -83,11 +83,11 @@ const t = nav;
           </a>
         </div>
         <nav class="nav">
-          <a href="/category/self-employed"><span class="lbl-full">{t.selfEmployed}</span><span class="lbl-short">{t.selfEmployedShort}</span></a>
-          <a href="/category/job-startup"><span class="lbl-full">{t.jobStartup}</span><span class="lbl-short">{t.jobStartupShort}</span></a>
           <a href="/category/youth"><span class="lbl-full">{t.youth}</span><span class="lbl-short">{t.youthShort}</span></a>
+          <a href="/category/job-startup"><span class="lbl-full">{t.jobStartup}</span><span class="lbl-short">{t.jobStartupShort}</span></a>
           <a href="/category/parenting"><span class="lbl-full">{t.parenting}</span><span class="lbl-short">{t.parentingShort}</span></a>
           <a href="/category/housing"><span class="lbl-full">{t.housing}</span><span class="lbl-short">{t.housingShort}</span></a>
+          <a href="/category/self-employed"><span class="lbl-full">{t.selfEmployed}</span><span class="lbl-short">{t.selfEmployedShort}</span></a>
           <a href="/category/senior"><span class="lbl-full">{t.senior}</span><span class="lbl-short">{t.seniorShort}</span></a>
           <a href="/category/common"><span class="lbl-full">{t.common}</span><span class="lbl-short">{t.commonShort}</span></a>
           <a href="/regional"><span class="lbl-full">지역별</span><span class="lbl-short">지역별</span></a>
@@ -104,7 +104,7 @@ const t = nav;
         <a href="/privacy">{t.privacy}</a>
         <a href="/terms">{t.terms}</a>
       </nav>
-      <p>나에게 맞는 혜택만, PICK해서 알려드려요 · © 2026 혜택 PICK!!</p>
+      <p>나에게 맞는 혜택만, PICK해서 알려드려요 · © 2026 혜택PICK!!</p>
     </div></footer>
 
     <style is:global>
@@ -122,7 +122,7 @@ const t = nav;
       .site-header { border-bottom: 1px solid var(--line); }
       .header-inner { display: flex; align-items: center; gap: 1rem; padding: 1rem 0 0.4rem; flex-wrap: wrap; }
       .brand { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--ink); margin-right: auto; order: 1; }
-      .brand-logo { height: 40px; width: auto; display: block; border-radius: 50%; }
+      .brand-logo { height: 40px; width: auto; display: block; }
       .brand-name { font-family: var(--font-display); font-weight: 800; font-size: 1.35rem; letter-spacing: -0.02em; color: var(--primary); }
       .header-actions { display: flex; align-items: center; gap: 0.5rem; order: 2; }
       .find-btn,
@@ -141,7 +141,6 @@ const t = nav;
         display: flex; align-items: center;
         justify-content: space-between;
         padding-top: 0.5rem;
-        border-top: 1px solid var(--line);
         margin-top: 0.5rem;
       }
       .nav a { text-decoration: none; color: var(--muted); font-size: 0.86rem; font-weight: 500; white-space: nowrap; }
@@ -207,8 +206,9 @@ const t = nav;
       }
       .prose a { color: var(--primary); }
 
-      .prose table { width: 100%; border-collapse: collapse; margin: 1.5rem 0 0; font-size: 0.95rem; }
-      .prose th, .prose td { padding: 0.6rem 0.85rem; text-align: left; }
+      .prose table { width: 100%; border-collapse: collapse; margin: 1.5rem 0 0; font-size: 0.95rem; table-layout: fixed; }
+      .prose th:first-child, .prose td:first-child { width: 26%; }
+      .prose th, .prose td { padding: 0.6rem 0.85rem; text-align: left; word-break: keep-all; overflow-wrap: break-word; }
       .prose tr th:not(:first-child),
       .prose tr td:not(:first-child) { border-left: 1px solid #ddd2bd; }
       .prose tbody tr { border-bottom: 1px solid #ddd2bd; }
@@ -217,7 +217,12 @@ const t = nav;
       .prose tbody tr:nth-child(even) { background: rgba(138, 90, 63, 0.04); }
       .prose tbody tr:hover { background: rgba(107, 81, 51, 0.08); }
 
-      @media (max-width: 640px) { body { font-size: 16px; } .prose { font-size: 16px; } }
+      @media (max-width: 640px) {
+        body { font-size: 16px; }
+        .prose { font-size: 16px; }
+        .prose table { font-size: 0.85rem; }
+        .prose th, .prose td { padding: 0.5rem 0.5rem; }
+      }
     </style>
   </body>
 </html>
