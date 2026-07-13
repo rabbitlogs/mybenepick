@@ -9,7 +9,7 @@ export async function GET(context) {
   );
 
   return rss({
-    title: '혜택 PICK!!',
+    title: '혜택PICK!!',
     description: '나에게 맞는 정부 지원금과 혜택만, PICK해서 알려드려요.',
     site: context.site,
     items: posts.map((post) => ({

@@ -1,14 +1,14 @@
-# 혜택 PICK!!
+# 혜택PICK!!
 
-> 새로 생기거나 바뀐 한국 정부 지원금·복지 제도를 대상자·상황별로 정리하는 블로그. 소상공인·자영업, 취업·창업, 청년, 육아·출산, 주거, 중장년·시니어, 전국민 공통 카테고리로 나눠 신청 조건과 방법을 다룬다. 한국어 콘텐츠.
+> 새로 생기거나 바뀐 한국 정부 지원금·복지 제도를 대상자·상황별로 정리하는 블로그. 청년, 취업·창업, 육아·출산, 주거, 소상공인·자영업, 중장년·시니어, 전국민 공통 카테고리로 나눠 신청 조건과 방법을 다룬다. 한국어 콘텐츠.
 
 ## Categories
 
-- [소상공인·자영업](https://mybenepick.com/category/self-employed)
-- [취업·창업](https://mybenepick.com/category/job-startup)
 - [청년](https://mybenepick.com/category/youth)
+- [취업·창업](https://mybenepick.com/category/job-startup)
 - [육아·출산](https://mybenepick.com/category/parenting)
 - [주거](https://mybenepick.com/category/housing)
+- [소상공인·자영업](https://mybenepick.com/category/self-employed)
 - [중장년·시니어](https://mybenepick.com/category/senior)
 - [전국민 공통](https://mybenepick.com/category/common)
 - [지역별 혜택](https://mybenepick.com/regional)

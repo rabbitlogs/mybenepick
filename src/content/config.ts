@@ -11,7 +11,7 @@ const blog = defineCollection({
     // "최신 정보로 갱신됨"을 인지할 수 있다. 생략하면 pubDate와 동일하게 취급.
     updatedDate: z.coerce.date().optional(),
     // 대상자·상황 기준 1차 분류 (7개)
-    category: z.enum(['self-employed', 'job-startup', 'youth', 'parenting', 'housing', 'senior', 'common']),
+    category: z.enum(['youth', 'job-startup', 'parenting', 'housing', 'self-employed', 'senior', 'common']),
     // 콘텐츠 성격 태그 (복수 선택 가능 — 예: 신설·변경이면서 지역특화일 수 있음)
     contentTags: z.array(z.enum(['new', 'regional', 'deep-guide'])).optional(),
     // ── "나에게 맞는 혜택 찾기" 매칭용 메타데이터 ──

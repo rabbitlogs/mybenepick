@@ -10,11 +10,11 @@ const ADSENSE_ENABLED = false;
 
 export async function getStaticPaths() {
   return [
-    { params: { cat: 'self-employed' } },
-    { params: { cat: 'job-startup' } },
     { params: { cat: 'youth' } },
+    { params: { cat: 'job-startup' } },
     { params: { cat: 'parenting' } },
     { params: { cat: 'housing' } },
+    { params: { cat: 'self-employed' } },
     { params: { cat: 'senior' } },
     { params: { cat: 'common' } },
   ];
@@ -23,17 +23,13 @@ export async function getStaticPaths() {
 const { cat } = Astro.params;
 const catName = CATEGORY_NAMES_LONG;
 const catDesc = {
-  'self-employed': [
-    '소상공인·자영업자를 위한 지원금과 제도를 모았어요.',
-    '창업 초기 운영자금, 노란우산공제 같은 실질적인 정보를 다룹니다.',
+  youth: [
+    '청년을 위한 지원금과 제도를 모았어요.',
+    '청년내일저축계좌 같은 자산형성, 자격조건과 신청방법을 다룹니다.',
   ],
   'job-startup': [
     '구직, 취업, 창업 준비 관련 지원금과 제도를 모았어요.',
     '국민취업지원제도, 청년·중장년 창업지원금 같은 정보를 다룹니다.',
-  ],
-  youth: [
-    '청년을 위한 지원금과 제도를 모았어요.',
-    '청년내일저축계좌 같은 자산형성, 자격조건과 신청방법을 다룹니다.',
   ],
   parenting: [
     '육아와 출산 관련 지원금과 제도를 모았어요.',
@@ -42,6 +38,10 @@ const catDesc = {
   housing: [
     '전세·월세, 내 집 마련 관련 지원금과 제도를 모았어요.',
     '전세자금대출, 주거급여, LH 임대주택 같은 정보를 다룹니다.',
+  ],
+  'self-employed': [
+    '소상공인·자영업자를 위한 지원금과 제도를 모았어요.',
+    '창업 초기 운영자금, 노란우산공제 같은 실질적인 정보를 다룹니다.',
   ],
   senior: [
     '중장년과 시니어를 위한 지원금과 제도를 모았어요.',
@@ -58,7 +58,7 @@ const posts = (await getCollection('blog'))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
 
-<BaseLayout title={`${catName[cat]} — 혜택 PICK!!`} description={catDesc[cat].join(' ')} showAds={true}>
+<BaseLayout title={`${catName[cat]} — 혜택PICK!!`} description={catDesc[cat].join(' ')} showAds={true}>
   <section class="cat-list" style="padding-top: 1.2rem;">
     <h1 style="font-size: 2rem; margin: 0 0 0.6rem;">{catName[cat]}</h1>
     <p style="font-size: 0.98rem; color: var(--muted); line-height: 1.7; margin: 0 0 1.8rem;">
