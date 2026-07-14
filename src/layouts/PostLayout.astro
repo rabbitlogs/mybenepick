@@ -51,10 +51,38 @@ const jsonLd = {
     '@id': pageUrl,
   },
 };
+
+// FAQPage JSON-LD: 본문 마크다운 원문에서 "Q. ~" / "A. ~" 쌍을 추출한다.
+// 마크다운 작성 규칙(글쓰기가이드 3장): **Q. 질문** 다음 줄에 A. 답변.
+// 페이지(예: src/pages/blog/[slug].astro)에서 콘텐츠 컬렉션 entry의 body 원문을
+// rawBody prop으로 함께 넘겨줘야 한다. 넘어오지 않으면 FAQ 스키마는 조용히 생략된다.
+const rawBody = Astro.props.rawBody || '';
+const faqPattern = /\*\*Q\.\s*([^\*]+?)\*\*\s*\n+A\.\s*([^\n]+)/g;
+const faqEntities = [];
+let faqMatch;
+while ((faqMatch = faqPattern.exec(rawBody)) !== null) {
+  faqEntities.push({
+    '@type': 'Question',
+    name: faqMatch[1].trim(),
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: faqMatch[2].trim(),
+    },
+  });
+}
+
+const faqJsonLd = faqEntities.length > 0 ? {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqEntities,
+} : null;
 ---
 
 <BaseLayout title={title} description={description} showAds={true} image={ogImage}>
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  {faqJsonLd && (
+    <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
+  )}
   <article class="post">
     <div class="post-meta">
       <span class="cat">{catName[category]}</span>

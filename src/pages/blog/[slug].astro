@@ -23,6 +23,6 @@ const relatedPosts = getRelatedPosts(post, allPosts, 3).map((p) => ({
 }));
 ---
 
-<PostLayout {...post.data} slug={slug} relatedPosts={relatedPosts}>
+<PostLayout {...post.data} slug={slug} relatedPosts={relatedPosts} rawBody={post.body}>
   <Content />
 </PostLayout>

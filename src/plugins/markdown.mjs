@@ -21,6 +21,58 @@ export function remarkHighlight() {
   };
 }
 
+// [[SUMMARY]] ... [[/SUMMARY]] 블록을 "한눈에 보기" 요약 박스로 변환한다.
+// 사용법 (빈 줄 없이 한 문단으로 붙여 쓴다):
+//   [[SUMMARY]]
+//   <strong class="key">대상</strong>: 한부모가구
+//   <strong class="key">금액</strong>: 월 20만원
+//   [[/SUMMARY]]
+// 마크다운 파서는 빈 줄이 없는 연속된 줄을 하나의 문단(paragraph) 노드로 합치고,
+// 그 안의 <strong class="key">...</strong>는 html 인라인 노드로, 나머지는 text 노드로 쪼갠다.
+// 따라서 문단을 블록 단위가 아니라 "줄바꿈 기준"으로 재조립해서 파싱한다.
+// (6장 frontmatter의 대상/금액/조건 섹션에서 사용 — 글쓰기가이드 2장·6장 참고)
+export function remarkSummaryBox() {
+  return (tree) => {
+    visit(tree, 'paragraph', (node, index, parent) => {
+      if (!parent) return;
+
+      // 문단 내 인라인 노드를 순서대로 이어붙인 뒤 줄바꿈으로 다시 분리한다.
+      const raw = node.children
+        .map((c) => {
+          if (c.type === 'html') return c.value;
+          if (c.type === 'text') return c.value;
+          if (c.type === 'break') return '\n';
+          return '';
+        })
+        .join('');
+
+      if (!raw.includes('[[SUMMARY]]') || !raw.includes('[[/SUMMARY]]')) return;
+
+      const lines = raw.split('\n').map((l) => l.trim()).filter(Boolean);
+      const startAt = lines.indexOf('[[SUMMARY]]');
+      const endAt = lines.indexOf('[[/SUMMARY]]');
+      if (startAt === -1 || endAt === -1 || endAt <= startAt) return;
+
+      const itemLines = lines.slice(startAt + 1, endAt);
+      const rows = [];
+
+      itemLines.forEach((line) => {
+        const match = line.match(/<strong class="key">([^<]+)<\/strong>\s*:\s*(.+)/);
+        if (match) {
+          rows.push(
+            `<div class="summary-row"><span class="summary-k">${match[1]}</span><span class="summary-v">${match[2].trim()}</span></div>`
+          );
+        }
+      });
+
+      if (rows.length === 0) return;
+
+      const boxHtml = `<div class="summary-box"><p class="summary-label">한눈에 보기</p>${rows.join('')}</div>`;
+      parent.children.splice(index, 1, { type: 'html', value: boxHtml });
+    });
+  };
+}
+
 // 헤딩에서 순수 텍스트만 추출
 function headingText(node) {
   let text = '';
