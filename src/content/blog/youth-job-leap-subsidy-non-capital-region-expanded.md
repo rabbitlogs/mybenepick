@@ -48,7 +48,7 @@ thumbnail: "/images/youth-job-leap-subsidy-non-capital-region-expanded-01.jpg"
 ## 신청 대상
 
 <strong class="key">기업</strong>: 비수도권 소재 5인 이상 우선지원대상기업, 또는 산업단지 입주 중견기업 (지식서비스업·문화콘텐츠업 등은 5인 미만도 가능)
-<strong class="key">청년</strong>: 채용일 기준 만 15~34세, 주 28시간 이상 근무, 월평균 급여 450만원 이하
+<strong class="key">청년</strong>: 채용일 기준 만 15-34세, 주 28시간 이상 근무, 월평균 급여 450만원 이하
 
 수도권형은 취업애로청년 요건(장기 미취업, 저소득 등)을 충족해야 하지만, 비수도권형은 별도의 취업애로 요건 없이 일반 청년 누구나 신청할 수 있어요. 조건이 상대적으로 수월한 편이에요.
 

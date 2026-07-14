@@ -27,7 +27,7 @@ thumbnail: "/images/small-business-stability-voucher-2026-01.jpg"
 
 ## 대상 / 금액 / 조건
 
-<strong class="key">지원 대상</strong>: 2025년 연 매출액 0원 초과~1억 400만원 미만인 소상공인
+<strong class="key">지원 대상</strong>: 2025년 연 매출액 0원 초과-1억 400만원 미만인 소상공인
 <strong class="key">개업 시기</strong>: 2025년 12월 31일 이전 개업, 신청일 현재 정상 영업 중
 <strong class="key">지원 금액</strong>: 1개사당 25만원(카드 포인트)
 
