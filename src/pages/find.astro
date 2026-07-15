@@ -12,6 +12,7 @@ const posts = (await getCollection('blog'))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
 const catName = CATEGORY_NAMES;
+const categoryEntries = Object.entries(CATEGORY_NAMES); // [[slug, label], ...] — chip 렌더링용
 
 // 브라우저에서 필터링할 수 있도록 필요한 필드만 뽑아 JSON으로 직렬화
 const postData = posts.map((post) => {
@@ -24,6 +25,7 @@ const postData = posts.map((post) => {
     category: post.data.category,
     catLabel: catName[post.data.category],
     pubDate: post.data.pubDate.toISOString(),
+    contentTags: post.data.contentTags || [],
     // 태깅 안 된 축은 "전체 해당"으로 간주 (아래 매칭 로직에서 빈 배열/undefined는 항상 통과)
     ageRange: elig.ageRange || [],
     incomeLevel: elig.incomeLevel || 'any',
@@ -41,6 +43,15 @@ const postData = posts.map((post) => {
     <p class="find-sub">몇 가지만 선택하면, 조건에 맞는 글만 골라드려요.</p>
 
     <form id="find-form" class="find-form">
+      <fieldset>
+        <legend>분야</legend>
+        <div class="chip-group" data-group="category">
+          {categoryEntries.map(([slug, label]) => (
+            <button type="button" class="chip" data-value={slug} aria-pressed="false">{label}</button>
+          ))}
+        </div>
+      </fieldset>
+
       <fieldset>
         <legend>나이대</legend>
         <div class="chip-group" data-group="age">
@@ -72,6 +83,14 @@ const postData = posts.map((post) => {
         </div>
       </fieldset>
 
+      <fieldset>
+        <legend>글 유형</legend>
+        <div class="chip-group" data-group="contentTag">
+          <button type="button" class="chip" data-value="new" aria-pressed="false">신설·변경된 제도만</button>
+          <button type="button" class="chip" data-value="regional" aria-pressed="false">지역 한정 지원금만</button>
+        </div>
+      </fieldset>
+
       <button type="button" id="find-reset" class="find-reset">선택 초기화</button>
     </form>
 
@@ -90,7 +109,7 @@ const postData = posts.map((post) => {
       const listEl = document.getElementById('find-list');
       const countEl = document.getElementById('find-count');
 
-      const selected = { age: new Set(), employment: new Set(), income: new Set() };
+      const selected = { category: new Set(), age: new Set(), employment: new Set(), income: new Set(), contentTag: new Set() };
 
       function formatDate(iso) {
         const d = new Date(iso);
@@ -98,6 +117,10 @@ const postData = posts.map((post) => {
       }
 
       function matches(post) {
+        // 분야(category): 다중 선택. 선택한 카테고리 중 하나라도 일치하면 통과.
+        if (selected.category.size > 0 && !selected.category.has(post.category)) {
+          return false;
+        }
         // 나이대: 선택한 게 없으면 전체 통과. 선택했으면 글의 ageRange와 교집합 있어야 함.
         // 글 자체에 ageRange 태깅이 없으면(전체 해당) 항상 통과.
         if (selected.age.size > 0 && post.ageRange.length > 0) {
@@ -120,11 +143,17 @@ const postData = posts.map((post) => {
           if (wanted === 'low' && post.incomeLevel !== 'low' && post.incomeLevel !== 'any') return false;
           // wanted === 'middle'인 경우는 모든 incomeLevel 값이 통과 대상이라 별도 처리 불필요
         }
+        // 글 유형(contentTags): 다중 선택. 선택한 태그를 글이 전부 갖고 있어야 함(AND).
+        // 예: '신설·변경'과 '지역 한정'을 둘 다 선택하면 두 태그를 모두 가진 글만 노출.
+        if (selected.contentTag.size > 0) {
+          const hit = [...selected.contentTag].every((t) => post.contentTags.includes(t));
+          if (!hit) return false;
+        }
         return true;
       }
 
       function render() {
-        const anySelected = selected.age.size + selected.employment.size + selected.income.size > 0;
+        const anySelected = selected.category.size + selected.age.size + selected.employment.size + selected.income.size + selected.contentTag.size > 0;
         const filtered = anySelected ? allPosts.filter(matches) : allPosts;
 
         countEl.textContent = anySelected
@@ -181,9 +210,11 @@ const postData = posts.map((post) => {
 
       document.getElementById('find-reset').addEventListener('click', () => {
         form.querySelectorAll('.chip').forEach((c) => setChipActive(c, false));
+        selected.category.clear();
         selected.age.clear();
         selected.employment.clear();
         selected.income.clear();
+        selected.contentTag.clear();
         render();
       });
 

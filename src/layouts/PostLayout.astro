@@ -1,7 +1,6 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import AdSense from '../components/AdSense.astro';
-import PostCard from '../components/PostCard.astro';
 import { CATEGORY_NAMES } from '../data/categories.js';
 
 // ⚠️ BaseLayout.astro의 ADSENSE_ENABLED와 함께 켜고 끄세요.
@@ -106,46 +105,27 @@ const faqJsonLd = faqEntities.length > 0 ? {
 
     {relatedPosts && relatedPosts.length > 0 && (
       <section class="related-posts">
-        <h2 class="related-title">같이 읽으면 좋은 글</h2>
-        <div class="related-list">
+        <h2 class="related-title">더 읽어보기</h2>
+        <ul class="related-list">
           {relatedPosts.map((rp) => (
-            <PostCard
-              href={rp.href}
-              title={rp.title}
-              description={rp.description}
-              category={rp.category}
-              pubDate={rp.pubDate}
-            />
+            <li><a href={rp.href}>{rp.title}</a></li>
           ))}
-        </div>
+        </ul>
       </section>
     )}
 
     <script is:inline>
       document.addEventListener('DOMContentLoaded', () => {
-        // 본문(.prose) 안의 "내부 링크"를 새 탭으로 열리게 한다.
+        // 본문(.prose) 안의 링크는 전부 새 탭으로 연다.
+        // (내부 추천글 링크는 이제 본문 밖 "더 읽어보기" 섹션에서 자동 생성되므로,
+        //  본문 안에는 외부 공식 출처 링크만 남는다.)
         const prose = document.querySelector('.prose');
         if (!prose) return;
-
-        const markers = Array.from(prose.querySelectorAll('strong')).filter(
-          (el) => el.textContent.trim() === '더 읽어보기'
-        );
-        let excludeFrom = null;
-        if (markers.length) {
-          excludeFrom = markers[0].closest('p') || markers[0];
-        }
-
-        const isExcluded = (a) => {
-          if (!excludeFrom) return false;
-          const pos = excludeFrom.compareDocumentPosition(a);
-          return !!(pos & Node.DOCUMENT_POSITION_FOLLOWING) || excludeFrom.contains(a);
-        };
 
         prose.querySelectorAll('a[href]').forEach((a) => {
           const href = a.getAttribute('href') || '';
           if (href.startsWith('#')) return;
           if (a.target === '_blank') return;
-          if (isExcluded(a)) return;
           a.setAttribute('target', '_blank');
           a.setAttribute('rel', 'noopener noreferrer');
         });
@@ -327,7 +307,18 @@ const faqJsonLd = faqEntities.length > 0 ? {
       border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem;
       display: inline-block; margin: 0 0 0.5rem;
     }
-    .related-list :global(.card) { padding: 1.3rem 0; }
+    .related-list {
+      list-style: none; margin: 0; padding: 0;
+      display: flex; flex-direction: column; gap: 0.6rem;
+    }
+    .related-list li { padding: 0.4rem 0; border-bottom: 1px solid var(--line); }
+    .related-list li:last-child { border-bottom: none; }
+    .related-list a {
+      color: var(--ink); font-weight: 600; text-decoration: none;
+      font-size: 0.98rem;
+    }
+    .related-list a:hover { color: var(--primary); text-decoration: underline; }
+    .related-list a::before { content: "→ "; color: var(--primary); }
     .subtitle {
       font-size: 1.05rem; color: var(--muted); line-height: 1.6;
       margin: 0 0 1.8rem; font-weight: 400;
