@@ -73,6 +73,58 @@ export function remarkSummaryBox() {
   };
 }
 
+// **Q. 질문** 다음 줄에 A. 답변이 이어지는 FAQ 문단에서
+// A 답변 부분만 <span class="faq-answer">로 감싸 hanging indent CSS를 걸 수 있게 한다.
+// 두 가지 원본 표기를 모두 지원한다:
+//   1) 하드 브레이크(줄 끝 `\`) — 파서가 [strong(Q), break, ...A인라인] 로 분리해줌
+//   2) 그냥 줄바꿈(백슬래시 없음) — 파서가 [strong(Q), text("\nA. ...")] 로 합쳐서 넣음
+// 두 경우 모두 최종적으로 <br />는 유지하고, A 텍스트만 span으로 감싼다.
+// (2장 9번 FAQ 규칙 참고)
+export function remarkFaq() {
+  return (tree) => {
+    visit(tree, 'paragraph', (node) => {
+      const children = node.children;
+      if (!children || children.length < 2) return;
+
+      // 1번째 자식: **Q. ...** (strong)
+      const first = children[0];
+      if (first.type !== 'strong') return;
+
+      const qText = first.children
+        .map((c) => (c.type === 'text' ? c.value : ''))
+        .join('');
+      if (!qText.trim().startsWith('Q.')) return;
+
+      const second = children[1];
+      let breakNode;
+      let rest;
+
+      if (second.type === 'break') {
+        // 케이스 1: 이미 break 노드로 분리돼 있음
+        breakNode = second;
+        rest = children.slice(2);
+      } else if (second.type === 'text' && second.value.startsWith('\n')) {
+        // 케이스 2: strong 바로 뒤 text 노드에 줄바꿈이 붙어 있음 → break를 직접 만들어 분리
+        breakNode = { type: 'break' };
+        const trimmedValue = second.value.replace(/^\n+/, '');
+        rest = [{ ...second, value: trimmedValue }, ...children.slice(2)];
+      } else {
+        return;
+      }
+
+      const firstRestText =
+        rest[0] && rest[0].type === 'text' ? rest[0].value : '';
+      if (!firstRestText.trimStart().startsWith('A.')) return;
+
+      // rest를 <span class="faq-answer"> 안에 넣기 위해 앞뒤로 html 래퍼 노드를 삽입한다.
+      // (인라인 서식이 섞여 있어도 그대로 span의 자식으로 유지된다.)
+      const spanOpen = { type: 'html', value: '<span class="faq-answer">' };
+      const spanClose = { type: 'html', value: '</span>' };
+      node.children = [first, breakNode, spanOpen, ...rest, spanClose];
+    });
+  };
+}
+
 // 헤딩에서 순수 텍스트만 추출
 function headingText(node) {
   let text = '';
