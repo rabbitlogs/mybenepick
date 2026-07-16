@@ -1,7 +1,7 @@
 ---
 title: "27년 만에 오른 국민연금, 더 내고 더 받아요"
 description: "2026년부터 국민연금 보험료율이 9%에서 매년 0.5%p씩 오르고, 소득대체율은 43%로 상향됐어요. 얼마나 더 내고 더 받는지 정리했어요."
-pubDate: "2026-07-26"
+pubDate: "2026-07-09"
 category: "senior"
 contentTags: ["new"]
 eligibility:

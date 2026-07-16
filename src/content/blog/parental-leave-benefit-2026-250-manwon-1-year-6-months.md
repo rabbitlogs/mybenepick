@@ -1,7 +1,7 @@
 ---
 title: "육아휴직 1년 6개월로, 급여도 첫 3개월 250만원"
 description: "2026년 육아휴직 대상 자녀가 만 12세로 확대되고 기간도 1년 6개월로 늘어나요. 급여는 첫 3개월 최대 250만원, 사후지급금은 이미 폐지됐어요."
-pubDate: "2026-07-22"
+pubDate: "2026-07-15"
 category: "parenting"
 contentTags: ["new"]
 eligibility:

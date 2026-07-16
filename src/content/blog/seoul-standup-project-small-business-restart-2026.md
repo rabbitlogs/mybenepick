@@ -1,7 +1,7 @@
 ---
 title: "폐업 경험 있어도 재도전, 서울 소상공인 최대 200만원"
 description: "서울형 다시서기 프로젝트 하반기 신청 시작. 재도전 자금 최대 200만원, 저금리 대출보증까지. 신청기간 7월 8일부터 10월 30일까지, 600명 조기마감 가능."
-pubDate: "2026-07-07"
+pubDate: "2026-07-01"
 category: "self-employed"
 contentTags: ["new", "regional"]
 eligibility:

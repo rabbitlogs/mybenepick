@@ -1,7 +1,7 @@
 ---
 title: "6년 만에 오른 실업급여, 1일 최대 68,100원"
 description: "2026년 실업급여(구직급여) 상한액이 6년 만에 인상됐어요. 1일 상한 68,100원, 하한 66,048원. 수급 조건과 신청 방법을 정리했어요."
-pubDate: "2026-07-19"
+pubDate: "2026-07-06"
 category: "job-startup"
 contentTags: ["new"]
 eligibility:

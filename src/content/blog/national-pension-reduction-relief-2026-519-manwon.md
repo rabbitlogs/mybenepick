@@ -1,7 +1,7 @@
 ---
 title: "일해도 안 깎여요, 노령연금 감액기준 519만원"
 description: "2026년 6월 17일부터 노령연금 감액 기준이 월 319만원에서 519만원으로 완화됐어요. 2025년에 깎였던 연금도 자동으로 돌려받아요."
-pubDate: "2026-07-27"
+pubDate: "2026-07-13"
 category: "senior"
 contentTags: ["new"]
 eligibility:

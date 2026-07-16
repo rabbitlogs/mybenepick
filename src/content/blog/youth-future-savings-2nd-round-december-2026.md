@@ -1,7 +1,7 @@
 ---
 title: "청년도약계좌 후속, 청년미래적금 12월 2차 모집"
 description: "청년미래적금 2차 가입기간이 2026년 12월 예정이에요. 월 최대 50만원 납입, 정부기여금 6-12%. 대상, 신청 시기, 청년도약계좌 갈아타기까지 정리했어요."
-pubDate: "2026-07-20"
+pubDate: "2026-07-11"
 category: "youth"
 contentTags: ["new"]
 eligibility:

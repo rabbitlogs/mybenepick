@@ -1,7 +1,7 @@
 ---
 title: "중장년 재취업, 동행인센티브로 최대 360만원"
 description: "제조업·운수창고업에 취업한 50-64세 중장년에게 최대 360만원을 주는 동행인센티브가 7월 1일부터 접수를 시작했어요. 선착순 1000명이에요."
-pubDate: "2026-07-14"
+pubDate: "2026-07-04"
 category: "senior"
 contentTags: ["new"]
 eligibility:

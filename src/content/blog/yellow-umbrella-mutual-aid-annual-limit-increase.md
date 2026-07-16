@@ -1,7 +1,7 @@
 ---
 title: "노란우산공제 납입한도, 연 1800만원으로 확대"
 description: "노란우산공제 납입한도가 분기 300만원에서 연 1800만원으로 늘었어요. 2026년 7월 1일 납입분부터 적용되는 변경 내용과 소득공제 한도를 정리했어요."
-pubDate: "2026-07-11"
+pubDate: "2026-07-05"
 category: "self-employed"
 contentTags: ["new"]
 eligibility:

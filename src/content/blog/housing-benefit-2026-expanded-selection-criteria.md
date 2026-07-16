@@ -1,7 +1,7 @@
 ---
 title: "중위소득 48% 이하면, 서울 1인 34만원 주거급여"
 description: "2026년 주거급여 선정 기준이 넓어졌어요. 기준 중위소득이 역대 최대 6.51% 인상되면서 대상자가 늘었고, 기준임대료도 함께 올랐어요."
-pubDate: "2026-07-24"
+pubDate: "2026-07-03"
 category: "housing"
 contentTags: ["new"]
 eligibility:

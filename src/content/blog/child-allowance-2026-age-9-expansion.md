@@ -1,7 +1,7 @@
 ---
 title: "8세에 끊겼던 아동수당, 9세까지 다시 받아요"
 description: "2026년 아동수당 지급 대상이 만 9세 미만으로 확대됐어요. 비수도권·인구감소지역은 최대 13만원까지, 소급 지급 대상도 확인하세요."
-pubDate: "2026-07-23"
+pubDate: "2026-07-07"
 category: "parenting"
 contentTags: ["new"]
 eligibility:

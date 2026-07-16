@@ -1,7 +1,7 @@
 ---
 title: "매출 1억400만원 미만이면 25만원, 경영안정 바우처"
 description: "2026년 소상공인 경영안정 바우처, 매출 1억400만원 미만 소상공인에게 25만원을 카드 포인트로 지급해요. 대상, 사용처, 신청 방법을 정리했어요."
-pubDate: "2026-07-16"
+pubDate: "2026-07-14"
 category: "self-employed"
 contentTags: ["new"]
 eligibility:

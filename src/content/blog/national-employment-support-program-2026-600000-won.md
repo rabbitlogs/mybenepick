@@ -1,7 +1,7 @@
 ---
 title: "국민취업지원제도, 월 60만원으로 오른 구직촉진수당"
 description: "2026년 국민취업지원제도 1유형 구직촉진수당이 월 50만원에서 60만원으로 올랐어요. 청년 특례 조건과 신청 방법을 정리했어요."
-pubDate: "2026-07-21"
+pubDate: "2026-07-02"
 category: "youth"
 contentTags: ["new"]
 eligibility:

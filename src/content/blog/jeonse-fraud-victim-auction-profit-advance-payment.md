@@ -1,7 +1,7 @@
 ---
 title: "전세사기 공동담보 피해, 7월부터 경매차익 먼저 받아요"
 description: "국토부, 공동담보 전세사기 피해주택도 경·공매 종료 즉시 경매차익 일부를 선지급하기로 했어요. 모든 물건 배당 끝날 때까지 안 기다려도 돼요."
-pubDate: "2026-07-09"
+pubDate: "2026-07-08"
 category: "housing"
 contentTags: ["new"]
 eligibility:
