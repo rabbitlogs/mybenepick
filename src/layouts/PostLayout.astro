@@ -7,7 +7,7 @@ import { CATEGORY_NAMES } from '../data/categories.js';
 // false인 동안은 광고 슬롯 마크업 자체를 본문에 넣지 않습니다(빈 <ins> 태그 노출 방지).
 const ADSENSE_ENABLED = false;
 
-const { title, description, pubDate, updatedDate, category, tags = [], slug, thumbnail, relatedPosts = [] } = Astro.props;
+const { title, description, pubDate, updatedDate, category, tags = [], slug, thumbnail, relatedPosts = [], deadline } = Astro.props;
 
 const catName = CATEGORY_NAMES;
 const dateStr = new Date(pubDate).toLocaleDateString('ko-KR', {
@@ -21,6 +21,17 @@ const updatedDateStr = updatedDate
 const rawBodyForReadTime = Astro.props.rawBody || '';
 const charCount = rawBodyForReadTime.replace(/\s/g, '').length;
 const readMinutes = Math.max(1, Math.round(charCount / 500));
+
+// 신청 마감 여부: deadline이 "ongoing"(상시)이 아니고 오늘 날짜가 그 날짜를 지났으면 마감.
+// 자정 기준으로 비교해 마감 당일까지는 배너가 안 뜨게 한다.
+const isExpired = (() => {
+  if (!deadline || deadline === 'ongoing') return false;
+  const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+  return startOfDay(new Date()) > startOfDay(deadline);
+})();
+const deadlineDateStr = deadline && deadline !== 'ongoing'
+  ? new Date(deadline).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
+  : null;
 
 // JSON-LD (Article 구조화 데이터)
 const siteUrl = 'https://mybenepick.com';
@@ -100,6 +111,18 @@ const faqJsonLd = faqEntities.length > 0 ? {
       </div>
       <h1>{title}</h1>
       <p class="subtitle">{description}</p>
+
+      {isExpired && (
+        <div class="deadline-banner" role="note">
+          <span class="deadline-banner-icon">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          </span>
+          <span class="deadline-banner-text">
+            <strong>이 신청 기간은 종료됐어요{deadlineDateStr && ` (${deadlineDateStr} 마감)`}.</strong>
+            다음 회차 일정은 공식 채널에서 다시 확인해주세요.
+          </span>
+        </div>
+      )}
 
       <div class="prose">
         <slot />
@@ -506,6 +529,15 @@ const faqJsonLd = faqEntities.length > 0 ? {
       font-size: 1.05rem; color: var(--muted); line-height: 1.6;
       margin: 0 0 1.8rem; font-weight: 400;
     }
+    .deadline-banner {
+      display: flex; align-items: flex-start; gap: 0.7rem;
+      background: #f9fafb; border: 1px solid #e5e7eb;
+      border-radius: 10px; padding: 0.9rem 1.1rem;
+      margin: 0 0 1.8rem;
+    }
+    .deadline-banner-icon { flex-shrink: 0; color: #6b7280; margin-top: 0.1rem; }
+    .deadline-banner-text { font-size: 0.9rem; color: #4b5563; line-height: 1.6; }
+    .deadline-banner-text strong { display: block; color: #374151; font-weight: 700; margin-bottom: 0.2rem; }
     .post :global(.ad-slot.ad-last) { margin-bottom: 0; }
 
     @media (max-width: 640px) {

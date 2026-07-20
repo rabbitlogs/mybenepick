@@ -27,6 +27,9 @@ const postData = posts.map((post) => {
     pubDate: post.data.pubDate.toISOString(),
     contentTags: post.data.contentTags || [],
     metric: post.data.metric || '',
+    deadline: post.data.deadline
+      ? (post.data.deadline === 'ongoing' ? 'ongoing' : post.data.deadline.toISOString())
+      : '',
     // 태깅 안 된 축은 "전체 해당"으로 간주 (아래 매칭 로직에서 빈 배열/undefined는 항상 통과)
     ageRange: elig.ageRange || [],
     incomeLevel: elig.incomeLevel || 'any',
@@ -159,6 +162,12 @@ const postData = posts.map((post) => {
         return true;
       }
 
+      function isExpired(deadline) {
+        if (!deadline || deadline === 'ongoing') return false;
+        const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+        return startOfDay(new Date()) > startOfDay(deadline);
+      }
+
       function render() {
         const anySelected = selected.category.size + selected.age.size + selected.employment.size + selected.income.size + selected.contentTag.size > 0;
         const filtered = anySelected ? allPosts.filter(matches) : allPosts;
@@ -172,19 +181,23 @@ const postData = posts.map((post) => {
           return;
         }
 
-        listEl.innerHTML = filtered.map((p) => `
-          <a href="${p.href}" class="list-row">
+        listEl.innerHTML = filtered.map((p) => {
+          const expired = isExpired(p.deadline);
+          return `
+          <a href="${p.href}" class="list-row${expired ? ' is-expired' : ''}">
             <span class="list-date">${formatShortDate(p.pubDate)}</span>
             <span class="list-body">
               <span class="list-title-row">
                 <span class="cat-badge" data-cat="${p.category}">${p.catLabel}</span>
+                ${expired ? '<span class="expired-badge">마감</span>' : ''}
                 <span class="list-title">${p.title}</span>
               </span>
               <span class="list-desc">${p.description}</span>
             </span>
             ${p.metric ? `<span class="list-metric">${p.metric}</span>` : ''}
           </a>
-        `).join('');
+        `;
+        }).join('');
       }
 
       function setChipActive(chip, isActive) {
@@ -319,6 +332,11 @@ const postData = posts.map((post) => {
     #find-list .cat-badge[data-cat="job-startup"] { background: #fef3c7; color: #92400e; }
     #find-list .cat-badge[data-cat="common"] { background: #e0e7ff; color: #3730a3; }
     #find-list .cat-badge[data-cat="self-employed"] { background: #ffedd5; color: #9a3412; }
+    #find-list .expired-badge {
+      flex-shrink: 0; font-size: 0.68rem; font-weight: 700; color: #6b7280; background: #f3f4f6;
+      padding: 0.16rem 0.5rem; border-radius: 10px;
+    }
+    #find-list .list-row.is-expired { opacity: 0.72; }
 
     @media (max-width: 640px) {
       #find-list .list-row { gap: 0.6rem; }

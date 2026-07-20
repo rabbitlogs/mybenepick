@@ -13,54 +13,87 @@ const categoryCount = new Set(allPosts.map((p) => p.data.category)).size;
 >
   <article class="prose page about">
     <div class="about-hero">
-      <p class="eyebrow">소개</p>
       <h1>혜택PICK!!에 오신 걸 환영해요</h1>
       <p class="tagline">나에게 맞는 혜택만, PICK해서 알려드려요.</p>
+    </div>
+
+    <div class="about-stats">
+      <div class="about-stat hero">
+        <span class="stat-icon">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="15" y2="17"></line></svg>
+        </span>
+        <span>
+          <p class="about-stat-num">{allPosts.length}건</p>
+          <p class="about-stat-label">등록된 지원금 정보</p>
+        </span>
+      </div>
+      <div class="about-stat">
+        <span class="stat-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        </span>
+        <span>
+          <p class="about-stat-num">{categoryCount}개</p>
+          <p class="about-stat-label">생애주기 카테고리</p>
+        </span>
+      </div>
+      <div class="about-stat">
+        <span class="stat-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"></path><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.66 0 3.22.45 4.56 1.24"></path><path d="M21 5l-9 9"></path></svg>
+        </span>
+        <span>
+          <p class="about-stat-num">공식 출처</p>
+          <p class="about-stat-label">정부 발표 기준 정리</p>
+        </span>
+      </div>
     </div>
 
     <p class="lead">정부 지원금이나 제도는 막상 나에게 해당되는지,<br />언제부터 어떻게 신청해야 하는지 찾기가 쉽지 않아요.</p>
 
     <p class="lead">새로 생기거나 바뀐 제도를 대상자별로 정리해서,<br />필요한 정보만 빠르게 확인할 수 있도록 돕고 있어요.</p>
 
-    <div class="about-stats">
-      <div class="about-stat">
-        <p class="about-stat-num">{allPosts.length}건</p>
-        <p class="about-stat-label">등록된 지원금 정보</p>
-      </div>
-      <div class="about-stat">
-        <p class="about-stat-num">{categoryCount}개</p>
-        <p class="about-stat-label">생애주기 카테고리</p>
-      </div>
-      <div class="about-stat">
-        <p class="about-stat-num">공식 출처</p>
-        <p class="about-stat-label">정부 발표 기준 정리</p>
-      </div>
-    </div>
-
     <div class="motto">
       <p class="motto-main">신설 제도부터 지역 특화 혜택까지.</p>
       <p class="motto-sub">숫자와 날짜는 공식 출처를 확인해서 전해드려요.</p>
     </div>
 
-    <div class="trust-box">
-      <p class="trust-title">이렇게 검증해요</p>
-      <p class="trust-text">모든 정보는 보건복지부·고용노동부·국토교통부 등 정부 1차 출처와 대조한 뒤에 게시해요. 발표 시점과 시행 시점이 다르면 구분해서 안내하고, 신청기간이 지난 정책은 다루지 않아요.</p>
+    <div class="verify-section">
+      <p class="verify-title">
+        <span class="verify-title-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"></path><circle cx="12" cy="12" r="10"></circle></svg>
+        </span>
+        이렇게 검증해요
+      </p>
+      <div class="verify-steps">
+        <div class="verify-step">
+          <p class="verify-step-title">정부 1차 출처와 대조</p>
+          <p class="verify-step-desc">보건복지부·고용노동부·국토교통부 등 공식 발표 자료와 대조한 뒤에 게시해요.</p>
+        </div>
+        <div class="verify-step">
+          <p class="verify-step-title">발표 시점과 시행 시점 구분</p>
+          <p class="verify-step-desc">"발표됐다"와 "실제로 신청 가능하다"는 다를 수 있어서, 헷갈리지 않게 구분해서 안내해요.</p>
+        </div>
+        <div class="verify-step">
+          <p class="verify-step-title">마감된 정책은 다루지 않음</p>
+          <p class="verify-step-desc">신청기간이 이미 지난 정책은 글로 쓰지 않아요. 지금 신청 가능한 정보만 남겨둬요.</p>
+        </div>
+      </div>
     </div>
 
-    <h2>문의</h2>
-
-    <p>제보하고 싶은 정보나 궁금한 점이 있다면 메일 주세요.</p>
-
-    <p class="contact-box">
-      <span class="contact-label">E-mail</span>
-      <a href="mailto:contact@mybenepick.com" class="contact-mail">contact@mybenepick.com</a>
-    </p>
+    <div class="contact-section">
+      <p class="contact-title">문의</p>
+      <p class="contact-sub">놓친 정보나 오류를 발견하셨다면 알려주세요.</p>
+      <a href="mailto:contact@mybenepick.com" class="contact-cta">
+        <span class="contact-cta-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+        </span>
+        contact@mybenepick.com
+      </a>
+    </div>
   </article>
 
   <style>
     .about { max-width: 640px; }
-    .about-hero { text-align: center; margin: 0.5rem 0 1.8rem; }
-    .eyebrow { font-size: 0.82rem; font-weight: 700; color: var(--accent); letter-spacing: 0.04em; margin: 0 0 0.6rem; }
+    .about-hero { text-align: center; margin: 0.5rem 0 1.6rem; }
     .about-hero h1 { font-family: var(--font-display); font-weight: 800; font-size: 1.7rem; letter-spacing: -0.02em; margin: 0 0 0.5rem; color: var(--ink); }
     .tagline { color: var(--muted); font-size: 1rem; margin: 0; }
 
@@ -68,44 +101,76 @@ const categoryCount = new Set(allPosts.map((p) => p.data.category)).size;
     .about .lead strong { color: var(--primary); font-weight: 700; }
 
     .about-stats {
-      display: flex; justify-content: center; gap: 0.8rem;
-      margin: 1.8rem 0; flex-wrap: wrap;
+      display: grid; grid-template-columns: 1.15fr 1fr 1fr; gap: 10px;
+      margin: 0 0 2rem;
     }
     .about-stat {
-      flex: 1; min-width: 130px; text-align: center;
-      border: 1px solid var(--line); border-radius: 10px;
-      padding: 1.1rem 1rem;
+      border-radius: 12px; padding: 1.1rem 1rem; text-align: center;
+      border: 1px solid var(--line); background: #fff;
     }
-    .about-stat-num { font-size: 1.4rem; font-weight: 800; color: var(--accent); margin: 0 0 0.3rem; }
-    .about-stat-label { font-size: 0.78rem; color: var(--muted); margin: 0; }
+    .about-stat.hero {
+      background: linear-gradient(135deg, var(--primary) 0%, #16324f 100%);
+      border: none;
+    }
+    .stat-icon {
+      width: 34px; height: 34px; border-radius: 9px; margin: 0 auto 0.6rem;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--color-bg-soft); color: var(--primary);
+    }
+    .about-stat.hero .stat-icon { background: rgba(255,255,255,0.15); color: #fff; }
+    .about-stat-num { font-size: 1.4rem; font-weight: 800; color: var(--primary); margin: 0; }
+    .about-stat.hero .about-stat-num { color: #fff; font-size: 1.5rem; }
+    .about-stat-label { font-size: 0.76rem; color: var(--muted); margin: 0.2rem 0 0; }
+    .about-stat.hero .about-stat-label { color: rgba(255,255,255,0.75); }
 
     .motto { text-align: center; margin: 1.8rem 0; padding: 1.3rem 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
     .motto-main { font-size: 1.2rem; font-weight: 700; color: var(--primary); line-height: 1.6; margin: 0; letter-spacing: -0.01em; }
     .motto-sub { font-size: 0.96rem; color: var(--muted); margin: 0.6rem 0 0; }
 
-    .trust-box {
-      background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
-      padding: 1.1rem 1.3rem; margin: 1.8rem 0; text-align: left;
+    .verify-section { margin: 1.8rem 0 2rem; }
+    .verify-title {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-weight: 700; font-size: 1rem; margin: 0 0 1.1rem;
     }
-    .trust-title {
-      font-size: 0.85rem; font-weight: 700; color: var(--primary);
-      margin: 0 0 0.5rem; display: flex; align-items: center; gap: 0.4rem;
+    .verify-title-icon {
+      width: 26px; height: 26px; border-radius: 7px; background: var(--color-bg-soft); color: var(--primary);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .trust-title::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
-    .trust-text { font-size: 0.92rem; color: var(--muted); line-height: 1.7; margin: 0; }
+    .verify-steps { position: relative; padding-left: 2rem; }
+    .verify-steps::before {
+      content: ''; position: absolute; left: 0.7rem; top: 0.4rem; bottom: 0.4rem; width: 2px; background: var(--line);
+    }
+    .verify-step { position: relative; padding-bottom: 1.3rem; }
+    .verify-step:last-child { padding-bottom: 0; }
+    .verify-step::before {
+      content: ''; position: absolute; left: -2rem; top: 0.15rem;
+      width: 15px; height: 15px; border-radius: 50%;
+      background: var(--accent); border: 3px solid #fff;
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+    .verify-step-title { font-weight: 700; font-size: 0.92rem; color: var(--ink); margin: 0 0 0.25rem; }
+    .verify-step-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.55; margin: 0; }
 
-    .about h2 { font-size: 1.2rem; margin-top: 1.8rem; margin-bottom: 0.6rem; text-align: center; }
-    .about > p:not([class]) { text-align: center; margin: 0.8rem 0; }
-    .contact-box {
-      display: flex; align-items: center; justify-content: center; gap: 0.9rem;
-      background: var(--color-bg-soft); border: 1px solid var(--line);
-      border-radius: 10px; padding: 0.9rem 1.25rem; margin: 1rem 0;
+    .contact-section { text-align: center; }
+    .contact-title { font-weight: 700; font-size: 1.1rem; margin: 0 0 0.4rem; }
+    .contact-sub { font-size: 0.92rem; color: var(--muted); margin: 0 0 1.1rem; }
+    .contact-cta {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.7rem;
+      background: var(--primary); color: #fff; text-decoration: none;
+      border-radius: 12px; padding: 1rem 1.6rem;
+      font-weight: 700; font-size: 0.95rem;
+      transition: background 0.15s;
     }
-    .contact-label {
-      font-size: 0.78rem; font-weight: 700; color: #fff; background: var(--primary);
-      padding: 0.25rem 0.6rem; border-radius: 999px;
+    .contact-cta:hover { background: #16324f; }
+    .contact-cta-icon {
+      width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.15);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .contact-mail { color: var(--ink); text-decoration: none; font-weight: 600; }
-    .contact-mail:hover { color: var(--primary); text-decoration: underline; }
+
+    @media (max-width: 640px) {
+      .about-stats { grid-template-columns: 1fr; gap: 8px; }
+      .about-stat { display: flex; align-items: center; gap: 12px; text-align: left; padding: 0.9rem 1.1rem; }
+      .stat-icon { margin: 0; }
+    }
   </style>
 </BaseLayout>
