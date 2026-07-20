@@ -3,6 +3,7 @@ title: "여름·겨울 안 나누고 쓰는 에너지바우처, 최대 70만원"
 description: "2026년 에너지바우처는 하절기·동절기 구분 없이 자유롭게 쓸 수 있어요. 최대 70만 1,300원, 다자녀 기준도 2명으로 완화됐어요."
 pubDate: "2026-07-05"
 metric: "최대 70만원"
+deadline: "2026-12-31"
 category: "common"
 contentTags: ["new"]
 eligibility:

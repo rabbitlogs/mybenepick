@@ -3,6 +3,7 @@ title: "국민내일배움카드, 2026년부터 자기부담금 생겨요"
 description: "2026년 국민내일배움카드 변경사항 정리. KDT·특화훈련에 자기부담금이 생기지만 훈련장려금은 20만원으로 인상돼요. 대상, 한도, 신청 방법까지 확인하세요."
 pubDate: "2026-07-01"
 metric: "자기부담금 신설"
+deadline: "ongoing"
 category: "job-startup"
 contentTags: ["new"]
 eligibility:

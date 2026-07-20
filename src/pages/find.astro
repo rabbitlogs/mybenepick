@@ -168,22 +168,9 @@ const postData = posts.map((post) => {
         return startOfDay(new Date()) > startOfDay(deadline);
       }
 
-      function render() {
-        const anySelected = selected.category.size + selected.age.size + selected.employment.size + selected.income.size + selected.contentTag.size > 0;
-        const filtered = anySelected ? allPosts.filter(matches) : allPosts;
-
-        countEl.textContent = anySelected
-          ? `조건에 맞는 글 ${filtered.length}개`
-          : `전체 글 ${allPosts.length}개 (조건을 선택하면 좁혀드려요)`;
-
-        if (filtered.length === 0) {
-          listEl.innerHTML = '<p class="find-empty">아직 조건에 딱 맞는 글이 없어요. 조건을 좀 더 넓혀보시겠어요?</p><button type="button" class="find-search-link" data-search-open>키워드로 다시 찾아보기 →</button>';
-          return;
-        }
-
-        listEl.innerHTML = filtered.map((p) => {
-          const expired = isExpired(p.deadline);
-          return `
+      function renderRow(p) {
+        const expired = isExpired(p.deadline);
+        return `
           <a href="${p.href}" class="list-row${expired ? ' is-expired' : ''}">
             <span class="list-date">${formatShortDate(p.pubDate)}</span>
             <span class="list-body">
@@ -197,7 +184,57 @@ const postData = posts.map((post) => {
             ${p.metric ? `<span class="list-metric">${p.metric}</span>` : ''}
           </a>
         `;
-        }).join('');
+      }
+
+      // 결과가 많아질 때(글 수가 늘어날 때) 한 번에 전부 그리면 초기 렌더가 무거워지므로,
+      // 10개씩 끊어서 보여주고 "더 보기"로 이어붙이는 방식을 쓴다.
+      // 필터 조건(전체 목록 filtered)이 바뀌면 다시 처음(10개)부터 다시 그린다.
+      const PAGE_SIZE = 10;
+      let currentFiltered = [];
+      let visibleCount = PAGE_SIZE;
+
+      function renderList() {
+        const slice = currentFiltered.slice(0, visibleCount);
+        listEl.innerHTML = slice.map(renderRow).join('');
+
+        const remaining = currentFiltered.length - visibleCount;
+        const moreBtn = document.getElementById('find-more');
+        if (moreBtn) moreBtn.remove();
+
+        if (remaining > 0) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.id = 'find-more';
+          btn.className = 'find-more-btn';
+          btn.textContent = `더 보기 (${Math.min(remaining, PAGE_SIZE)}개 더 · 총 ${currentFiltered.length}개 중 ${slice.length}개 표시)`;
+          btn.addEventListener('click', () => {
+            visibleCount += PAGE_SIZE;
+            renderList();
+          });
+          listEl.after(btn);
+        }
+      }
+
+      function render() {
+        const anySelected = selected.category.size + selected.age.size + selected.employment.size + selected.income.size + selected.contentTag.size > 0;
+        const filtered = anySelected ? allPosts.filter(matches) : allPosts;
+
+        countEl.textContent = anySelected
+          ? `조건에 맞는 글 ${filtered.length}개`
+          : `전체 글 ${allPosts.length}개 (조건을 선택하면 좁혀드려요)`;
+
+        currentFiltered = filtered;
+        visibleCount = PAGE_SIZE;
+
+        const existingMoreBtn = document.getElementById('find-more');
+        if (existingMoreBtn) existingMoreBtn.remove();
+
+        if (filtered.length === 0) {
+          listEl.innerHTML = '<p class="find-empty">아직 조건에 딱 맞는 글이 없어요. 조건을 좀 더 넓혀보시겠어요?</p><button type="button" class="find-search-link" data-search-open>키워드로 다시 찾아보기 →</button>';
+          return;
+        }
+
+        renderList();
       }
 
       function setChipActive(chip, isActive) {
@@ -337,6 +374,15 @@ const postData = posts.map((post) => {
       padding: 0.16rem 0.5rem; border-radius: 10px;
     }
     #find-list .list-row.is-expired { opacity: 0.72; }
+
+    .find-more-btn {
+      display: block; width: 100%;
+      font-family: var(--font-body); font-size: 0.9rem; font-weight: 700; color: var(--primary);
+      background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
+      padding: 0.85rem 1rem; margin-top: 1.2rem; cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .find-more-btn:hover { border-color: var(--primary); background: var(--color-bg-soft); }
 
     @media (max-width: 640px) {
       #find-list .list-row { gap: 0.6rem; }

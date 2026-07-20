@@ -3,6 +3,7 @@ title: "지방 취업하면 최대 720만원, 청년 근속 인센티브 개편"
 description: "2026년부터 비수도권 기업에 6개월 이상 근속하면 청년 본인에게 최대 720만원이 직접 지급돼요. 지역별 지원 금액과 신청 조건을 정리했어요."
 pubDate: "2026-07-16"
 metric: "최대 720만원"
+deadline: "budget-limited"
 category: "youth"
 contentTags: ["new", "regional"]
 eligibility:

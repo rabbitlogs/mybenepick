@@ -2,6 +2,8 @@
 title: 8월 20일부터, 육아휴직 1주만 써도 돼요
 description: 2026년 8월 20일부터 자녀 방학이나 갑작스러운 휴교·질병 때 1주 또는 2주 단위로 쓰는 단기 육아휴직이 신설돼요. 짧게 써도 육아휴직급여를 받을 수 있어요.
 pubDate: 2026-07-21
+metric: 1주 단위 분할 사용
+deadline: ongoing
 category: parenting
 contentTags:
   - new

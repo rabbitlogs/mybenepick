@@ -3,6 +3,7 @@ title: "구직촉진수당 월 60만원, 취업 경험 없어도 받는 법"
 description: "국민취업지원제도 청년특례는 취업경험이 없어도 재산 5억원 이하면 신청할 수 있어요. 2026년부터 구직촉진수당이 월 60만원으로 올랐어요."
 pubDate: "2026-07-07"
 metric: "월 60만원"
+deadline: "ongoing"
 category: "youth"
 contentTags: ["new"]
 eligibility:

@@ -2,6 +2,8 @@
 title: "누구나 무료로, 7월부터 시작된 공공생리대"
 description: "2026년 7월부터 전국 12개 지역 공공시설에 생리대 지급기 700여 대가 설치돼요. 소득이나 나이 상관없이 누구나 무료로 이용할 수 있어요."
 pubDate: "2026-07-20"
+metric: "무료 지급"
+deadline: "ongoing"
 category: "common"
 contentTags: ["new", "regional"]
 eligibility:

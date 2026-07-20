@@ -3,6 +3,7 @@ title: "혼인 7년 안 따지는 민영주택 신생아 특별공급"
 description: "2026년 6월 15일부터 민영주택에도 신생아 특별공급이 생겼어요. 혼인 기간 요건 없이 2세 미만 자녀만 있으면 신청할 수 있어요."
 pubDate: "2026-07-12"
 metric: "혼인기간 요건 폐지"
+deadline: "ongoing"
 category: "housing"
 contentTags: ["new"]
 eligibility:

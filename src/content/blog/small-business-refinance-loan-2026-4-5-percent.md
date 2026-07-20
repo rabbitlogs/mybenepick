@@ -3,6 +3,7 @@ title: "7% 대출을 4.5%로, 소상공인 대환대출 한도 확대"
 description: "2026년 소상공인 대환대출, 연 7% 이상 고금리 대출을 4.5% 고정금리로 갈아탈 수 있어요. 사업용 가계대출 한도가 5천만원으로 늘었어요."
 pubDate: "2026-07-10"
 metric: "금리 4.5%"
+deadline: "budget-limited"
 category: "self-employed"
 contentTags: ["new"]
 eligibility:
