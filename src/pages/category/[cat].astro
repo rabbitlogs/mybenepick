@@ -8,19 +8,39 @@ import { CATEGORY_NAMES_LONG } from '../../data/categories.js';
 // ⚠️ BaseLayout.astro의 ADSENSE_ENABLED와 함께 켜고 끄세요.
 const ADSENSE_ENABLED = false;
 
+const POSTS_PER_PAGE = 8;
+const CATEGORIES = ['youth', 'job-startup', 'parenting', 'housing', 'self-employed', 'senior', 'common'];
+
 export async function getStaticPaths() {
-  return [
-    { params: { cat: 'youth' } },
-    { params: { cat: 'job-startup' } },
-    { params: { cat: 'parenting' } },
-    { params: { cat: 'housing' } },
-    { params: { cat: 'self-employed' } },
-    { params: { cat: 'senior' } },
-    { params: { cat: 'common' } },
-  ];
+  const { getCollection } = await import('astro:content');
+  const allPosts = await getCollection('blog');
+  const cats = ['youth', 'job-startup', 'parenting', 'housing', 'self-employed', 'senior', 'common'];
+  const perPage = 8;
+
+  const paths = [];
+  for (const cat of cats) {
+    const posts = allPosts
+      .filter((p) => p.data.category === cat)
+      .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+    const totalPages = Math.max(1, Math.ceil(posts.length / perPage));
+
+    for (let page = 1; page <= totalPages; page++) {
+      paths.push({
+        params: { cat, page: page === 1 ? undefined : String(page) },
+        props: {
+          cat,
+          page,
+          totalPages,
+          posts: posts.slice((page - 1) * perPage, page * perPage),
+          total: posts.length,
+        },
+      });
+    }
+  }
+  return paths;
 }
 
-const { cat } = Astro.params;
+const { cat, page, totalPages, posts, total } = Astro.props;
 const catName = CATEGORY_NAMES_LONG;
 const catDesc = {
   youth: [
@@ -53,36 +73,96 @@ const catDesc = {
   ],
 };
 
-const posts = (await getCollection('blog'))
-  .filter((p) => p.data.category === cat)
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const FILTERS = [
+  { key: 'all', label: '전체' },
+  { key: 'new', label: '신설·변경' },
+  { key: 'regional', label: '지역특화' },
+  { key: 'deep-guide', label: '심층가이드' },
+];
+
+const basePath = `/category/${cat}`;
+const pageHref = (p) => (p === 1 ? basePath : `${basePath}/${p}`);
 ---
 
 <BaseLayout title={`${catName[cat]} — 혜택PICK!!`} description={catDesc[cat].join(' ')} showAds={true}>
   <section class="cat-list" style="padding-top: 1.2rem;">
-    <h1 style="font-size: 2rem; margin: 0 0 0.6rem;">{catName[cat]}</h1>
-    <p style="font-size: 0.98rem; color: var(--muted); line-height: 1.7; margin: 0 0 1.8rem;">
-      {catDesc[cat].map((line, i) => (<>{i > 0 && <><br class="cat-desc-br" /> </>}{line}</>))}
-    </p>
+    <div class="cat-list-header">
+      <div>
+        <h1 style="font-size: 2rem; margin: 0 0 0.6rem;">{catName[cat]}</h1>
+        <p style="font-size: 0.98rem; color: var(--muted); line-height: 1.7; margin: 0;">
+          {catDesc[cat].map((line, i) => (<>{i > 0 && <><br class="cat-desc-br" /> </>}{line}</>))}
+        </p>
+      </div>
+      <span class="total-badge">총 {total}건</span>
+    </div>
     <style>
       @media (max-width: 640px) { .cat-desc-br { display: none; } }
     </style>
+
+    <div class="filter-row" data-filter-row>
+      {FILTERS.map((f) => (
+        <button type="button" class="filter-chip" class:list={[{ active: f.key === 'all' }]} data-filter={f.key}>{f.label}</button>
+      ))}
+    </div>
+
     {posts.length === 0 && (
       <p style="color: var(--muted); padding: 2rem 0;">아직 등록된 글이 없어요. 곧 채워질 예정이에요.</p>
     )}
-    {posts.map((post, i) => (
-      <>
-        <PostCard
-          href={`/blog/${post.id.replace('.md', '')}`}
-          title={post.data.title}
-          description={post.data.description}
-          category={post.data.category}
-          pubDate={post.data.pubDate}
-        />
-        {(i + 1) % 4 === 0 && i !== posts.length - 1 && ADSENSE_ENABLED && <AdSenseList />}
-      </>
-    ))}
+
+    <div data-post-list>
+      {posts.map((post, i) => (
+        <>
+          <div class="post-item" data-tags={(post.data.contentTags || []).join(',')}>
+            <PostCard
+              href={`/blog/${post.id.replace('.md', '')}`}
+              title={post.data.title}
+              description={post.data.description}
+              category={post.data.category}
+              pubDate={post.data.pubDate}
+            />
+          </div>
+          {i === 3 && ADSENSE_ENABLED && <AdSenseList />}
+        </>
+      ))}
+      {posts.length > 0 && ADSENSE_ENABLED && <AdSenseList />}
+    </div>
+
+    {totalPages > 1 && (
+      <nav class="pagination" aria-label="페이지 이동">
+        {page > 1 && (
+          <a href={pageHref(page - 1)} class="page-arrow" aria-label="이전 페이지">‹</a>
+        )}
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+          <a href={pageHref(p)} class="page-num" class:list={[{ active: p === page }]} aria-current={p === page ? 'page' : undefined}>{p}</a>
+        ))}
+        {page < totalPages && (
+          <a href={pageHref(page + 1)} class="page-arrow" aria-label="다음 페이지">›</a>
+        )}
+      </nav>
+    )}
   </section>
+
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', () => {
+      const filterRow = document.querySelector('[data-filter-row]');
+      const list = document.querySelector('[data-post-list]');
+      if (!filterRow || !list) return;
+
+      filterRow.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-filter]');
+        if (!btn) return;
+        const key = btn.dataset.filter;
+
+        filterRow.querySelectorAll('[data-filter]').forEach((b) => b.classList.toggle('active', b === btn));
+
+        list.querySelectorAll('[data-tags]').forEach((item) => {
+          const tags = (item.dataset.tags || '').split(',').filter(Boolean);
+          const show = key === 'all' || tags.includes(key);
+          item.style.display = show ? '' : 'none';
+        });
+      });
+    });
+  </script>
 
   {ADSENSE_ENABLED && (
   <script is:inline>
@@ -114,4 +194,38 @@ const posts = (await getCollection('blog'))
     });
   </script>
   )}
+
+  <style>
+    .cat-list-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      gap: 1rem; margin-bottom: 1.4rem; flex-wrap: wrap;
+    }
+    .total-badge {
+      flex-shrink: 0; font-size: 0.85rem; font-weight: 700; color: var(--accent);
+      background: var(--color-bg-soft); padding: 0.4rem 0.9rem; border-radius: 999px;
+    }
+    .filter-row {
+      display: flex; gap: 0.5rem; flex-wrap: wrap;
+      margin: 0 0 1.4rem; padding-bottom: 1.4rem; border-bottom: 1px solid var(--line);
+    }
+    .filter-chip {
+      font-family: inherit; font-size: 0.85rem; font-weight: 600;
+      padding: 0.5rem 1.1rem; border-radius: 999px;
+      border: 1px solid var(--line); background: #fff; color: var(--muted);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .filter-chip:hover { border-color: var(--primary); color: var(--primary); }
+    .filter-chip.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+    .pagination { display: flex; justify-content: center; align-items: center; gap: 0.4rem; margin-top: 2rem; }
+    .page-num, .page-arrow {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px; border-radius: 8px;
+      font-size: 0.85rem; font-weight: 600; color: var(--muted);
+      text-decoration: none; border: 1px solid transparent;
+    }
+    .page-num:hover, .page-arrow:hover { border-color: var(--line); color: var(--primary); }
+    .page-num.active { background: var(--primary); color: #fff; }
+    .page-arrow { border-color: var(--line); font-size: 1.1rem; }
+  </style>
 </BaseLayout>

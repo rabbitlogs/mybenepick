@@ -35,7 +35,6 @@ const t = txt[lang];
 
 <script is:inline define:vars={{ emptyMsg: t.empty, noResultMsg: t.noResult, lang }}>
   (function () {
-    const openBtns = document.querySelectorAll('[data-search-open]');
     const modal = document.querySelector('[data-search-modal]');
     const closeBtn = document.querySelector('[data-search-close]');
     const input = document.querySelector('[data-search-input]');
@@ -72,7 +71,9 @@ const t = txt[lang];
       results.innerHTML = '<p class="search-hint">' + emptyMsg + '</p>';
     };
 
-    openBtns.forEach((b) => b.addEventListener('click', open));
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('[data-search-open]')) open();
+    });
     if (closeBtn) closeBtn.addEventListener('click', close);
     modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
     document.addEventListener('keydown', (e) => {
@@ -132,7 +133,7 @@ const t = txt[lang];
     color: var(--primary); border-radius: 999px;
     transition: background 0.15s;
   }
-  .search-btn:hover { background: rgba(138, 90, 63,0.08); }
+  .search-btn:hover { background: rgba(30, 58, 95, 0.08); }
 
   /* 기본은 숨김. .is-open 일 때만 표시. (hidden 속성 대신 클래스로 확실히 제어) */
   .search-modal {
@@ -173,7 +174,7 @@ const t = txt[lang];
     display: block; padding: 0.7rem 0.6rem; border-radius: 8px;
     text-decoration: none; color: inherit; transition: background 0.12s;
   }
-  :global(.search-result:hover) { background: rgba(138, 90, 63,0.07); }
+  :global(.search-result:hover) { background: rgba(30, 58, 95, 0.06); }
   :global(.search-result-title) {
     display: block; font-weight: 700; font-size: 0.98rem; color: var(--ink);
     margin-bottom: 0.2rem;
@@ -182,7 +183,7 @@ const t = txt[lang];
     display: block; font-size: 0.85rem; color: var(--muted); line-height: 1.5;
   }
   :global(.search-result-excerpt mark) {
-    background: rgba(212, 168, 122,0.35); color: inherit; border-radius: 2px;
+    background: rgba(37, 99, 235, 0.18); color: inherit; border-radius: 2px;
     padding: 0 0.1em; font-weight: 600;
   }
 </style>

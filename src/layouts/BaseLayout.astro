@@ -28,7 +28,7 @@ const t = nav;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#faf8f3" />
+    <meta name="theme-color" content="#1e3a5f" />
     <meta name="naver-site-verification" content="9ab1a54b5ceb93634d63a86cd8091fb3f8cd045d" />
     <meta name="google-adsense-account" content="ca-pub-9488002130804570" />
     <title>{title}</title>
@@ -65,7 +65,7 @@ const t = nav;
   <body>
     <header class="site-header">
       <div class="wrap header-inner">
-        <a href="/" class="brand"><img src="/squirrel-logo.png" alt="" class="brand-logo" width="34" height="40" /><span class="brand-name">혜택PICK!!</span></a>
+        <a href="/" class="brand"><span class="brand-name">혜택<span class="brand-pick">PICK!!</span></span></a>
         <div class="header-actions">
           <a href="/find" class="find-btn" aria-label="나에게 맞는 혜택 찾기">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -110,8 +110,9 @@ const t = nav;
 
     <style is:global>
       :root {
-        --paper: #faf8f3; --ink: #20251f; --primary: #8a5a3f; --accent: #6b5133;
-        --muted: #696760; --line: #e3dfd4; --color-bg-soft: #f3f0e8;
+        --paper: #f7f9fc; --ink: #17263a; --primary: #1e3a5f; --accent: #2563eb;
+        --muted: #5b6b7f; --line: #dce3ec; --color-bg-soft: #eef2f8;
+        --footer-bg: #0f2744; --footer-ink: #cbd8ea; --footer-muted: #7e94ac;
         --font-body: 'Pretendard', -apple-system, system-ui, sans-serif;
         --font-display: 'Pretendard', -apple-system, system-ui, sans-serif;
       }
@@ -123,8 +124,8 @@ const t = nav;
       .site-header { border-bottom: 1px solid var(--line); }
       .header-inner { display: flex; align-items: center; gap: 1rem; padding: 1rem 0 0.4rem; flex-wrap: wrap; }
       .brand { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: var(--ink); margin-right: auto; order: 1; }
-      .brand-logo { height: 40px; width: auto; display: block; }
       .brand-name { font-family: var(--font-display); font-weight: 800; font-size: 1.35rem; letter-spacing: -0.02em; color: var(--primary); }
+      .brand-pick { color: var(--accent); }
       .header-actions { display: flex; align-items: center; gap: 0.5rem; order: 2; }
       .find-btn,
       .rss-btn {
@@ -135,7 +136,7 @@ const t = nav;
         transition: background 0.15s;
       }
       .find-btn:hover,
-      .rss-btn:hover { background: rgba(138, 90, 63,0.1); }
+      .rss-btn:hover { background: rgba(30, 58, 95, 0.08); }
 
       .nav {
         order: 3; flex: 1 0 100%;
@@ -158,10 +159,12 @@ const t = nav;
         .lbl-short { display: inline; }
       }
 
-      .site-footer { margin-top: 2rem; border-top: 1px solid var(--line); padding: 2rem 0; color: var(--muted); font-size: 0.85rem; text-align: center; }
+      .site-footer { margin-top: 3rem; background: var(--footer-bg); color: var(--footer-muted); font-size: 0.85rem; text-align: center; }
+      .site-footer .wrap { padding: 2.2rem 1.25rem; }
       .footer-links { display: flex; gap: 1.2rem; justify-content: center; flex-wrap: wrap; margin-bottom: 0.9rem; }
-      .footer-links a { color: var(--muted); text-decoration: none; font-weight: 500; }
-      .footer-links a:hover { color: var(--primary); }
+      .footer-links a { color: var(--footer-ink); text-decoration: none; font-weight: 500; }
+      .footer-links a:hover { color: #fff; }
+      .site-footer p { color: var(--footer-muted); }
 
       /* ── 본문(prose) ── */
       .prose { font-size: 17px; line-height: 1.85; }
@@ -181,25 +184,25 @@ const t = nav;
       .prose .toc a:hover { color: var(--accent); text-decoration: underline; }
 
       .prose .summary-box {
-        background: var(--color-bg-soft);
+        background: var(--paper);
         border: 1px solid var(--line);
         border-radius: 12px;
         padding: 1.3rem 1.5rem;
         margin: 1.8rem 0;
-        box-shadow:
-          0 0.5px 1px rgba(0,0,0,0.02),
-          0 2px 5px rgba(0,0,0,0.025),
-          0 6px 14px rgba(0,0,0,0.02);
       }
       .prose .summary-label {
-        font-size: 0.8rem; font-weight: 700; color: var(--primary);
-        letter-spacing: 0.06em; text-transform: uppercase;
-        margin: 0 0 0.9rem;
+        display: inline-block;
+        font-size: 0.78rem; font-weight: 700; color: #fff;
+        letter-spacing: 0.03em;
+        background: var(--primary);
+        padding: 0.3rem 0.8rem;
+        border-radius: 6px;
+        margin: 0 0 1rem;
       }
       .prose .summary-row {
         display: flex; gap: 0.6rem; font-size: 0.98rem; line-height: 1.6;
         padding: 0.35rem 0;
-        border-bottom: 1px dashed rgba(138, 90, 63, 0.15);
+        border-bottom: 1px dashed var(--line);
       }
       .prose .summary-row:last-child { border-bottom: none; }
       .prose .summary-k { color: var(--primary); font-weight: 700; flex-shrink: 0; min-width: 4.2em; }
@@ -211,14 +214,45 @@ const t = nav;
         padding-left: 1.6em;
       }
 
-      .prose mark.hl { background: #fbe3c3; color: inherit; padding: 0.05em 0.25em; border-radius: 3px; }
-      .prose code { background: #f0e9dc; color: #b6502e; padding: 0.12em 0.4em; border-radius: 4px; font-size: 0.92em; font-family: ui-monospace, monospace; }
+      .prose mark.hl { background: #dbeafe; color: var(--ink); padding: 0.05em 0.25em; border-radius: 3px; }
+      .prose code { background: var(--color-bg-soft); color: var(--accent); padding: 0.12em 0.4em; border-radius: 4px; font-size: 0.92em; font-family: ui-monospace, monospace; }
       .prose blockquote { margin: 1.6rem 0; padding: 1rem 1.2rem; background: var(--color-bg-soft); border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0; }
       .prose blockquote p { margin: 0.4rem 0; }
       .prose blockquote p:first-child { margin-top: 0; }
       .prose blockquote p:last-child { margin-bottom: 0; }
-      .prose ul, .prose ol { padding-left: 1.4rem; }
+      .prose ul { padding-left: 1.4rem; }
       .prose li { margin: 0.4rem 0; }
+
+      /* 순서 목록(신청 방법 등)은 원형 배지 스타일로 렌더링 */
+      .prose ol {
+        list-style: none;
+        padding-left: 0;
+        counter-reset: prose-ol;
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+        margin: 1.2rem 0;
+      }
+      .prose ol li {
+        counter-increment: prose-ol;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.7rem;
+        margin: 0;
+        line-height: 1.7;
+      }
+      .prose ol li::before {
+        content: counter(prose-ol);
+        flex-shrink: 0;
+        width: 24px; height: 24px;
+        margin-top: 0.15em;
+        border-radius: 50%;
+        background: var(--primary);
+        color: #fff;
+        font-size: 0.78rem;
+        font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+      }
       .prose img { max-width: 100%; height: auto; border-radius: 8px; display: block; margin: 1.5rem auto 0; }
 
       .prose em { color: var(--muted); }
@@ -242,12 +276,12 @@ const t = nav;
       .prose th:first-child, .prose td:first-child { width: 26%; }
       .prose th, .prose td { padding: 0.6rem 0.85rem; text-align: left; word-break: keep-all; overflow-wrap: break-word; }
       .prose tr th:not(:first-child),
-      .prose tr td:not(:first-child) { border-left: 1px solid #ddd2bd; }
-      .prose tbody tr { border-bottom: 1px solid #ddd2bd; }
+      .prose tr td:not(:first-child) { border-left: 1px solid var(--line); }
+      .prose tbody tr { border-bottom: 1px solid var(--line); }
       .prose thead th { background: var(--primary); color: #fff; font-weight: 700; }
-      .prose thead tr th:not(:first-child) { border-left: 1px solid rgba(255,255,255,0.4); }
-      .prose tbody tr:nth-child(even) { background: rgba(138, 90, 63, 0.04); }
-      .prose tbody tr:hover { background: rgba(107, 81, 51, 0.08); }
+      .prose thead tr th:not(:first-child) { border-left: 1px solid rgba(255,255,255,0.35); }
+      .prose tbody tr:nth-child(even) { background: rgba(30, 58, 95, 0.03); }
+      .prose tbody tr:hover { background: rgba(37, 99, 235, 0.06); }
 
       @media (max-width: 640px) {
         body { font-size: 16px; }

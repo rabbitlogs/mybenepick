@@ -42,7 +42,7 @@ const jsonLd = {
     name: '혜택PICK!!',
     logo: {
       '@type': 'ImageObject',
-      url: siteUrl + '/squirrel-logo.png',
+      url: siteUrl + '/logo-mark.png',
     },
   },
   mainEntityOfPage: {
@@ -133,9 +133,9 @@ const faqJsonLd = faqEntities.length > 0 ? {
     </script>
 
     <!--
-      광고 원본 1칸(숨김). JS가 본문 글자수를 재서 2~3개로 복제·배치한다.
-        0~3,500자 : 2개 (첫 소제목 뒤 + 태그 뒤)
-        3,500자+  : 3개 (도입 뒤 + 중간 소제목 뒤 + 태그 뒤)
+      광고 배치 (혜택PICK-글쓰기가이드 15장 결론 반영):
+        - 기본 2개: 3줄 요약(summary-box 또는 toc) 직후 / 태그(FAQ 다음) 뒤
+        - 표(table)가 본문에 있으면 표 다음에 1개 추가해 최대 3개
       ⚠️ 애드센스 승인 전에는 ADSENSE_ENABLED=false라 아예 렌더링 안 됨.
     -->
     {ADSENSE_ENABLED && <template id="ad-template"><AdSense /></template>}
@@ -149,15 +149,12 @@ const faqJsonLd = faqEntities.length > 0 ? {
         const tpl = document.getElementById('ad-template');
         if (!article || !prose || !tpl) return;
 
-        const len = (prose.textContent || '').replace(/\s/g, '').length;
-        const count = len >= 3500 ? 3 : 2;
-
         const makeAd = () => tpl.content.firstElementChild.cloneNode(true);
         const placed = [];
 
-        const insertBeforeInProse = (node) => {
+        const insertAfter = (node) => {
           const ad = makeAd();
-          node.parentNode.insertBefore(ad, node);
+          node.parentNode.insertBefore(ad, node.nextSibling);
           placed.push(ad);
         };
         const appendAfterTags = () => {
@@ -168,21 +165,21 @@ const faqJsonLd = faqEntities.length > 0 ? {
           placed.push(ad);
         };
 
-        const h2s = prose.querySelectorAll('h2');
-        const firstAdAnchor = h2s[1] || h2s[0];
-
-        if (count === 2) {
-          if (firstAdAnchor) insertBeforeInProse(firstAdAnchor);
-          appendAfterTags();
-        } else {
-          if (firstAdAnchor) insertBeforeInProse(firstAdAnchor);
-          if (h2s.length >= 3) {
-            insertBeforeInProse(h2s[Math.floor(h2s.length / 2)]);
-          } else if (h2s[1] && h2s[1] !== firstAdAnchor) {
-            insertBeforeInProse(h2s[1]);
-          }
-          appendAfterTags();
+        // 1) 3줄 요약(toc 박스) 직후 — TOC가 없는 짧은 글은 첫 summary-box 직전으로 대체
+        const toc = prose.querySelector('.toc');
+        const firstSummary = prose.querySelector('.summary-box');
+        if (toc) {
+          insertAfter(toc);
+        } else if (firstSummary) {
+          insertAfter(firstSummary.previousElementSibling || firstSummary);
         }
+
+        // 2) 표가 있으면 표 다음에 1개 추가 (조건 섹션 진입 전)
+        const table = prose.querySelector('table');
+        if (table) insertAfter(table);
+
+        // 3) FAQ 다음, "더 읽어보기" 전 (태그 뒤)
+        appendAfterTags();
 
         placed.forEach(() => {
           try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
@@ -297,8 +294,8 @@ const faqJsonLd = faqEntities.length > 0 ? {
     }
     .post-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 2rem 0 0.5rem; }
     .post-tags .tag {
-      font-size: 0.85rem; color: var(--primary); background: rgba(138, 90, 63,0.08);
-      border: 1px solid rgba(138, 90, 63,0.18); border-radius: 999px; padding: 0.25rem 0.75rem;
+      font-size: 0.85rem; color: var(--primary); background: rgba(30, 58, 95, 0.06);
+      border: 1px solid rgba(30, 58, 95, 0.16); border-radius: 999px; padding: 0.25rem 0.75rem;
     }
     .related-posts { margin-top: 2.8rem; padding-top: 1.8rem; border-top: 1px solid var(--line); }
     .related-title {
@@ -352,7 +349,7 @@ const faqJsonLd = faqEntities.length > 0 ? {
       position: fixed; inset: 0; z-index: 999;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       gap: 0.9rem; padding: 2.5rem 1.25rem;
-      background: rgba(43, 36, 29, 0.92);
+      background: rgba(15, 23, 36, 0.92);
       cursor: zoom-out;
     }
     .lightbox[hidden] { display: none; }

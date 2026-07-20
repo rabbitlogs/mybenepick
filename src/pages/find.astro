@@ -77,7 +77,7 @@ const postData = posts.map((post) => {
       <fieldset>
         <legend>소득 수준</legend>
         <div class="chip-group" data-group="income" data-single="true">
-          <button type="button" class="chip" data-value="any" aria-pressed="false">상관없이 보기</button>
+          <button type="button" class="chip chip-neutral" data-value="any" aria-pressed="false">상관없이 보기</button>
           <button type="button" class="chip" data-value="low" aria-pressed="false">저소득 (기초생활수급 등)</button>
           <button type="button" class="chip" data-value="middle" aria-pressed="false">중위소득 이하</button>
         </div>
@@ -161,7 +161,7 @@ const postData = posts.map((post) => {
           : `전체 글 ${allPosts.length}개 (조건을 선택하면 좁혀드려요)`;
 
         if (filtered.length === 0) {
-          listEl.innerHTML = '<p class="find-empty">아직 조건에 딱 맞는 글이 없어요. 조건을 좀 더 넓혀보시겠어요?</p>';
+          listEl.innerHTML = '<p class="find-empty">아직 조건에 딱 맞는 글이 없어요. 조건을 좀 더 넓혀보시겠어요?</p><button type="button" class="find-search-link" data-search-open>키워드로 다시 찾아보기 →</button>';
           return;
         }
 
@@ -245,6 +245,10 @@ const postData = posts.map((post) => {
     .chip.active {
       background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 700;
     }
+    /* "상관없이 보기" 등 중립 선택지는 실제 필터 선택과 구분되도록 outline 스타일 유지 */
+    .chip-neutral.active {
+      background: var(--paper); border-color: var(--primary); color: var(--primary); font-weight: 700;
+    }
 
     .find-reset {
       font-family: var(--font-body); font-size: 0.85rem; color: var(--muted);
@@ -255,7 +259,13 @@ const postData = posts.map((post) => {
 
     .find-results { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
     .find-count { font-size: 0.88rem; color: var(--muted); margin: 0 0 1rem; font-weight: 600; }
-    .find-empty { color: var(--muted); padding: 1.5rem 0; }
+    .find-empty { color: var(--muted); padding: 1.5rem 0 0.5rem; }
+    .find-search-link {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-family: var(--font-body); font-size: 0.92rem; font-weight: 700; color: var(--accent);
+      background: none; border: none; cursor: pointer; padding: 0 0 1.5rem;
+    }
+    .find-search-link:hover { text-decoration: underline; }
 
     .find-card {
       display: block; text-decoration: none; color: inherit;

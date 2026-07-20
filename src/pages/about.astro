@@ -8,7 +8,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 >
   <article class="prose page about">
     <div class="about-hero">
-      <img src="/images/hero-squirrel.png" alt="혜택PICK 다람쥐 캐릭터" class="about-logo" />
+      <p class="eyebrow">소개</p>
       <h1>혜택PICK!!에 오신 걸 환영해요</h1>
       <p class="tagline">나에게 맞는 혜택만, PICK해서 알려드려요.</p>
     </div>
@@ -20,6 +20,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <div class="motto">
       <p class="motto-main">신설 제도부터 지역 특화 혜택까지.</p>
       <p class="motto-sub">숫자와 날짜는 공식 출처를 확인해서 전해드려요.</p>
+    </div>
+
+    <div class="trust-box">
+      <p class="trust-title">이렇게 검증해요</p>
+      <p class="trust-text">모든 정보는 보건복지부·고용노동부·국토교통부 등 정부 1차 출처와 대조한 뒤에 게시해요. 발표 시점과 시행 시점이 다르면 구분해서 안내하고, 신청기간이 지난 정책은 다루지 않아요.</p>
     </div>
 
     <h2>문의</h2>
@@ -35,7 +40,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <style>
     .about { max-width: 640px; }
     .about-hero { text-align: center; margin: 0.5rem 0 1.8rem; }
-    .about-logo { width: 110px; height: auto; margin: 0 auto 0.8rem; display: block; }
+    .eyebrow { font-size: 0.82rem; font-weight: 700; color: var(--accent); letter-spacing: 0.04em; margin: 0 0 0.6rem; }
     .about-hero h1 { font-family: var(--font-display); font-weight: 800; font-size: 1.7rem; letter-spacing: -0.02em; margin: 0 0 0.5rem; color: var(--ink); }
     .tagline { color: var(--muted); font-size: 1rem; margin: 0; }
 
@@ -45,6 +50,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     .motto { text-align: center; margin: 1.8rem 0; padding: 1.3rem 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
     .motto-main { font-size: 1.2rem; font-weight: 700; color: var(--primary); line-height: 1.6; margin: 0; letter-spacing: -0.01em; }
     .motto-sub { font-size: 0.96rem; color: var(--muted); margin: 0.6rem 0 0; }
+
+    .trust-box {
+      background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
+      padding: 1.1rem 1.3rem; margin: 1.8rem 0; text-align: left;
+    }
+    .trust-title {
+      font-size: 0.85rem; font-weight: 700; color: var(--primary);
+      margin: 0 0 0.5rem; display: flex; align-items: center; gap: 0.4rem;
+    }
+    .trust-title::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+    .trust-text { font-size: 0.92rem; color: var(--muted); line-height: 1.7; margin: 0; }
 
     .about h2 { font-size: 1.2rem; margin-top: 1.8rem; margin-bottom: 0.6rem; text-align: center; }
     .about > p:not([class]) { text-align: center; margin: 0.8rem 0; }
