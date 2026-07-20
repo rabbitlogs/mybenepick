@@ -343,10 +343,19 @@ const activeNavKey = categoryMatch ? categoryMatch[1] : (pathname.startsWith('/r
       .prose .summary-k { color: var(--primary); font-weight: 700; flex-shrink: 0; min-width: 4.2em; }
       .prose .summary-v { color: var(--ink); }
 
+      /* "A." 라벨을 고정폭(1.9em)으로 만들어 answer 안 첫 부분에 넣고,
+         answer 전체는 hanging indent(첫 줄만 왼쪽으로 당김)로 렌더링한다.
+         라벨이 고정폭이라 "A. " 실제 텍스트 폭이 폰트에 따라 들쭉날쭉해지는 문제가 없고,
+         둘째 줄부터는 항상 라벨 폭과 정확히 같은 위치(padding-left)에서 시작한다. */
       .prose .faq-answer {
         display: inline-block;
-        text-indent: -1.6em;
-        padding-left: 1.6em;
+        text-indent: -1.9em;
+        padding-left: 1.9em;
+      }
+      .prose .faq-label {
+        display: inline-block;
+        width: 1.9em;
+        font-weight: 700;
       }
 
       .prose mark.hl { background: #dbeafe; color: var(--ink); padding: 0.05em 0.25em; border-radius: 3px; }
@@ -396,8 +405,12 @@ const activeNavKey = categoryMatch ? categoryMatch[1] : (pathname.startsWith('/r
       .prose ul { padding-left: 1.4rem; }
       .prose li { margin: 0.4rem 0; }
 
-      /* 순서 목록(신청 방법 등)은 원형 배지 스타일로 렌더링 */
-      .prose ol {
+      /* 순서 목록(신청 방법 등)은 원형 배지 스타일로 렌더링.
+         ⚠️ :not(.toc-list) 필수 — 모바일(961px 미만)에서는 목차(.toc-list)가
+         사이드바로 옮겨지지 않고 .prose 안에 그대로 남아있는데, 이 규칙이 목차에도
+         걸리면 목차 자체 스타일(.toc-item::before 작은 점)과 여기 원형 배지가
+         같은 ::before 자리를 두고 충돌해 숫자가 겹쳐 보인다(2026-07-20 확인). */
+      .prose ol:not(.toc-list) {
         list-style: none;
         padding-left: 0;
         counter-reset: prose-ol;
@@ -406,7 +419,7 @@ const activeNavKey = categoryMatch ? categoryMatch[1] : (pathname.startsWith('/r
         gap: 0.85rem;
         margin: 1.2rem 0;
       }
-      .prose ol li {
+      .prose ol:not(.toc-list) li {
         counter-increment: prose-ol;
         display: flex;
         align-items: flex-start;
@@ -414,7 +427,7 @@ const activeNavKey = categoryMatch ? categoryMatch[1] : (pathname.startsWith('/r
         margin: 0;
         line-height: 1.7;
       }
-      .prose ol li::before {
+      .prose ol:not(.toc-list) li::before {
         content: counter(prose-ol);
         flex-shrink: 0;
         width: 24px; height: 24px;
@@ -425,6 +438,10 @@ const activeNavKey = categoryMatch ? categoryMatch[1] : (pathname.startsWith('/r
         font-size: 0.78rem;
         font-weight: 700;
         display: flex; align-items: center; justify-content: center;
+      }
+      .prose ol:not(.toc-list) li .ol-content {
+        min-width: 0;
+        overflow-wrap: break-word;
       }
       .prose img { max-width: 100%; height: auto; border-radius: 8px; display: block; margin: 1.5rem auto 0; }
 

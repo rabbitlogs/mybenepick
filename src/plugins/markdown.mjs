@@ -1,6 +1,37 @@
 import { visit } from 'unist-util-visit';
 import GithubSlugger from 'github-slugger';
 
+// 순서 목록(<ol><li>...)의 텍스트 콘텐츠를 <span class="ol-content">로 감싼다.
+// 이유: .prose ol li가 display:flex로 되어 있어(숫자 배지 ::before + 텍스트를 나란히 배치),
+// li의 텍스트 노드가 "익명 flex item"으로 취급된다. 익명 flex item은 CSS로 직접
+// min-width 등을 지정할 수 없어서, 링크가 섞인 긴 텍스트가 줄바꿈될 때 단어나 링크
+// 중간이 이상한 지점에서 잘리는 문제가 있었다(2026-07-20 스크린샷으로 확인).
+// li의 자식들을 실제 span 요소로 감싸면 그 span이 flex item이 되어 min-width: 0을
+// 정상적으로 줄 수 있고, 텍스트가 항상 온전한 단어/링크 단위로 줄바꿈된다.
+export function rehypeOlContent() {
+  return (tree) => {
+    visit(tree, 'element', (node) => {
+      if (node.tagName !== 'ol') return;
+      // 목차(remarkInlineToc가 만드는 <ol class="toc-list">)는 이미 자체 flex 구조를 갖고 있어
+      // (toc-num span + a를 형제로 두고 CSS flex로 배치) wrapper를 씌우면 그 레이아웃이 깨진다.
+      // 본문의 일반 순서 목록(신청 방법 등)만 대상으로 한다.
+      const classes = (node.properties && node.properties.className) || [];
+      if (classes.includes('toc-list')) return;
+
+      (node.children || []).forEach((li) => {
+        if (li.type !== 'element' || li.tagName !== 'li') return;
+        const wrapper = {
+          type: 'element',
+          tagName: 'span',
+          properties: { className: ['ol-content'] },
+          children: li.children,
+        };
+        li.children = [wrapper];
+      });
+    });
+  };
+}
+
 // ==중요== → <mark> 하이라이트로 변환
 export function remarkHighlight() {
   return (tree) => {
@@ -74,11 +105,18 @@ export function remarkSummaryBox() {
 }
 
 // **Q. 질문** 다음 줄에 A. 답변이 이어지는 FAQ 문단에서
-// A 답변 부분만 <span class="faq-answer">로 감싸 hanging indent CSS를 걸 수 있게 한다.
+// "A." 라벨과 답변 본문을 분리해 hanging indent를 정확하게 건다.
 // 두 가지 원본 표기를 모두 지원한다:
 //   1) 하드 브레이크(줄 끝 `\`) — 파서가 [strong(Q), break, ...A인라인] 로 분리해줌
 //   2) 그냥 줄바꿈(백슬래시 없음) — 파서가 [strong(Q), text("\nA. ...")] 로 합쳐서 넣음
-// 두 경우 모두 최종적으로 <br />는 유지하고, A 텍스트만 span으로 감싼다.
+//
+// ⚠️ 이전 버전은 "A. 답변..." 전체를 <span class="faq-answer">로 감싸고
+//    text-indent: -1.6em 으로 첫 줄만 당기는 방식이었다. 이 방식은 "A. "의 실제 렌더링 폭이
+//    폰트(가변폭)에 따라 1.6em과 정확히 일치하지 않아, 둘째 줄이 "A. " 뒤 텍스트 시작 위치보다
+//    더 안쪽으로 들여써져 보이는 문제가 있었다(2026-07-20 스크린샷으로 확인).
+//    지금 버전은 "A." 라벨을 <span class="faq-label">로 완전히 분리해 고정폭(2.4em)을 주고,
+//    답변 본문은 <span class="faq-answer">로 감싸 padding-left만 걸어서
+//    라벨 폭과 들여쓰기 폭이 항상 정확히 같도록 만든다.
 // (2장 9번 FAQ 규칙 참고)
 export function remarkFaq() {
   return (tree) => {
@@ -114,13 +152,28 @@ export function remarkFaq() {
 
       const firstRestText =
         rest[0] && rest[0].type === 'text' ? rest[0].value : '';
-      if (!firstRestText.trimStart().startsWith('A.')) return;
+      const trimmedFirst = firstRestText.trimStart();
+      if (!trimmedFirst.startsWith('A.')) return;
 
-      // rest를 <span class="faq-answer"> 안에 넣기 위해 앞뒤로 html 래퍼 노드를 삽입한다.
-      // (인라인 서식이 섞여 있어도 그대로 span의 자식으로 유지된다.)
-      const spanOpen = { type: 'html', value: '<span class="faq-answer">' };
-      const spanClose = { type: 'html', value: '</span>' };
-      node.children = [first, breakNode, spanOpen, ...rest, spanClose];
+      // "A." 바로 다음(마침표 뒤)부터가 실제 답변 본문 시작점.
+      // 첫 text 노드에서 "A."와 그 뒤 공백까지를 잘라내 라벨로 쓰고,
+      // 나머지(공백 제외한 본문)부터 faq-answer로 감싼다.
+      const leadingWhitespace = firstRestText.slice(0, firstRestText.length - trimmedFirst.length);
+      const afterLabel = trimmedFirst.slice(2); // "A." 이후
+      const bodyText = afterLabel.replace(/^\s+/, ''); // 라벨 뒤 공백 제거(고정폭 라벨이 대신 간격을 만듦)
+
+      const restWithoutLabel = [
+        ...(leadingWhitespace ? [{ type: 'text', value: leadingWhitespace }] : []),
+        { ...rest[0], value: bodyText },
+        ...rest.slice(1),
+      ];
+
+      const labelHtml = '<span class="faq-label">A.</span>';
+      const answerOpen = { type: 'html', value: '<span class="faq-answer">' };
+      const answerClose = { type: 'html', value: '</span>' };
+      const labelNode = { type: 'html', value: labelHtml };
+
+      node.children = [first, breakNode, answerOpen, labelNode, ...restWithoutLabel, answerClose];
     });
   };
 }
