@@ -31,6 +31,9 @@ const blog = defineCollection({
     }).optional(),
     tags: z.array(z.string()).optional(),
     thumbnail: z.string().optional(),
+    // 카테고리 리스트 페이지 우측에 노출되는 핵심 수치 배지 (예: "최대 250만원", "요건 폐지").
+    // 8자 내외로 짧게. 없으면 배지 자체가 생략됨.
+    metric: z.string().optional(),
   }),
 });
 

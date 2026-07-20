@@ -2,6 +2,7 @@
 title: "청년미래적금 1차 놓쳤다면, 12월 2차를 준비할 차례"
 description: "청년미래적금 1차 모집은 7월 3일 마감됐어요. 2차 모집은 12월 잠정으로, 만기 시 최대 2,255만원을 받을 수 있는 조건을 미리 정리했어요."
 pubDate: "2026-07-14"
+metric: "최대 2,255만원"
 category: "youth"
 contentTags: ["new"]
 eligibility:

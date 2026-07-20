@@ -1,5 +1,9 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+
+const allPosts = await getCollection('blog');
+const categoryCount = new Set(allPosts.map((p) => p.data.category)).size;
 ---
 
 <BaseLayout
@@ -16,6 +20,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <p class="lead">정부 지원금이나 제도는 막상 나에게 해당되는지,<br />언제부터 어떻게 신청해야 하는지 찾기가 쉽지 않아요.</p>
 
     <p class="lead">새로 생기거나 바뀐 제도를 대상자별로 정리해서,<br />필요한 정보만 빠르게 확인할 수 있도록 돕고 있어요.</p>
+
+    <div class="about-stats">
+      <div class="about-stat">
+        <p class="about-stat-num">{allPosts.length}건</p>
+        <p class="about-stat-label">등록된 지원금 정보</p>
+      </div>
+      <div class="about-stat">
+        <p class="about-stat-num">{categoryCount}개</p>
+        <p class="about-stat-label">생애주기 카테고리</p>
+      </div>
+      <div class="about-stat">
+        <p class="about-stat-num">공식 출처</p>
+        <p class="about-stat-label">정부 발표 기준 정리</p>
+      </div>
+    </div>
 
     <div class="motto">
       <p class="motto-main">신설 제도부터 지역 특화 혜택까지.</p>
@@ -46,6 +65,18 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     .about .lead { font-size: 1.02rem; line-height: 1.8; color: var(--ink); margin: 1.2rem 0; text-align: center; }
     .about .lead strong { color: var(--primary); font-weight: 700; }
+
+    .about-stats {
+      display: flex; justify-content: center; gap: 0.8rem;
+      margin: 1.8rem 0; flex-wrap: wrap;
+    }
+    .about-stat {
+      flex: 1; min-width: 130px; text-align: center;
+      border: 1px solid var(--line); border-radius: 10px;
+      padding: 1.1rem 1rem;
+    }
+    .about-stat-num { font-size: 1.4rem; font-weight: 800; color: var(--accent); margin: 0 0 0.3rem; }
+    .about-stat-label { font-size: 0.78rem; color: var(--muted); margin: 0; }
 
     .motto { text-align: center; margin: 1.8rem 0; padding: 1.3rem 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
     .motto-main { font-size: 1.2rem; font-weight: 700; color: var(--primary); line-height: 1.6; margin: 0; letter-spacing: -0.01em; }

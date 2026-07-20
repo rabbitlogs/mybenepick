@@ -26,6 +26,7 @@ const postData = posts.map((post) => {
     catLabel: catName[post.data.category],
     pubDate: post.data.pubDate.toISOString(),
     contentTags: post.data.contentTags || [],
+    metric: post.data.metric || '',
     // 태깅 안 된 축은 "전체 해당"으로 간주 (아래 매칭 로직에서 빈 배열/undefined는 항상 통과)
     ageRange: elig.ageRange || [],
     incomeLevel: elig.incomeLevel || 'any',
@@ -115,6 +116,12 @@ const postData = posts.map((post) => {
         const d = new Date(iso);
         return d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric' });
       }
+      function formatShortDate(iso) {
+        const d = new Date(iso);
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${mm}.${dd}`;
+      }
 
       function matches(post) {
         // 분야(category): 다중 선택. 선택한 카테고리 중 하나라도 일치하면 통과.
@@ -166,13 +173,16 @@ const postData = posts.map((post) => {
         }
 
         listEl.innerHTML = filtered.map((p) => `
-          <a href="${p.href}" class="find-card">
-            <div class="find-card-meta">
-              <span class="find-card-cat">${p.catLabel}</span>
-              <span class="find-card-date">${formatDate(p.pubDate)}</span>
-            </div>
-            <h3>${p.title}</h3>
-            <p>${p.description}</p>
+          <a href="${p.href}" class="list-row">
+            <span class="list-date">${formatShortDate(p.pubDate)}</span>
+            <span class="list-body">
+              <span class="list-title-row">
+                <span class="cat-badge" data-cat="${p.category}">${p.catLabel}</span>
+                <span class="list-title">${p.title}</span>
+              </span>
+              <span class="list-desc">${p.description}</span>
+            </span>
+            ${p.metric ? `<span class="list-metric">${p.metric}</span>` : ''}
           </a>
         `).join('');
       }
@@ -279,5 +289,42 @@ const postData = posts.map((post) => {
     .find-card-date { color: var(--muted); }
     .find-card h3 { font-size: 1.25rem; margin: 0 0 0.3rem; transition: color 0.15s; }
     .find-card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+  </style>
+
+  <style is:global>
+    /* 필터 결과(list-row)는 JS가 런타임에 innerHTML로 주입하므로 global로 스코프. */
+    #find-list .list-row {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1.1rem 0; border-bottom: 1px solid var(--line);
+      text-decoration: none; color: inherit;
+      transition: transform 0.15s;
+    }
+    #find-list .list-row:hover { transform: translateX(4px); }
+    #find-list .list-row:last-child { border-bottom: none; padding-bottom: 0; }
+    #find-list .list-row:hover .list-title { color: var(--primary); }
+    #find-list .list-date { flex-shrink: 0; width: 2.7rem; font-size: 0.78rem; color: var(--muted); }
+    #find-list .list-body { flex: 1; min-width: 0; }
+    #find-list .list-title-row { display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.25rem; }
+    #find-list .list-title { font-size: 1.05rem; font-weight: 700; color: var(--ink); transition: color 0.15s; }
+    #find-list .list-desc { display: block; font-size: 0.88rem; color: var(--muted); line-height: 1.5; }
+    #find-list .list-metric { flex-shrink: 0; font-size: 0.88rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
+    #find-list .cat-badge {
+      flex-shrink: 0; font-size: 0.72rem; font-weight: 700; padding: 0.18rem 0.55rem;
+      border-radius: 20px; background: var(--color-bg-soft); color: var(--primary);
+    }
+    #find-list .cat-badge[data-cat="parenting"] { background: #fce7f3; color: #9d174d; }
+    #find-list .cat-badge[data-cat="senior"] { background: #ede9fe; color: #5b21b6; }
+    #find-list .cat-badge[data-cat="housing"] { background: #dcfce7; color: #166534; }
+    #find-list .cat-badge[data-cat="youth"] { background: #dbeafe; color: #1e40af; }
+    #find-list .cat-badge[data-cat="job-startup"] { background: #fef3c7; color: #92400e; }
+    #find-list .cat-badge[data-cat="common"] { background: #e0e7ff; color: #3730a3; }
+    #find-list .cat-badge[data-cat="self-employed"] { background: #ffedd5; color: #9a3412; }
+
+    @media (max-width: 640px) {
+      #find-list .list-row { gap: 0.6rem; }
+      #find-list .list-date { width: 2.3rem; font-size: 0.72rem; }
+      #find-list .list-title { font-size: 0.96rem; }
+      #find-list .list-metric { font-size: 0.8rem; }
+    }
   </style>
 </BaseLayout>

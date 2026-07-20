@@ -2,6 +2,7 @@
 title: "아파서 못 나가도 일당 4만7,560원, 상병수당"
 description: "질병·부상으로 일을 못 하는 기간, 상병수당으로 일 47,560원을 받을 수 있어요. 현재 14개 지역에서 시범 시행 중이에요. 대상 지역과 신청 방법을 정리했어요."
 pubDate: "2026-07-10"
+metric: "일당 4.7만원"
 category: "common"
 contentTags: ["new", "regional"]
 eligibility:

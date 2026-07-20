@@ -86,6 +86,9 @@ const pageHref = (p) => (p === 1 ? basePath : `${basePath}/${p}`);
 
 <BaseLayout title={`${catName[cat]} — 혜택PICK!!`} description={catDesc[cat].join(' ')} showAds={true}>
   <section class="cat-list" style="padding-top: 1.2rem;">
+    <nav class="breadcrumb" aria-label="이동 경로">
+      <a href="/">홈</a> / <span class="active">{catName[cat]}</span>
+    </nav>
     <div class="cat-list-header">
       <div>
         <h1 style="font-size: 2rem; margin: 0 0 0.6rem;">{catName[cat]}</h1>
@@ -119,6 +122,8 @@ const pageHref = (p) => (p === 1 ? basePath : `${basePath}/${p}`);
               description={post.data.description}
               category={post.data.category}
               pubDate={post.data.pubDate}
+              metric={post.data.metric}
+              isNew={post.data.contentTags?.includes('new')}
             />
           </div>
           {i === 3 && ADSENSE_ENABLED && <AdSenseList />}
@@ -196,6 +201,10 @@ const pageHref = (p) => (p === 1 ? basePath : `${basePath}/${p}`);
   )}
 
   <style>
+    .breadcrumb { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.9rem; }
+    .breadcrumb a { color: var(--muted); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--primary); }
+    .breadcrumb .active { color: var(--primary); font-weight: 600; }
     .cat-list-header {
       display: flex; justify-content: space-between; align-items: flex-start;
       gap: 1rem; margin-bottom: 1.4rem; flex-wrap: wrap;

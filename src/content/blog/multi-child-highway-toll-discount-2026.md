@@ -2,6 +2,7 @@
 title: "다자녀 가정, 7월 21일부터 고속도로 통행료 등록하세요"
 description: "2자녀 10%, 3자녀 이상 20% 할인. 사전등록 7월 21일, 실제 적용 7월 28일부터. 주말·공휴일 재정고속도로 한정이에요."
 pubDate: "2026-07-12"
+metric: "최대 20% 할인"
 category: "parenting"
 contentTags: ["new"]
 eligibility:

@@ -2,6 +2,7 @@
 title: "육아기 10시 출근제, 6개월 근속요건 폐지"
 description: "육아기 10시 출근제 장려금 신청 조건에서 6개월 근속 요건이 없어졌어요. 2026년 7월 1일부터 바뀐 지원 대상과 신청 방법을 정리했어요."
 pubDate: "2026-07-03"
+metric: "요건 폐지"
 category: "parenting"
 contentTags: ["new"]
 eligibility:

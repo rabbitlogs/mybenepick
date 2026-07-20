@@ -1,35 +1,98 @@
 ---
 import { CATEGORY_NAMES } from '../data/categories.js';
 
-const { href, title, description, category, pubDate } = Astro.props;
+const { href, title, description, category, pubDate, variant = 'list', isNew = false, metric } = Astro.props;
 
 const catName = CATEGORY_NAMES;
 const dateStr = new Date(pubDate).toLocaleDateString('ko-KR', {
   year: 'numeric', month: 'short', day: 'numeric',
 });
+const shortDateStr = (() => {
+  const d = new Date(pubDate);
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${mm}.${dd}`;
+})();
 ---
 
-<a href={href} class="card">
-  <div class="card-meta">
-    <span class="cat">{catName[category]}</span>
-    <span class="date">{dateStr}</span>
-  </div>
-  <h3>{title}</h3>
-  <p>{description}</p>
-</a>
+{variant === 'card' ? (
+  <a href={href} class="post-card">
+    <div class="post-card-top">
+      <span class="cat-badge" data-cat={category}>{catName[category]}</span>
+      {isNew && <span class="new-badge">NEW</span>}
+      <span class="post-date">{shortDateStr}</span>
+    </div>
+    <h3 class="post-title">{title}</h3>
+    <p class="post-desc">{description}</p>
+  </a>
+) : (
+  <a href={href} class="list-row">
+    <span class="list-date">{shortDateStr}</span>
+    <span class="list-body">
+      <span class="list-title-row">
+        {isNew && <span class="new-badge">NEW</span>}
+        <span class="list-title">{title}</span>
+      </span>
+      <span class="list-desc">{description}</span>
+    </span>
+    {metric && <span class="list-metric">{metric}</span>}
+  </a>
+)}
 
 <style>
-  .card {
-    display: block; text-decoration: none; color: inherit;
-    padding: 1.5rem 0; border-bottom: 1px solid var(--line);
+  /* ── 리스트형 (카테고리 페이지 등) ── */
+  .list-row {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 1.1rem 0; border-bottom: 1px solid var(--line);
+    text-decoration: none; color: inherit;
     transition: transform 0.15s;
   }
-  .card:hover { transform: translateX(4px); }
-  .card:last-child { border-bottom: none; padding-bottom: 0; }
-  .card:hover h3 { color: var(--primary); }
-  .card-meta { display: flex; gap: 0.6rem; font-size: 0.8rem; margin-bottom: 0.4rem; }
-  .card .cat { color: var(--accent); font-weight: 600; }
-  .card .date { color: var(--muted); }
-  .card h3 { font-size: 1.3rem; margin: 0 0 0.3rem; transition: color 0.15s; }
-  .card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+  .list-row:hover { transform: translateX(4px); }
+  .list-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .list-row:hover .list-title { color: var(--primary); }
+  .list-date { flex-shrink: 0; width: 2.7rem; font-size: 0.78rem; color: var(--muted); }
+  .list-body { flex: 1; min-width: 0; }
+  .list-title-row { display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.25rem; }
+  .list-title { font-size: 1.05rem; font-weight: 700; color: var(--ink); transition: color 0.15s; }
+  .list-desc { display: block; font-size: 0.88rem; color: var(--muted); line-height: 1.5; }
+  .list-metric { flex-shrink: 0; font-size: 0.88rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
+
+  /* ── 카드형 (홈 최신 글 그리드) ── */
+  .post-card {
+    display: flex; flex-direction: column; gap: 0.6rem;
+    text-decoration: none; color: inherit;
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--line); border-radius: 10px;
+    background: #fff;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .post-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .post-card-top { display: flex; align-items: center; gap: 0.5rem; }
+  .cat-badge {
+    font-size: 0.72rem; font-weight: 700; padding: 0.18rem 0.55rem;
+    border-radius: 20px; background: var(--color-bg-soft); color: var(--primary);
+  }
+  .cat-badge[data-cat="parenting"] { background: #fce7f3; color: #9d174d; }
+  .cat-badge[data-cat="senior"] { background: #ede9fe; color: #5b21b6; }
+  .cat-badge[data-cat="housing"] { background: #dcfce7; color: #166534; }
+  .cat-badge[data-cat="youth"] { background: #dbeafe; color: #1e40af; }
+  .cat-badge[data-cat="job-startup"] { background: #fef3c7; color: #92400e; }
+  .cat-badge[data-cat="common"] { background: #e0e7ff; color: #3730a3; }
+  .cat-badge[data-cat="self-employed"] { background: #ffedd5; color: #9a3412; }
+  .new-badge {
+    flex-shrink: 0;
+    font-size: 0.65rem; font-weight: 700; color: #16a34a; background: #f0fdf4;
+    padding: 0.13rem 0.45rem; border-radius: 10px;
+  }
+  .post-date { margin-left: auto; font-size: 0.78rem; color: var(--muted); }
+  .post-title { font-size: 0.98rem; font-weight: 700; color: var(--ink); line-height: 1.4; margin: 0; }
+  .post-card:hover .post-title { color: var(--primary); }
+  .post-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.55; margin: 0; }
+
+  @media (max-width: 640px) {
+    .list-row { gap: 0.6rem; }
+    .list-date { width: 2.3rem; font-size: 0.72rem; }
+    .list-title { font-size: 0.96rem; }
+    .list-metric { font-size: 0.8rem; }
+  }
 </style>

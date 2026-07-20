@@ -35,6 +35,8 @@ const posts = (await getCollection('blog'))
           description={post.data.description}
           category={post.data.category}
           pubDate={post.data.pubDate}
+          metric={post.data.metric}
+          isNew={true}
         />
         {(i + 1) % 4 === 0 && i !== posts.length - 1 && ADSENSE_ENABLED && <AdSenseList />}
       </>

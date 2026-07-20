@@ -17,6 +17,11 @@ const updatedDateStr = updatedDate
   ? new Date(updatedDate).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
   : null;
 
+// 읽는 시간: 본문(마크다운 원문) 글자수 기준 분당 500자로 추정, 최소 1분.
+const rawBodyForReadTime = Astro.props.rawBody || '';
+const charCount = rawBodyForReadTime.replace(/\s/g, '').length;
+const readMinutes = Math.max(1, Math.round(charCount / 500));
+
 // JSON-LD (Article 구조화 데이터)
 const siteUrl = 'https://mybenepick.com';
 const pageUrl = siteUrl + '/blog/' + slug;
@@ -83,9 +88,13 @@ const faqJsonLd = faqEntities.length > 0 ? {
     <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
   )}
   <article class="post">
+    <nav class="breadcrumb" aria-label="이동 경로">
+      <a href="/">홈</a> / <a href={`/category/${category}`}>{catName[category]}</a> / <span class="active">{title}</span>
+    </nav>
     <div class="post-meta">
       <span class="cat">{catName[category]}</span>
       <span class="date">{dateStr}</span>
+      <span class="read-time">· 읽는 시간 {readMinutes}분</span>
       {updatedDateStr && <span class="updated">· {updatedDateStr} 수정</span>}
     </div>
     <h1>{title}</h1>
@@ -106,11 +115,14 @@ const faqJsonLd = faqEntities.length > 0 ? {
     {relatedPosts && relatedPosts.length > 0 && (
       <section class="related-posts">
         <h2 class="related-title">더 읽어보기</h2>
-        <ul class="related-list">
+        <div class="related-grid">
           {relatedPosts.map((rp) => (
-            <li><a href={rp.href}>{rp.title}</a></li>
+            <a href={rp.href} class="related-card">
+              <span class="related-cat-badge" data-cat={rp.category}>{catName[rp.category]}</span>
+              <p class="related-card-title">{rp.title}</p>
+            </a>
           ))}
-        </ul>
+        </div>
       </section>
     )}
 
@@ -284,9 +296,18 @@ const faqJsonLd = faqEntities.length > 0 ? {
 
   <style>
     .post { padding: 2.5rem 0; }
-    .post-meta { display: flex; gap: 0.75rem; align-items: center; font-size: 0.85rem; margin-bottom: 1rem; }
+    .breadcrumb { font-size: 0.82rem; color: var(--muted); margin-bottom: 1rem; }
+    .breadcrumb a { color: var(--muted); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--primary); }
+    .breadcrumb .active {
+      color: var(--primary); font-weight: 600;
+      display: inline-block; max-width: 320px; overflow: hidden;
+      text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom;
+    }
+    .post-meta { display: flex; gap: 0.75rem; align-items: center; font-size: 0.85rem; margin-bottom: 1rem; flex-wrap: wrap; }
     .cat { color: var(--accent); font-weight: 700; }
     .date { color: var(--muted); }
+    .read-time { color: var(--muted); }
     .updated { color: var(--muted); }
     .post h1 {
       font-size: 2rem; font-weight: 800; line-height: 1.3; margin: 0 0 0.6rem;
@@ -302,24 +323,42 @@ const faqJsonLd = faqEntities.length > 0 ? {
       font-weight: 800; font-size: 1.1rem; color: var(--muted);
       text-transform: uppercase; letter-spacing: 0.08em;
       border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem;
-      display: inline-block; margin: 0 0 0.5rem;
+      display: inline-block; margin: 0 0 1rem;
     }
-    .related-list {
-      list-style: none; margin: 0; padding: 0;
-      display: flex; flex-direction: column; gap: 0.6rem;
+    .related-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; }
+    .related-card {
+      display: block; text-decoration: none;
+      padding: 1rem 1.1rem; border: 1px solid var(--line); border-radius: 10px;
+      transition: border-color 0.15s, transform 0.15s;
     }
-    .related-list li { padding: 0.4rem 0; }
-    .related-list a {
-      color: var(--ink); font-weight: 600; text-decoration: none;
-      font-size: 0.98rem;
+    .related-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+    .related-cat-badge {
+      display: inline-block; font-size: 0.7rem; font-weight: 700;
+      padding: 0.16rem 0.5rem; border-radius: 20px;
+      background: var(--color-bg-soft); color: var(--primary);
+      margin-bottom: 0.5rem;
     }
-    .related-list a:hover { color: var(--primary); text-decoration: underline; }
-    .related-list a::before { content: "→ "; color: var(--primary); }
+    .related-cat-badge[data-cat="parenting"] { background: #fce7f3; color: #9d174d; }
+    .related-cat-badge[data-cat="senior"] { background: #ede9fe; color: #5b21b6; }
+    .related-cat-badge[data-cat="housing"] { background: #dcfce7; color: #166534; }
+    .related-cat-badge[data-cat="youth"] { background: #dbeafe; color: #1e40af; }
+    .related-cat-badge[data-cat="job-startup"] { background: #fef3c7; color: #92400e; }
+    .related-cat-badge[data-cat="common"] { background: #e0e7ff; color: #3730a3; }
+    .related-cat-badge[data-cat="self-employed"] { background: #ffedd5; color: #9a3412; }
+    .related-card-title {
+      font-size: 0.9rem; font-weight: 700; color: var(--ink); line-height: 1.4; margin: 0;
+    }
+    .related-card:hover .related-card-title { color: var(--primary); }
     .subtitle {
       font-size: 1.05rem; color: var(--muted); line-height: 1.6;
       margin: 0 0 1.8rem; font-weight: 400;
     }
     .post :global(.ad-slot.ad-last) { margin-bottom: 0; }
+
+    @media (max-width: 640px) {
+      .breadcrumb .active { max-width: 160px; }
+      .related-grid { grid-template-columns: 1fr; }
+    }
 
     .post :global(.prose .lightbox-zoom-wrap) {
       position: relative;

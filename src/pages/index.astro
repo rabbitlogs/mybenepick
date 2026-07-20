@@ -57,15 +57,57 @@ const latestUpdateStr = latestUpdate.toLocaleDateString('ko-KR', { year: 'numeri
       <h2 class="section-title">최신 글</h2>
       <a href="/find" class="find-link">나에게 맞는 글 찾기 →</a>
     </div>
-    {posts.map((post) => (
-      <PostCard
-        href={`/blog/${post.id.replace('.md', '')}`}
-        title={post.data.title}
-        description={post.data.description}
-        category={post.data.category}
-        pubDate={post.data.pubDate}
-      />
-    ))}
+    <div class="post-grid">
+      {posts.map((post) => (
+        <PostCard
+          variant="card"
+          href={`/blog/${post.id.replace('.md', '')}`}
+          title={post.data.title}
+          description={post.data.description}
+          category={post.data.category}
+          pubDate={post.data.pubDate}
+          isNew={post.data.contentTags?.includes('new')}
+        />
+      ))}
+    </div>
+  </section>
+
+  <section class="cat-browse">
+    <h2 class="section-title">카테고리별로 찾아보기</h2>
+    <div class="cat-grid">
+      <a href="/category/youth" class="cat-card tone-blue">
+        <p class="cat-card-name">청년</p>
+        <p class="cat-card-desc">취업, 창업, 자산형성 지원</p>
+      </a>
+      <a href="/category/job-startup" class="cat-card tone-teal">
+        <p class="cat-card-name">취업·창업</p>
+        <p class="cat-card-desc">구직급여, 창업자금, 재취업 지원</p>
+      </a>
+      <a href="/category/parenting" class="cat-card tone-pink">
+        <p class="cat-card-name">육아·출산</p>
+        <p class="cat-card-desc">육아휴직, 출산장려금, 돌봄 지원</p>
+      </a>
+      <a href="/category/housing" class="cat-card tone-green">
+        <p class="cat-card-name">주거</p>
+        <p class="cat-card-desc">전세자금, 청약, 임대주택 지원</p>
+      </a>
+      <a href="/category/self-employed" class="cat-card tone-amber">
+        <p class="cat-card-name">소상공인</p>
+        <p class="cat-card-desc">경영안정자금, 바우처, 세제 지원</p>
+      </a>
+      <a href="/category/senior" class="cat-card tone-purple">
+        <p class="cat-card-name">중장년·시니어</p>
+        <p class="cat-card-desc">연금, 재취업, 건강 지원</p>
+      </a>
+      <a href="/category/common" class="cat-card tone-navy">
+        <p class="cat-card-name">전국민 공통</p>
+        <p class="cat-card-desc">생계, 통신비, 에너지 지원</p>
+      </a>
+      <a href="/regional" class="cat-card tone-slate">
+        <p class="cat-card-name">지역별</p>
+        <p class="cat-card-desc">지자체별 특화 지원제도</p>
+      </a>
+    </div>
   </section>
 
   <style>
@@ -112,20 +154,48 @@ const latestUpdateStr = latestUpdate.toLocaleDateString('ko-KR', { year: 'numeri
     .latest-header {
       display: flex; align-items: baseline; justify-content: space-between;
       flex-wrap: wrap; gap: 0.5rem 1rem;
-      border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem; margin-bottom: 0.5rem;
+      border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem; margin-bottom: 1.2rem;
+    }
+    .post-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
     }
     .section-title { font-weight: 800; font-size: 1.1rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin: 0; }
     .find-link { font-size: 0.88rem; font-weight: 600; color: var(--primary); text-decoration: none; white-space: nowrap; }
     .find-link:hover { text-decoration: underline; }
 
+    .cat-browse { margin-top: 3rem; padding-bottom: 1rem; }
+    .cat-browse .section-title {
+      border-bottom: 2px solid var(--primary); padding-bottom: 0.5rem; margin-bottom: 1.2rem;
+    }
+    .cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.9rem; }
+    .cat-card {
+      display: block; text-decoration: none;
+      padding: 1.2rem 1.3rem; border-radius: 10px; border: 1px solid var(--line);
+      transition: transform 0.15s;
+    }
+    .cat-card:hover { transform: translateY(-2px); }
+    .cat-card-name { font-size: 0.95rem; font-weight: 700; margin: 0 0 0.35rem; }
+    .cat-card-desc { font-size: 0.78rem; color: var(--muted); margin: 0; }
+    .cat-card.tone-blue { background: #eff6ff; } .cat-card.tone-blue .cat-card-name { color: #1e40af; }
+    .cat-card.tone-teal { background: #ecfdf5; } .cat-card.tone-teal .cat-card-name { color: #065f46; }
+    .cat-card.tone-pink { background: #fdf2f8; } .cat-card.tone-pink .cat-card-name { color: #9d174d; }
+    .cat-card.tone-green { background: #f0fdf4; } .cat-card.tone-green .cat-card-name { color: #166534; }
+    .cat-card.tone-amber { background: #fffbeb; } .cat-card.tone-amber .cat-card-name { color: #92400e; }
+    .cat-card.tone-purple { background: #f5f3ff; } .cat-card.tone-purple .cat-card-name { color: #5b21b6; }
+    .cat-card.tone-navy { background: #eef2ff; } .cat-card.tone-navy .cat-card-name { color: #3730a3; }
+    .cat-card.tone-slate { background: #f1f5f9; } .cat-card.tone-slate .cat-card-name { color: #334155; }
+
     @media (max-width: 900px) {
       .hero { grid-template-columns: 1fr; padding: 2.2rem 0 1.8rem; }
+      .post-grid { grid-template-columns: repeat(2, 1fr); }
+      .cat-grid { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 640px) {
       .hero h1 { font-size: 1.7rem; }
       .mobile-br { display: inline; }
       .hero-search-placeholder { display: none; }
       .latest-header { justify-content: center; text-align: center; }
+      .post-grid { grid-template-columns: 1fr; }
     }
   </style>
 </BaseLayout>
