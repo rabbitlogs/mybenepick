@@ -6,7 +6,7 @@ metric: 1주 단위 분할 사용
 deadline: ongoing
 category: parenting
 contentTags:
-  - regional
+  - new
 eligibility:
   employmentStatus:
     - employed
