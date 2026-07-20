@@ -343,18 +343,27 @@ const activeNavKey = categoryMatch ? categoryMatch[1] : (pathname.startsWith('/r
       .prose .summary-k { color: var(--primary); font-weight: 700; flex-shrink: 0; min-width: 4.2em; }
       .prose .summary-v { color: var(--ink); }
 
-      /* "A." 라벨을 고정폭(1.9em)으로 만들어 answer 안 첫 부분에 넣고,
-         answer 전체는 hanging indent(첫 줄만 왼쪽으로 당김)로 렌더링한다.
-         라벨이 고정폭이라 "A. " 실제 텍스트 폭이 폰트에 따라 들쭉날쭉해지는 문제가 없고,
-         둘째 줄부터는 항상 라벨 폭과 정확히 같은 위치(padding-left)에서 시작한다. */
+      /* "A." 라벨과 답변을 2컬럼 grid로 배치한다.
+         이전엔 라벨 폭을 em 단위 추정치(1.9em → 1.35em)로 고정했는데, 실제 폰트(Pretendard)의
+         "A." 렌더링 폭과 추정치가 안 맞아 라벨과 답변 사이 간격이 너무 벌어지거나
+         (2026-07-20 1차 확인) 반대로 붙어 보이는 문제가 반복됐다.
+         grid-template-columns: max-content 1fr 이면 첫 컬럼(라벨) 폭이 실제 콘텐츠
+         크기에 맞춰 브라우저가 자동으로 계산하므로, 폰트가 뭐든 항상 정확하다. */
+      .prose p:has(> .faq-answer) {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        column-gap: 0.4em;
+      }
+      .prose p:has(> .faq-answer) > strong {
+        grid-column: 1 / -1;
+      }
+      .prose p:has(> .faq-answer) > br {
+        display: none;
+      }
       .prose .faq-answer {
-        display: inline-block;
-        text-indent: -1.9em;
-        padding-left: 1.9em;
+        display: contents;
       }
       .prose .faq-label {
-        display: inline-block;
-        width: 1.9em;
         font-weight: 700;
       }
 
