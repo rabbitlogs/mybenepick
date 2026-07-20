@@ -145,6 +145,67 @@ const faqJsonLd = faqEntities.length > 0 ? {
     </script>
 
     <!--
+      목차 스크롤스파이: 현재 읽고 있는 섹션의 목차 항목을 강조하고,
+      왼쪽 진행바(.toc-progress)를 그만큼 채운다.
+      h2/h3 헤딩이 뷰포트 상단 근처(scroll-margin-top 부근)를 지나는 시점을 기준으로 판정한다.
+    -->
+    <script is:inline>
+      document.addEventListener('DOMContentLoaded', () => {
+        const tocRoot = document.querySelector('[data-toc-root]');
+        if (!tocRoot) return;
+
+        const tocItems = Array.from(tocRoot.querySelectorAll('[data-toc-target]'));
+        const progressBar = tocRoot.querySelector('[data-toc-progress]');
+        if (tocItems.length === 0) return;
+
+        const headings = tocItems
+          .map((item) => {
+            const slug = item.getAttribute('data-toc-target');
+            const heading = document.getElementById(slug);
+            return heading ? { item, heading, slug } : null;
+          })
+          .filter(Boolean);
+
+        if (headings.length === 0) return;
+
+        let activeIndex = 0;
+
+        const setActive = (index) => {
+          if (index === activeIndex && tocItems[index]?.classList.contains('is-active')) return;
+          activeIndex = index;
+          tocItems.forEach((item, i) => item.classList.toggle('is-active', i === index));
+          if (progressBar) {
+            const ratio = headings.length <= 1 ? 1 : index / (headings.length - 1);
+            progressBar.style.height = Math.round(ratio * 100) + '%';
+          }
+        };
+
+        const updateActiveByScroll = () => {
+          const triggerLine = window.innerHeight * 0.28;
+          let current = 0;
+          for (let i = 0; i < headings.length; i++) {
+            const rect = headings[i].heading.getBoundingClientRect();
+            if (rect.top <= triggerLine) current = i;
+            else break;
+          }
+          setActive(current);
+        };
+
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+          if (ticking) return;
+          ticking = true;
+          requestAnimationFrame(() => {
+            updateActiveByScroll();
+            ticking = false;
+          });
+        }, { passive: true });
+
+        updateActiveByScroll();
+      });
+    </script>
+
+    <!--
       광고 배치 (혜택PICK-글쓰기가이드 15장 결론 반영):
         - 기본 2개: 3줄 요약(summary-box 또는 toc) 직후 / 태그(FAQ 다음) 뒤
         - 표(table)가 본문에 있으면 표 다음에 1개 추가해 최대 3개

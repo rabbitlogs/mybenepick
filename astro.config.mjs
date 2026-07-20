@@ -3,7 +3,7 @@ import sitemap from '@astrojs/sitemap';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeExternalLinks from 'rehype-external-links';
-import { remarkHighlight, remarkInlineToc, remarkSummaryBox, remarkFaq } from './src/plugins/markdown.mjs';
+import { remarkHighlight, remarkInlineToc, remarkSummaryBox, remarkFaq, remarkTldrBox } from './src/plugins/markdown.mjs';
 
 export default defineConfig({
   site: 'https://mybenepick.com',
@@ -12,7 +12,7 @@ export default defineConfig({
     inlineStylesheets: 'always',
   },
   markdown: {
-    remarkPlugins: [remarkSummaryBox, remarkFaq, remarkHighlight, remarkInlineToc],
+    remarkPlugins: [remarkTldrBox, remarkSummaryBox, remarkFaq, remarkHighlight, remarkInlineToc],
     rehypePlugins: [
       rehypeSlug,
       [rehypeAutolinkHeadings, { behavior: 'wrap' }],

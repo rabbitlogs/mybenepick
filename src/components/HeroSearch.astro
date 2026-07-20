@@ -1,0 +1,164 @@
+---
+// 홈 히어로 전용 인라인 검색.
+// 헤더의 Search.astro(모달형)와 같은 Pagefind 엔진을 쓰되, 모달을 띄우지 않고
+// 이 자리에서 바로 입력 → 드롭다운으로 결과를 보여준다.
+const placeholder = '예: 청년 취업, 육아휴직';
+---
+
+<div class="hero-search-wrap">
+  <div class="hero-search-box">
+    <svg class="hero-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+    <input
+      type="text"
+      class="hero-search-input"
+      placeholder={placeholder}
+      autocomplete="off"
+      data-hero-search-input
+      aria-label="지원금 검색"
+    />
+    <span class="hero-search-btn">찾아보기</span>
+  </div>
+  <div class="hero-search-results" data-hero-search-results></div>
+</div>
+
+<script is:inline>
+  (function () {
+    const input = document.querySelector('[data-hero-search-input]');
+    const results = document.querySelector('[data-hero-search-results]');
+    if (!input || !results) return;
+
+    let pagefind = null;
+    let pagefindLoading = null;
+
+    function loadPagefind() {
+      if (pagefind) return Promise.resolve(pagefind);
+      if (pagefindLoading) return pagefindLoading;
+      pagefindLoading = import('/pagefind/pagefind.js')
+        .then((mod) => { pagefind = mod; return pagefind; })
+        .catch(() => null);
+      return pagefindLoading;
+    }
+
+    // 검색창 근처에 마우스가 오거나 포커스가 가면 미리 로드해서, 첫 타이핑 시 지연을 줄인다.
+    let preloaded = false;
+    const preload = () => { if (!preloaded) { preloaded = true; loadPagefind(); } };
+    input.addEventListener('focus', preload);
+    input.addEventListener('mouseenter', preload);
+
+    const closeResults = () => {
+      results.classList.remove('is-open');
+      results.innerHTML = '';
+    };
+
+    const render = async (hits) => {
+      if (!hits.length) {
+        results.innerHTML = '<p class="hero-search-hint">검색 결과가 없어요.</p>';
+        results.classList.add('is-open');
+        return;
+      }
+      const allItems = await Promise.all(hits.slice(0, 20).map((h) => h.data()));
+      const items = allItems
+        .filter((d) => d && d.url)
+        .filter((d) => !d.url.includes('/en/'))
+        .slice(0, 6);
+
+      if (!items.length) {
+        results.innerHTML = '<p class="hero-search-hint">검색 결과가 없어요.</p>';
+        results.classList.add('is-open');
+        return;
+      }
+
+      results.innerHTML = items.map((d) => {
+        const title = d.meta && d.meta.title ? d.meta.title : d.url;
+        const excerpt = d.excerpt || '';
+        return (
+          '<a class="hero-search-result" href="' + d.url + '">' +
+          '<span class="hero-search-result-title">' + title + '</span>' +
+          '<span class="hero-search-result-excerpt">' + excerpt + '</span>' +
+          '</a>'
+        );
+      }).join('');
+      results.classList.add('is-open');
+    };
+
+    let timer = null;
+    input.addEventListener('input', () => {
+      clearTimeout(timer);
+      const q = input.value.trim();
+      if (!q) { closeResults(); return; }
+      timer = setTimeout(async () => {
+        const pf = await loadPagefind();
+        if (!pf) { results.innerHTML = '<p class="hero-search-hint">검색 결과가 없어요.</p>'; results.classList.add('is-open'); return; }
+        const search = await pf.search(q);
+        render(search.results);
+      }, 250);
+    });
+
+    // 바깥 클릭하면 결과 드롭다운 닫기
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.hero-search-wrap')) closeResults();
+    });
+    // ESC로 닫기
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { closeResults(); input.blur(); }
+    });
+  })();
+</script>
+
+<style>
+  .hero-search-wrap { position: relative; width: 100%; }
+
+  .hero-search-box {
+    display: flex; align-items: center; gap: 0.7rem;
+    width: 100%; padding: 0.85rem 1.1rem;
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .hero-search-box:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.08);
+  }
+  .hero-search-icon { flex-shrink: 0; color: var(--muted); }
+  .hero-search-input {
+    flex: 1; min-width: 0; border: none; outline: none; background: none;
+    font-family: inherit; font-size: 0.94rem; color: var(--ink);
+  }
+  .hero-search-input::placeholder { color: var(--muted); }
+  .hero-search-btn {
+    flex-shrink: 0; font-size: 0.85rem; font-weight: 700; color: #fff;
+    background: var(--primary); padding: 0.5rem 1.1rem; border-radius: 8px;
+    pointer-events: none;
+  }
+
+  .hero-search-results {
+    display: none;
+    position: absolute; top: calc(100% + 0.5rem); left: 0; right: 0;
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(23, 38, 58, 0.12);
+    padding: 0.5rem; max-height: 360px; overflow-y: auto;
+    z-index: 20;
+  }
+  .hero-search-results.is-open { display: block; }
+  .hero-search-hint { color: var(--muted); font-size: 0.9rem; text-align: center; margin: 1rem 0; }
+
+  :global(.hero-search-result) {
+    display: block; padding: 0.65rem 0.6rem; border-radius: 8px;
+    text-decoration: none; color: inherit; transition: background 0.12s;
+  }
+  :global(.hero-search-result:hover) { background: rgba(30, 58, 95, 0.06); }
+  :global(.hero-search-result-title) {
+    display: block; font-weight: 700; font-size: 0.95rem; color: var(--ink);
+    margin-bottom: 0.2rem;
+  }
+  :global(.hero-search-result-excerpt) {
+    display: block; font-size: 0.83rem; color: var(--muted); line-height: 1.5;
+  }
+  :global(.hero-search-result-excerpt mark) {
+    background: rgba(37, 99, 235, 0.18); color: inherit; border-radius: 2px;
+    padding: 0 0.1em; font-weight: 600;
+  }
+
+  @media (max-width: 640px) {
+    .hero-search-btn { display: none; }
+  }
+</style>

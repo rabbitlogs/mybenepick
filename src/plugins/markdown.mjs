@@ -136,17 +136,42 @@ function headingText(node) {
 
 // [[TOC]] 마커 자리에 목차(소제목 h2/h3 기반)를 그려넣는다.
 // 소제목 링크의 id는 rehype-slug와 동일한 github-slugger로 생성해 정확히 일치시킨다.
+// h2에는 순번(1, 2, 3...)을 매기고, h3는 번호 없이 하위 항목으로만 표시한다.
+// 같은 번호를 본문의 h2 헤딩에도 data-num 속성으로 심어서 "목차 번호 = 본문 소제목 번호"가 되게 한다.
+// ⚠️ 번호를 헤딩의 텍스트 콘텐츠로 직접 넣지 않는다 — rehype-slug가 헤딩 텍스트를 기준으로
+//    id(슬러그)를 만드는데, 텍스트에 숫자가 섞이면 TOC의 href와 실제 id가 어긋난다.
+//    그래서 번호는 data 속성으로만 심고, 화면 표시는 CSS ::before로 처리한다.
+// 목차 마크업은 스크롤스파이(현재 읽는 섹션 강조) + 진행바를 붙일 수 있도록
+// 각 li에 data-toc-target(슬러그)을 심어둔다 — 실제 하이라이트 동작은 PostLayout의 스크립트가 담당.
 export function remarkInlineToc() {
   return (tree) => {
     const slugger = new GithubSlugger();
     const items = [];
+    let h2Counter = 0;
+    const h2Nodes = [];
+
     visit(tree, 'heading', (node) => {
       if (node.depth === 2 || node.depth === 3) {
         const text = headingText(node);
         const slug = slugger.slug(text);
-        items.push({ depth: node.depth, text, slug });
+        let number = null;
+        if (node.depth === 2) {
+          h2Counter += 1;
+          number = h2Counter;
+          h2Nodes.push(node);
+        }
+        items.push({ depth: node.depth, text, slug, number });
       }
     });
+
+    // 소제목이 2개 미만이면 목차 자체를 안 그리므로, 헤딩 번호도 매기지 않는다(일관성 유지).
+    if (items.length >= 2) {
+      h2Nodes.forEach((node, i) => {
+        node.data = node.data || {};
+        node.data.hProperties = node.data.hProperties || {};
+        node.data.hProperties['data-num'] = String(i + 1);
+      });
+    }
 
     visit(tree, 'paragraph', (node, index, parent) => {
       if (
@@ -160,14 +185,96 @@ export function remarkInlineToc() {
           return;
         }
         const lis = items
-          .map(
-            (it) =>
-              `<li class="${it.depth === 3 ? 'sub' : ''}"><a href="#${it.slug}">${it.text}</a></li>`
-          )
+          .map((it) => {
+            if (it.depth === 3) {
+              return `<li class="toc-item sub" data-toc-target="${it.slug}"><a href="#${it.slug}">${it.text}</a></li>`;
+            }
+            return `<li class="toc-item" data-toc-target="${it.slug}"><span class="toc-num">${it.number}</span><a href="#${it.slug}">${it.text}</a></li>`;
+          })
           .join('');
-        const html = `<nav class="toc" aria-label="목차"><p class="toc-title">목차</p><ol>${lis}</ol></nav>`;
+        const html =
+          '<nav class="toc" aria-label="목차" data-toc-root>' +
+          '<div class="toc-header">' +
+          '<span class="toc-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></span>' +
+          '<span class="toc-title">목차</span>' +
+          '<span class="toc-hint">클릭해서 이동</span>' +
+          '</div>' +
+          '<div class="toc-body">' +
+          '<div class="toc-track"></div>' +
+          '<div class="toc-progress" data-toc-progress></div>' +
+          `<ol class="toc-list">${lis}</ol>` +
+          '</div>' +
+          '</nav>';
         parent.children.splice(index, 1, { type: 'html', value: html });
       }
     });
   };
+}
+
+// > 📌 3줄 요약
+// >
+// > 1. ...
+// > 2. ...
+// > 3. ...
+//
+// 형태의 blockquote를 감지해 "3줄 요약" 전용 박스(.tldr-box)로 변환한다.
+// 일반 인용구(blockquote)를 재활용하는 대신 완전히 별도 마크업을 그려서,
+// 나중에 진짜 인용구(예: 정부 발표 원문)를 쓰더라도 스타일이 충돌하지 않게 한다.
+// 리스트 항목은 순서 목록(1. 2. 3.)이든 불릿 목록(-)이든 둘 다 인식하되,
+// 화면에는 항상 불릿(•)으로 통일해서 그린다(2026-07-20 결정 — 3장 참고).
+export function remarkTldrBox() {
+  return (tree) => {
+    visit(tree, 'blockquote', (node, index, parent) => {
+      if (!parent || !node.children || node.children.length < 2) return;
+
+      const firstPara = node.children[0];
+      if (firstPara.type !== 'paragraph') return;
+      const headerText = firstPara.children
+        .map((c) => (c.type === 'text' ? c.value : ''))
+        .join('')
+        .trim();
+      if (!headerText.includes('3줄 요약')) return;
+
+      const listNode = node.children.find((c) => c.type === 'list');
+      if (!listNode || !listNode.children || listNode.children.length === 0) return;
+
+      const items = listNode.children.map((li) => {
+        // 리스트 항목 안의 인라인 서식(강조 등)을 그대로 살리기 위해
+        // 텍스트를 직접 뽑지 않고 mdast-to-html 변환 없이 즉석에서 HTML로 직렬화한다.
+        const inlineHtml = (li.children || [])
+          .filter((c) => c.type === 'paragraph')
+          .flatMap((p) => p.children)
+          .map((c) => inlineToHtml(c))
+          .join('');
+        return `<li>${inlineHtml}</li>`;
+      });
+
+      const boxHtml =
+        '<div class="tldr-box">' +
+        '<div class="tldr-header"><span class="tldr-badge">' +
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"></path><path d="M18 20V4"></path><path d="M6 20v-4"></path></svg>' +
+        '3줄 요약</span></div>' +
+        `<ul class="tldr-list">${items.join('')}</ul>` +
+        '</div>';
+
+      parent.children.splice(index, 1, { type: 'html', value: boxHtml });
+    });
+  };
+}
+
+// mdast 인라인 노드를 최소 HTML로 직렬화한다(3줄 요약 안의 **굵게** 등 간단한 서식 지원용).
+function inlineToHtml(node) {
+  if (!node) return '';
+  if (node.type === 'text') return node.value;
+  if (node.type === 'html') return node.value;
+  if (node.type === 'break') return '<br />';
+  if (node.type === 'strong') {
+    return `<strong>${(node.children || []).map(inlineToHtml).join('')}</strong>`;
+  }
+  if (node.type === 'emphasis') {
+    return `<em>${(node.children || []).map(inlineToHtml).join('')}</em>`;
+  }
+  if (node.type === 'inlineCode') return `<code>${node.value}</code>`;
+  if (node.children) return node.children.map(inlineToHtml).join('');
+  return '';
 }
