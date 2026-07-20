@@ -82,7 +82,7 @@ const faqJsonLd = faqEntities.length > 0 ? {
 } : null;
 ---
 
-<BaseLayout title={title} description={description} showAds={true} image={ogImage}>
+<BaseLayout title={title} description={description} showAds={true} image={ogImage} narrow={true}>
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   {faqJsonLd && (
     <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />

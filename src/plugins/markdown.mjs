@@ -165,7 +165,7 @@ export function remarkInlineToc() {
               `<li class="${it.depth === 3 ? 'sub' : ''}"><a href="#${it.slug}">${it.text}</a></li>`
           )
           .join('');
-        const html = `<nav class="toc" aria-label="목차"><p class="toc-title">목차</p><ul>${lis}</ul></nav>`;
+        const html = `<nav class="toc" aria-label="목차"><p class="toc-title">목차</p><ol>${lis}</ol></nav>`;
         parent.children.splice(index, 1, { type: 'html', value: html });
       }
     });
