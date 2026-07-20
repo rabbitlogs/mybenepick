@@ -30,16 +30,27 @@ const isNew = (() => {
   return diffDays >= 0 && diffDays <= NEW_BADGE_DAYS;
 })();
 
-// 마감 배지: deadline이 "ongoing"(상시)이 아니고, 오늘 날짜가 그 날짜를 지났으면 표시.
-// 자정 기준으로 비교해 마감 당일까지는 마감 표시가 안 뜨게 한다(그날 23:59까지는 신청 가능한 게 보통이므로).
-const isExpired = deadline && deadline !== 'ongoing' && startOfDay(new Date()) > startOfDay(deadline);
+// 마감 배지: deadline이 날짜 문자열이 아닌 특수값("ongoing"/"budget-limited")이면
+// 날짜 비교 대상에서 제외한다 — 이 값들을 그대로 new Date()에 넣으면 Invalid Date가 되어
+// 의도치 않게 마감 처리될 수 있으므로, 반드시 날짜 파싱 전에 먼저 걸러낸다.
+const NON_DATE_DEADLINE_VALUES = ['ongoing', 'budget-limited'];
+const isExpired = deadline && !NON_DATE_DEADLINE_VALUES.includes(deadline) && startOfDay(new Date()) > startOfDay(deadline);
+// 예산·인원 캡이 있어 소진 시 조기 마감될 수 있는 글. 실시간 소진 여부는 판별하지 않고,
+// 이 값이 붙은 글에는 안내 배지를 상시·고정으로 노출한다(ongoing과 구분 — 6-6 참고).
+const isBudgetLimited = deadline === 'budget-limited';
 ---
 
 {variant === 'card' ? (
   <a href={href} class="post-card" class:list={[{ 'is-expired': isExpired }]}>
     <div class="post-card-top">
       <span class="cat-badge" data-cat={category}>{catName[category]}</span>
-      {isExpired ? <span class="expired-badge">마감</span> : isNew && <span class="new-badge">NEW</span>}
+      {isExpired ? (
+        <span class="expired-badge">마감</span>
+      ) : isBudgetLimited ? (
+        <span class="budget-badge">소진 시 마감</span>
+      ) : (
+        isNew && <span class="new-badge">NEW</span>
+      )}
       <span class="post-date">{shortDateStr}</span>
     </div>
     <h3 class="post-title">{title}</h3>
@@ -50,7 +61,13 @@ const isExpired = deadline && deadline !== 'ongoing' && startOfDay(new Date()) >
     <span class="list-date">{shortDateStr}</span>
     <span class="list-body">
       <span class="list-title-row">
-        {isExpired ? <span class="expired-badge">마감</span> : isNew && <span class="new-badge">NEW</span>}
+        {isExpired ? (
+          <span class="expired-badge">마감</span>
+        ) : isBudgetLimited ? (
+          <span class="budget-badge">소진 시 마감</span>
+        ) : (
+          isNew && <span class="new-badge">NEW</span>
+        )}
         <span class="list-title">{title}</span>
       </span>
       <span class="list-desc">{description}</span>
@@ -107,6 +124,11 @@ const isExpired = deadline && deadline !== 'ongoing' && startOfDay(new Date()) >
   .expired-badge {
     flex-shrink: 0;
     font-size: 0.68rem; font-weight: 700; color: #6b7280; background: #f3f4f6;
+    padding: 0.16rem 0.5rem; border-radius: 10px;
+  }
+  .budget-badge {
+    flex-shrink: 0;
+    font-size: 0.68rem; font-weight: 700; color: #b45309; background: #fffbeb;
     padding: 0.16rem 0.5rem; border-radius: 10px;
   }
   .post-card.is-expired,

@@ -36,9 +36,13 @@ const blog = defineCollection({
     metric: z.string().optional(),
     // 신청 마감일. 정부 1차 출처로 확인한 접수 마감일을 정확히 채운다(9-5 참고).
     // "상시"/"연중" 등 마감이 없는 정기·상시 모집이면 문자열 "ongoing"으로 표기.
-    // 이 필드가 있고 오늘 날짜가 지났으면 목록에 "마감" 배지 + 상세페이지에 안내 배너가 자동으로 뜬다.
+    // 접수 자체는 상시 열려 있지만 예산·인원 캡이 있어 소진 시 조기 마감될 수 있는 경우(선착순
+    // O명, 예산 소진 시 등)는 "budget-limited"로 표기 — 실시간 소진 여부는 판별하지 않고,
+    // 이 값이 붙은 글에는 "예산 소진 시 조기 마감될 수 있다"는 안내를 상시·고정으로 노출한다.
+    // 이 필드가 있고("ongoing"/"budget-limited"가 아니면서) 오늘 날짜가 지났으면
+    // 목록에 "마감" 배지 + 상세페이지에 안내 배너가 자동으로 뜬다.
     // 확신이 없으면 비워둔다(9-3 원칙 — 상시/정기 여부를 먼저 공식 공고로 확인한 뒤 채울 것).
-    deadline: z.union([z.coerce.date(), z.literal('ongoing')]).optional(),
+    deadline: z.union([z.coerce.date(), z.literal('ongoing'), z.literal('budget-limited')]).optional(),
   }),
 });
 

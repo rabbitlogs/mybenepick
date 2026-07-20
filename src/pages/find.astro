@@ -14,6 +14,10 @@ const posts = (await getCollection('blog'))
 const catName = CATEGORY_NAMES;
 const categoryEntries = Object.entries(CATEGORY_NAMES); // [[slug, label], ...] — chip 렌더링용
 
+// deadline은 "ongoing"/"budget-limited"(특수 문자열) 또는 Date 객체 둘 중 하나다.
+// 특수 문자열은 .toISOString()이 없어 그대로 두고, Date만 ISO 문자열로 변환한다.
+const NON_DATE_DEADLINE_VALUES = ['ongoing', 'budget-limited'];
+
 // 브라우저에서 필터링할 수 있도록 필요한 필드만 뽑아 JSON으로 직렬화
 const postData = posts.map((post) => {
   const slug = post.id.replace('.md', '');
@@ -28,7 +32,7 @@ const postData = posts.map((post) => {
     contentTags: post.data.contentTags || [],
     metric: post.data.metric || '',
     deadline: post.data.deadline
-      ? (post.data.deadline === 'ongoing' ? 'ongoing' : post.data.deadline.toISOString())
+      ? (NON_DATE_DEADLINE_VALUES.includes(post.data.deadline) ? post.data.deadline : post.data.deadline.toISOString())
       : '',
     // 태깅 안 된 축은 "전체 해당"으로 간주 (아래 매칭 로직에서 빈 배열/undefined는 항상 통과)
     ageRange: elig.ageRange || [],
@@ -163,20 +167,24 @@ const postData = posts.map((post) => {
       }
 
       function isExpired(deadline) {
-        if (!deadline || deadline === 'ongoing') return false;
+        if (!deadline || deadline === 'ongoing' || deadline === 'budget-limited') return false;
         const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
         return startOfDay(new Date()) > startOfDay(deadline);
       }
 
       function renderRow(p) {
         const expired = isExpired(p.deadline);
+        const budgetLimited = p.deadline === 'budget-limited';
+        let statusBadge = '';
+        if (expired) statusBadge = '<span class="expired-badge">마감</span>';
+        else if (budgetLimited) statusBadge = '<span class="budget-badge">소진 시 마감</span>';
         return `
           <a href="${p.href}" class="list-row${expired ? ' is-expired' : ''}">
             <span class="list-date">${formatShortDate(p.pubDate)}</span>
             <span class="list-body">
               <span class="list-title-row">
                 <span class="cat-badge" data-cat="${p.category}">${p.catLabel}</span>
-                ${expired ? '<span class="expired-badge">마감</span>' : ''}
+                ${statusBadge}
                 <span class="list-title">${p.title}</span>
               </span>
               <span class="list-desc">${p.description}</span>
@@ -371,6 +379,10 @@ const postData = posts.map((post) => {
     #find-list .cat-badge[data-cat="self-employed"] { background: #ffedd5; color: #9a3412; }
     #find-list .expired-badge {
       flex-shrink: 0; font-size: 0.68rem; font-weight: 700; color: #6b7280; background: #f3f4f6;
+      padding: 0.16rem 0.5rem; border-radius: 10px;
+    }
+    #find-list .budget-badge {
+      flex-shrink: 0; font-size: 0.68rem; font-weight: 700; color: #b45309; background: #fffbeb;
       padding: 0.16rem 0.5rem; border-radius: 10px;
     }
     #find-list .list-row.is-expired { opacity: 0.72; }

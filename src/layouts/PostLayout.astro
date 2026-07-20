@@ -22,16 +22,21 @@ const rawBodyForReadTime = Astro.props.rawBody || '';
 const charCount = rawBodyForReadTime.replace(/\s/g, '').length;
 const readMinutes = Math.max(1, Math.round(charCount / 500));
 
-// 신청 마감 여부: deadline이 "ongoing"(상시)이 아니고 오늘 날짜가 그 날짜를 지났으면 마감.
-// 자정 기준으로 비교해 마감 당일까지는 배너가 안 뜨게 한다.
+// 신청 마감 여부: deadline이 날짜 문자열이 아닌 특수값("ongoing"/"budget-limited")이면
+// 날짜 비교 대상에서 제외한다 — 그대로 new Date()에 넣으면 Invalid Date가 되어
+// 의도치 않게 마감 처리될 수 있으므로, 반드시 날짜 파싱 전에 먼저 걸러낸다.
+const NON_DATE_DEADLINE_VALUES = ['ongoing', 'budget-limited'];
 const isExpired = (() => {
-  if (!deadline || deadline === 'ongoing') return false;
+  if (!deadline || NON_DATE_DEADLINE_VALUES.includes(deadline)) return false;
   const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
   return startOfDay(new Date()) > startOfDay(deadline);
 })();
-const deadlineDateStr = deadline && deadline !== 'ongoing'
+const deadlineDateStr = deadline && !NON_DATE_DEADLINE_VALUES.includes(deadline)
   ? new Date(deadline).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })
   : null;
+// 예산·인원 캡이 있어 소진 시 조기 마감될 수 있는 글. 실시간 소진 여부는 판별하지 않고,
+// 이 값이 붙은 글에는 안내를 상시·고정으로 노출한다(6-6 참고).
+const isBudgetLimited = deadline === 'budget-limited';
 
 // JSON-LD (Article 구조화 데이터)
 const siteUrl = 'https://mybenepick.com';
@@ -120,6 +125,18 @@ const faqJsonLd = faqEntities.length > 0 ? {
           <span class="deadline-banner-text">
             <strong>이 신청 기간은 종료됐어요{deadlineDateStr && ` (${deadlineDateStr} 마감)`}.</strong>
             다음 회차 일정은 공식 채널에서 다시 확인해주세요.
+          </span>
+        </div>
+      )}
+
+      {isBudgetLimited && (
+        <div class="budget-banner" role="note">
+          <span class="budget-banner-icon">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          </span>
+          <span class="budget-banner-text">
+            <strong>예산 소진 시 조기 마감될 수 있어요.</strong>
+            신청 전 최신 접수 상태를 공식 채널에서 확인해주세요.
           </span>
         </div>
       )}
@@ -538,6 +555,15 @@ const faqJsonLd = faqEntities.length > 0 ? {
     .deadline-banner-icon { flex-shrink: 0; color: #6b7280; margin-top: 0.1rem; }
     .deadline-banner-text { font-size: 0.9rem; color: #4b5563; line-height: 1.6; }
     .deadline-banner-text strong { display: block; color: #374151; font-weight: 700; margin-bottom: 0.2rem; }
+    .budget-banner {
+      display: flex; align-items: flex-start; gap: 0.7rem;
+      background: #fffbeb; border: 1px solid #fde68a;
+      border-radius: 10px; padding: 0.9rem 1.1rem;
+      margin: 0 0 1.8rem;
+    }
+    .budget-banner-icon { flex-shrink: 0; color: #b45309; margin-top: 0.1rem; }
+    .budget-banner-text { font-size: 0.9rem; color: #92400e; line-height: 1.6; }
+    .budget-banner-text strong { display: block; color: #78350f; font-weight: 700; margin-bottom: 0.2rem; }
     .post :global(.ad-slot.ad-last) { margin-bottom: 0; }
 
     @media (max-width: 640px) {
