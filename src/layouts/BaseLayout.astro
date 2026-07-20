@@ -5,7 +5,7 @@ import Search from '../components/Search.astro';
 // (승인 심사 중에는 광고 스크립트/슬롯이 페이지에 노출되지 않는 게 안전합니다.)
 const ADSENSE_ENABLED = false;
 
-const { title, description, showAds: showAdsProp = false, image, narrow = false } = Astro.props;
+const { title, description, showAds: showAdsProp = false, image, narrow = false, article = false } = Astro.props;
 const showAds = ADSENSE_ENABLED && showAdsProp;
 const ogImageUrl = image || 'https://mybenepick.com/og-thumbnail.jpg';
 const canonicalUrl = new URL(Astro.url.pathname, 'https://mybenepick.com').toString();
@@ -110,7 +110,7 @@ const activeNavKey = categoryMatch ? categoryMatch[1] : (pathname.startsWith('/r
       </div>
     </header>
 
-    <main class={narrow ? 'wrap-narrow' : 'wrap'}><slot /></main>
+    <main class={article ? 'wrap-article' : narrow ? 'wrap-narrow' : 'wrap'}><slot /></main>
 
     <footer class="site-footer"><div class="wrap">
       <nav class="footer-links">
@@ -135,6 +135,8 @@ const activeNavKey = categoryMatch ? categoryMatch[1] : (pathname.startsWith('/r
       .wrap { max-width: 1080px; margin: 0 auto; padding: 0 1.25rem; }
       /* 글 상세 본문은 읽기 편한 폭(720px)을 유지 — PostLayout에서 이 클래스를 사용 */
       .wrap-narrow { max-width: 720px; margin: 0 auto; padding: 0 1.25rem; }
+      /* 글 상세 전용: 본문(720px, 읽기 폭 유지) + 목차 사이드바를 담는 폭 */
+      .wrap-article { max-width: 1040px; margin: 0 auto; padding: 0 1.25rem; }
 
       .site-header { border-bottom: 1px solid var(--line); }
       .header-inner { display: flex; align-items: center; gap: 1rem; padding: 1rem 0 0.4rem; flex-wrap: wrap; }
@@ -219,9 +221,13 @@ const activeNavKey = categoryMatch ? categoryMatch[1] : (pathname.startsWith('/r
       .prose p { margin: 1.15rem 0; }
       .prose h2 { font-weight: 700; font-size: 1.5rem; margin-top: 2.6rem; margin-bottom: 0.8rem; line-height: 1.35; scroll-margin-top: 1.5rem; letter-spacing: -0.01em; }
       .prose h2[data-num]::before {
-        content: attr(data-num) ". ";
-        color: var(--accent);
+        content: attr(data-num);
+        display: inline-block;
+        font-size: 0.6em;
         font-weight: 800;
+        color: var(--accent);
+        margin-right: 0.5rem;
+        vertical-align: 0.1em;
       }
       .prose h3 { font-weight: 600; font-size: 1.2rem; margin-top: 1.8rem; margin-bottom: 0.5rem; scroll-margin-top: 1.5rem; color: var(--primary); }
       .prose h2 a, .prose h3 a { color: inherit; text-decoration: none; }
@@ -229,81 +235,87 @@ const activeNavKey = categoryMatch ? categoryMatch[1] : (pathname.startsWith('/r
       .prose strong.key { color: var(--primary); font-weight: 700; }
 
       /* ===== 목차: 스크롤스파이 + 진행바 ===== */
-      .prose .toc {
+      /* ===== 목차: .prose 밖(사이드바)으로 옮겨져도 스타일이 유지되도록 전역 셀렉터 사용 ===== */
+      .toc {
         margin: 2rem 0;
         background: #fff;
         border: 1px solid var(--line);
         border-radius: 14px;
         box-shadow: 0 4px 16px rgba(23, 38, 58, 0.06);
         overflow: hidden;
+        font-size: 17px; /* .prose 밖으로 나가도 본문과 같은 기준 크기 유지 */
       }
-      .prose .toc-header {
+      .toc-header {
         display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
         padding: 0.9rem 1.3rem;
         border-bottom: 1px solid var(--line);
       }
-      .prose .toc-icon {
+      .toc-icon {
         width: 26px; height: 26px; border-radius: 7px; flex-shrink: 0;
         background: var(--color-bg-soft); color: var(--primary);
         display: flex; align-items: center; justify-content: center;
       }
-      .prose .toc-title { font-weight: 700; font-size: 0.95em; color: var(--primary); }
-      .prose .toc-hint { font-weight: 400; font-size: 0.78em; color: var(--muted); margin-left: auto; }
-      .prose .toc-body { position: relative; padding: 0.7rem 1.3rem 0.7rem 0; }
-      .prose .toc-track {
+      .toc-title { font-weight: 700; font-size: 0.95em; color: var(--primary); }
+      .toc-hint { font-weight: 400; font-size: 0.78em; color: var(--muted); margin-left: auto; }
+      .toc-body { position: relative; padding: 0.7rem 1.3rem 0.7rem 0; }
+      .toc-track {
         position: absolute; left: 1.3rem; top: 0.35rem; bottom: 0.35rem; width: 2px;
         background: var(--line); border-radius: 2px;
       }
-      .prose .toc-progress {
+      .toc-progress {
         position: absolute; left: 1.3rem; top: 0.35rem; width: 2px;
         background: var(--accent); border-radius: 2px;
         height: 0%; transition: height 0.2s ease;
       }
-      .prose .toc-list { margin: 0; padding: 0; list-style: none; }
-      .prose .toc-item {
+      .toc-list { margin: 0; padding: 0; list-style: none; }
+      .toc-item {
         position: relative;
         padding: 0.5rem 1.3rem 0.5rem 2.5rem;
         display: flex; align-items: baseline; gap: 0.5rem;
         font-size: 1em; line-height: 1.6;
       }
-      .prose .toc-item::before {
+      .toc-item::before {
         content: ''; position: absolute; left: 0.98rem; top: 0.85rem;
         width: 9px; height: 9px; border-radius: 50%;
         background: #fff; border: 2px solid var(--line);
         transition: all 0.2s ease;
       }
-      .prose .toc-item.is-active::before {
+      .toc-item.is-active::before {
         background: var(--accent); border-color: var(--accent);
         box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
       }
-      .prose .toc-num {
+      .toc-num {
         flex-shrink: 0;
         color: var(--muted);
         font-weight: 700;
+        font-size: 0.85em;
         font-variant-numeric: tabular-nums;
         transition: color 0.2s;
       }
-      .prose .toc-num::after { content: '.'; }
-      .prose .toc-item.is-active .toc-num { color: var(--accent); }
-      .prose .toc-item.sub {
+      .toc-item.is-active .toc-num { color: var(--accent); }
+      .toc-item.sub {
         padding-left: 3.5rem;
         font-size: 0.88em;
       }
-      .prose .toc-item.sub::before {
+      .toc-item.sub::before {
         left: 1.13rem; top: 0.9rem;
         width: 5px; height: 5px; border: none; background: var(--muted);
       }
-      .prose .toc a {
+      .toc a {
         color: var(--ink); text-decoration: none;
         border-bottom: 1px dashed transparent;
         transition: color 0.15s, border-color 0.15s;
       }
-      .prose .toc a:hover { color: var(--accent); border-bottom-color: var(--accent); }
-      .prose .toc-item.is-active a { color: var(--primary); font-weight: 700; }
-      .prose .toc-item.sub a { color: var(--muted); }
+      .toc a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+      .toc-item.is-active a { color: var(--primary); font-weight: 700; }
+      .toc-item.sub a { color: var(--muted); }
+
+      /* 사이드바 컨텍스트 전용 컴팩트 스타일은 PostLayout.astro의 <style>에서 정의한다
+         (Astro의 scoped CSS 특성상, .post-sidebar는 PostLayout 소유 클래스라
+          여기 BaseLayout에서 조합 셀렉터로 오버라이드해도 적용되지 않는다). */
 
       @media (max-width: 640px) {
-        .prose .toc { position: static; }
+        .toc { position: static; }
       }
 
       .prose .summary-box {

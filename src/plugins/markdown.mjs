@@ -143,6 +143,11 @@ function headingText(node) {
 //    그래서 번호는 data 속성으로만 심고, 화면 표시는 CSS ::before로 처리한다.
 // 목차 마크업은 스크롤스파이(현재 읽는 섹션 강조) + 진행바를 붙일 수 있도록
 // 각 li에 data-toc-target(슬러그)을 심어둔다 — 실제 하이라이트 동작은 PostLayout의 스크립트가 담당.
+// 소제목 번호를 두 자리로 통일한다 (1 → "01", 12 → "12").
+function pad2(n) {
+  return String(n).padStart(2, '0');
+}
+
 export function remarkInlineToc() {
   return (tree) => {
     const slugger = new GithubSlugger();
@@ -157,7 +162,7 @@ export function remarkInlineToc() {
         let number = null;
         if (node.depth === 2) {
           h2Counter += 1;
-          number = h2Counter;
+          number = pad2(h2Counter);
           h2Nodes.push(node);
         }
         items.push({ depth: node.depth, text, slug, number });
@@ -169,7 +174,7 @@ export function remarkInlineToc() {
       h2Nodes.forEach((node, i) => {
         node.data = node.data || {};
         node.data.hProperties = node.data.hProperties || {};
-        node.data.hProperties['data-num'] = String(i + 1);
+        node.data.hProperties['data-num'] = pad2(i + 1);
       });
     }
 

@@ -82,52 +82,86 @@ const faqJsonLd = faqEntities.length > 0 ? {
 } : null;
 ---
 
-<BaseLayout title={title} description={description} showAds={true} image={ogImage} narrow={true}>
+<BaseLayout title={title} description={description} showAds={true} image={ogImage} article={true}>
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   {faqJsonLd && (
     <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
   )}
-  <article class="post">
-    <nav class="breadcrumb" aria-label="이동 경로">
-      <a href="/">홈</a> / <a href={`/category/${category}`}>{catName[category]}</a> / <span class="active">{title}</span>
-    </nav>
-    <div class="post-meta">
-      <span class="cat">{catName[category]}</span>
-      <span class="date">{dateStr}</span>
-      <span class="read-time">· 읽는 시간 {readMinutes}분</span>
-      {updatedDateStr && <span class="updated">· {updatedDateStr} 수정</span>}
-    </div>
-    <h1>{title}</h1>
-    <p class="subtitle">{description}</p>
-
-    <div class="prose">
-      <slot />
-    </div>
-
-    {tags && tags.length > 0 && (
-      <div class="post-tags">
-        {tags.map((tag) => (
-          <span class="tag">#{tag}</span>
-        ))}
+  <div class="post-grid">
+    <article class="post">
+      <nav class="breadcrumb" aria-label="이동 경로">
+        <a href="/">홈</a> / <a href={`/category/${category}`}>{catName[category]}</a> / <span class="active">{title}</span>
+      </nav>
+      <div class="post-meta">
+        <span class="cat">{catName[category]}</span>
+        <span class="date">{dateStr}</span>
+        <span class="read-time">· 읽는 시간 {readMinutes}분</span>
+        {updatedDateStr && <span class="updated">· {updatedDateStr} 수정</span>}
       </div>
-    )}
+      <h1>{title}</h1>
+      <p class="subtitle">{description}</p>
 
-    {relatedPosts && relatedPosts.length > 0 && (
-      <section class="related-posts">
-        <h2 class="related-title">더 읽어보기</h2>
-        <div class="related-grid">
-          {relatedPosts.map((rp) => (
-            <a href={rp.href} class="related-card">
-              <span class="related-cat-badge" data-cat={rp.category}>{catName[rp.category]}</span>
-              <p class="related-card-title">{rp.title}</p>
-            </a>
+      <div class="prose">
+        <slot />
+      </div>
+
+      {tags && tags.length > 0 && (
+        <div class="post-tags">
+          {tags.map((tag) => (
+            <span class="tag">#{tag}</span>
           ))}
         </div>
-      </section>
-    )}
+      )}
 
-    <script is:inline>
-      document.addEventListener('DOMContentLoaded', () => {
+      {relatedPosts && relatedPosts.length > 0 && (
+        <section class="related-posts">
+          <h2 class="related-title">더 읽어보기</h2>
+          <div class="related-grid">
+            {relatedPosts.map((rp) => (
+              <a href={rp.href} class="related-card">
+                <span class="related-cat-badge" data-cat={rp.category}>{catName[rp.category]}</span>
+                <p class="related-card-title">{rp.title}</p>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <!--
+        데스크톱(961px 이상)에서는 본문 안의 목차([[TOC]] 위치)를 오른쪽 sticky 사이드바로 옮긴다.
+        모바일/좁은 화면에서는 원래 자리(본문 최상단)에 그대로 둔다.
+        리사이즈로 브레이크포인트를 넘나들 때도 다시 계산해서 옮긴다.
+      -->
+      <script is:inline>
+        document.addEventListener('DOMContentLoaded', () => {
+          const toc = document.querySelector('[data-toc-root]');
+          const sidebar = document.querySelector('[data-toc-sidebar]');
+          const grid = document.querySelector('.post-grid');
+          if (!toc || !sidebar || !grid) return;
+
+          const originalParent = toc.parentElement;
+          const originalNextSibling = toc.nextSibling;
+          const mql = window.matchMedia('(min-width: 961px)');
+
+          const place = () => {
+            if (mql.matches) {
+              if (toc.parentElement !== sidebar) sidebar.appendChild(toc);
+              grid.setAttribute('data-toc-moved', '');
+            } else {
+              if (toc.parentElement !== originalParent) {
+                originalParent.insertBefore(toc, originalNextSibling);
+              }
+              grid.removeAttribute('data-toc-moved');
+            }
+          };
+
+          place();
+          mql.addEventListener('change', place);
+        });
+      </script>
+
+      <script is:inline>
+        document.addEventListener('DOMContentLoaded', () => {
         // 본문(.prose) 안의 링크는 전부 새 탭으로 연다.
         // (내부 추천글 링크는 이제 본문 밖 "더 읽어보기" 섹션에서 자동 생성되므로,
         //  본문 안에는 외부 공식 출처 링크만 남는다.)
@@ -355,8 +389,66 @@ const faqJsonLd = faqEntities.length > 0 ? {
     </script>
   </article>
 
+    <aside class="post-sidebar" data-toc-sidebar aria-label="목차 사이드바"></aside>
+  </div>
+
   <style>
-    .post { padding: 2.5rem 0; }
+    .post-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+      align-items: start;
+    }
+    .post { padding: 2.5rem 0; min-width: 0; }
+    .post-sidebar { display: none; }
+
+    /* 데스크톱: 본문(720px 상당) + 목차 사이드바 2컬럼. 사이드바는 스크롤해도 화면에 고정. */
+    @media (min-width: 961px) {
+      .post-grid {
+        grid-template-columns: minmax(0, 1fr) 240px;
+        gap: 2.5rem;
+      }
+      .post-sidebar {
+        display: block;
+        position: sticky;
+        top: 5.5rem;
+        max-height: calc(100vh - 7rem);
+        overflow-y: auto;
+        padding-top: 2.5rem;
+      }
+      .post-sidebar::-webkit-scrollbar { width: 4px; }
+      .post-sidebar::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+      /* 목차가 사이드바로 옮겨지기 전(JS 실행 전) 잠깐 본문에 보이다 사라지는 깜빡임 방지 */
+      .post-grid[data-toc-moved] .prose > .toc { display: none; }
+    }
+  </style>
+
+  <!--
+    사이드바 안(폭 240px)에서는 목차를 좀 더 컴팩트하게 보여준다.
+    .toc는 마크다운이 생성하는 순수 HTML이라 Astro의 컴포넌트 스코프가 적용되지 않으므로
+    is:global로 명시해 확실히 전역 적용되게 한다.
+  -->
+  <style is:global>
+    @media (min-width: 961px) {
+      .post-sidebar .toc {
+        margin: 0;
+        box-shadow: none;
+        border-radius: 10px;
+        font-size: 14px;
+      }
+      .post-sidebar .toc-header { padding: 0.7rem 0.9rem; }
+      .post-sidebar .toc-hint { display: none; }
+      .post-sidebar .toc-body { padding: 0.5rem 0.9rem 0.5rem 0; }
+      .post-sidebar .toc-track { left: 0.9rem; }
+      .post-sidebar .toc-progress { left: 0.9rem; }
+      .post-sidebar .toc-item { padding: 0.4rem 0.9rem 0.4rem 1.9rem; }
+      .post-sidebar .toc-item::before { left: 0.58rem; top: 0.72rem; width: 8px; height: 8px; }
+      .post-sidebar .toc-item.sub { padding-left: 2.6rem; }
+      .post-sidebar .toc-item.sub::before { left: 0.73rem; top: 0.77rem; }
+    }
+  </style>
+
+  <style>
     .breadcrumb { font-size: 0.82rem; color: var(--muted); margin-bottom: 1rem; }
     .breadcrumb a { color: var(--muted); text-decoration: none; }
     .breadcrumb a:hover { color: var(--primary); }
