@@ -141,9 +141,149 @@ declare module 'astro:content' {
 
 	type ContentEntryMap = {
 		"blog": {
-"childcare-advance-payment-income-limit-abolished.md": {
-	id: "childcare-advance-payment-income-limit-abolished.md";
-  slug: "childcare-advance-payment-income-limit-abolished";
+"10am-commute-childcare-tenure-requirement-abolished.md": {
+	id: "10am-commute-childcare-tenure-requirement-abolished.md";
+  slug: "10am-commute-childcare-tenure-requirement-abolished";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"child-allowance-2026-age-9-expansion.md": {
+	id: "child-allowance-2026-age-9-expansion.md";
+  slug: "child-allowance-2026-age-9-expansion";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"energy-voucher-2026-701300-won.md": {
+	id: "energy-voucher-2026-701300-won.md";
+  slug: "energy-voucher-2026-701300-won";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"housing-benefit-2026-expanded-selection-criteria.md": {
+	id: "housing-benefit-2026-expanded-selection-criteria.md";
+  slug: "housing-benefit-2026-expanded-selection-criteria";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"jeonse-fraud-victim-auction-profit-advance-payment.md": {
+	id: "jeonse-fraud-victim-auction-profit-advance-payment.md";
+  slug: "jeonse-fraud-victim-auction-profit-advance-payment";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"labor-shortage-job-companion-incentive-senior.md": {
+	id: "labor-shortage-job-companion-incentive-senior.md";
+  slug: "labor-shortage-job-companion-incentive-senior";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"multi-child-highway-toll-discount-2026.md": {
+	id: "multi-child-highway-toll-discount-2026.md";
+  slug: "multi-child-highway-toll-discount-2026";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"national-employment-support-youth-special-case-60man.md": {
+	id: "national-employment-support-youth-special-case-60man.md";
+  slug: "national-employment-support-youth-special-case-60man";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"national-pension-2026-premium-rate-replacement-rate.md": {
+	id: "national-pension-2026-premium-rate-replacement-rate.md";
+  slug: "national-pension-2026-premium-rate-replacement-rate";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"national-pension-reduction-relief-2026-519-manwon.md": {
+	id: "national-pension-reduction-relief-2026-519-manwon.md";
+  slug: "national-pension-reduction-relief-2026-519-manwon";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"national-tomorrow-learning-card-2026-changes.md": {
+	id: "national-tomorrow-learning-card-2026-changes.md";
+  slug: "national-tomorrow-learning-card-2026-changes";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"newborn-special-supply-private-housing-2026.md": {
+	id: "newborn-special-supply-private-housing-2026.md";
+  slug: "newborn-special-supply-private-housing-2026";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"parental-leave-benefit-2026-250-manwon-1-year-6-months.md": {
+	id: "parental-leave-benefit-2026-250-manwon-1-year-6-months.md";
+  slug: "parental-leave-benefit-2026-250-manwon-1-year-6-months";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"seoul-standup-project-small-business-restart-2026.md": {
+	id: "seoul-standup-project-small-business-restart-2026.md";
+  slug: "seoul-standup-project-small-business-restart-2026";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"sickness-benefit-pilot-program-2026.md": {
+	id: "sickness-benefit-pilot-program-2026.md";
+  slug: "sickness-benefit-pilot-program-2026";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"small-business-refinance-loan-2026-4-5-percent.md": {
+	id: "small-business-refinance-loan-2026-4-5-percent.md";
+  slug: "small-business-refinance-loan-2026-4-5-percent";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"small-business-stability-voucher-2026-250000-won.md": {
+	id: "small-business-stability-voucher-2026-250000-won.md";
+  slug: "small-business-stability-voucher-2026-250000-won";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"unemployment-benefit-2026-upper-limit-raised.md": {
+	id: "unemployment-benefit-2026-upper-limit-raised.md";
+  slug: "unemployment-benefit-2026-upper-limit-raised";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"yellow-umbrella-mutual-aid-annual-limit-increase.md": {
+	id: "yellow-umbrella-mutual-aid-annual-limit-increase.md";
+  slug: "yellow-umbrella-mutual-aid-annual-limit-increase";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"youth-future-savings-account-2nd-round-december.md": {
+	id: "youth-future-savings-account-2nd-round-december.md";
+  slug: "youth-future-savings-account-2nd-round-december";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"youth-job-leap-subsidy-non-capital-region-2026.md": {
+	id: "youth-job-leap-subsidy-non-capital-region-2026.md";
+  slug: "youth-job-leap-subsidy-non-capital-region-2026";
   body: string;
   collection: "blog";
   data: InferEntrySchema<"blog">
@@ -158,5 +298,5 @@ declare module 'astro:content' {
 
 	type AnyEntryMap = ContentEntryMap & DataEntryMap;
 
-	export type ContentConfig = typeof import("../../src/content/config.js");
+	export type ContentConfig = typeof import("./../../src/content/config.js");
 }
