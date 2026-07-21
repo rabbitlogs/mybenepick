@@ -103,7 +103,9 @@ const faqJsonLd = faqEntities.length > 0 ? {
   {faqJsonLd && (
     <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
   )}
-  <div class="reading-progress" data-reading-progress aria-hidden="true"></div>
+  <div class="reading-progress" aria-hidden="true">
+    <div class="reading-progress-bar"></div>
+  </div>
   <div class="post-grid">
     <article class="post">
       <nav class="breadcrumb" aria-label="이동 경로">
@@ -219,36 +221,34 @@ const faqJsonLd = faqEntities.length > 0 ? {
       });
     </script>
 
-    <!--
-      상단 읽기 진행바: 글 본문(.post) 기준 스크롤 진행률을 페이지 최상단 고정 바로 표시한다.
-      헤더 유무와 무관하게 항상 화면 맨 위에 붙어있도록 position: fixed 사용.
-    -->
+    <!-- 읽기 진행바 스크립트: article(.post) 기준 스크롤 진행률을 0~100%로 계산 (rabbit-logs와 동일 로직) -->
     <script is:inline>
       document.addEventListener('DOMContentLoaded', () => {
-        const bar = document.querySelector('[data-reading-progress]');
+        const bar = document.querySelector('.reading-progress-bar');
         const article = document.querySelector('.post');
         if (!bar || !article) return;
 
+        let ticking = false;
         const update = () => {
+          ticking = false;
           const rect = article.getBoundingClientRect();
           const articleTop = rect.top + window.scrollY;
-          const articleHeight = article.offsetHeight - window.innerHeight;
-          const scrolled = window.scrollY - articleTop;
-          const ratio = articleHeight <= 0 ? 1 : Math.min(1, Math.max(0, scrolled / articleHeight));
-          bar.style.width = (ratio * 100) + '%';
+          const articleHeight = article.offsetHeight;
+          const viewportH = window.innerHeight;
+
+          const scrolled = window.scrollY - articleTop + viewportH * 0.4;
+          const total = Math.max(articleHeight - viewportH * 0.4, 1);
+          const pct = Math.min(100, Math.max(0, (scrolled / total) * 100));
+          bar.style.width = pct + '%';
         };
 
-        let ticking = false;
         window.addEventListener('scroll', () => {
-          if (ticking) return;
-          ticking = true;
-          requestAnimationFrame(() => {
-            update();
-            ticking = false;
-          });
+          if (!ticking) {
+            window.requestAnimationFrame(update);
+            ticking = true;
+          }
         }, { passive: true });
         window.addEventListener('resize', update);
-
         update();
       });
     </script>
@@ -468,17 +468,19 @@ const faqJsonLd = faqEntities.length > 0 ? {
   </div>
 
   <style is:global>
+    /* 읽기 진행바: 화면 최상단 고정, 헤더보다 위 레이어 (rabbit-logs와 동일 구조: 트랙 + 바 이중 div) */
     .reading-progress {
-      position: fixed;
-      top: 0; left: 0;
-      width: 0%;
-      height: 3px;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      height: 3px; background: transparent;
+    }
+    .reading-progress-bar {
+      height: 100%; width: 0%;
       background: var(--accent);
-      z-index: 1000;
-      will-change: width;
+      transition: width 0.1s linear;
     }
     @media (max-width: 640px) {
-      .reading-progress { height: 2.5px; background: #f59e0b; }
+      .reading-progress { height: 2.5px; }
+      .reading-progress-bar { background: #f59e0b; }
     }
   </style>
 
