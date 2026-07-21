@@ -1,7 +1,7 @@
 ---
 import { CATEGORY_NAMES } from '../data/categories.js';
 
-const { href, title, description, category, pubDate, variant = 'list', metric, deadline } = Astro.props;
+const { href, title, description, category, pubDate, variant = 'list', metric, deadline, contentTags = [] } = Astro.props;
 
 const catName = CATEGORY_NAMES;
 const dateStr = new Date(pubDate).toLocaleDateString('ko-KR', {
@@ -38,22 +38,33 @@ const isExpired = deadline && !NON_DATE_DEADLINE_VALUES.includes(deadline) && st
 // 예산·인원 캡이 있어 소진 시 조기 마감될 수 있는 글. 실시간 소진 여부는 판별하지 않고,
 // 이 값이 붙은 글에는 안내 배지를 상시·고정으로 노출한다(ongoing과 구분 — 6-6 참고).
 const isBudgetLimited = deadline === 'budget-limited';
+
+// 지역 한정 배지: contentTags에 "regional"이 있으면 표시.
+const isRegional = contentTags.includes('regional');
+
+// 배지는 하나만 뜨는 게 아니라 해당되는 걸 전부 보여준다.
+// 경고성(마감·소진시마감)을 먼저·더 강조해서 배치하고, 정보성(NEW·지역)은 뒤에 배치한다.
+// 마감과 소진시마감은 같은 deadline 필드에서 나오는 상호배타 상태라 동시에 뜨지 않는다.
+const badges = [
+  isExpired && { type: 'expired', label: '마감' },
+  !isExpired && isBudgetLimited && { type: 'budget', label: '소진 시 마감' },
+  isNew && { type: 'new', label: 'NEW' },
+  isRegional && { type: 'regional', label: '지역' },
+].filter(Boolean);
 ---
 
 {variant === 'card' ? (
   <a href={href} class="post-card" class:list={[{ 'is-expired': isExpired }]}>
     <div class="post-card-top">
       <span class="cat-badge" data-cat={category}>{catName[category]}</span>
-      {isExpired ? (
-        <span class="expired-badge">마감</span>
-      ) : isBudgetLimited ? (
-        <span class="budget-badge">소진 시 마감</span>
-      ) : (
-        isNew && <span class="new-badge">NEW</span>
-      )}
       <span class="post-date">{shortDateStr}</span>
     </div>
     <h3 class="post-title">{title}</h3>
+    {badges.length > 0 && (
+      <div class="badge-row">
+        {badges.map((b) => <span class={`${b.type}-badge`}>{b.label}</span>)}
+      </div>
+    )}
     <p class="post-desc">{description}</p>
   </a>
 ) : (
@@ -61,14 +72,8 @@ const isBudgetLimited = deadline === 'budget-limited';
     <span class="list-date">{shortDateStr}</span>
     <span class="list-body">
       <span class="list-title-row">
-        {isExpired ? (
-          <span class="expired-badge">마감</span>
-        ) : isBudgetLimited ? (
-          <span class="budget-badge">소진 시 마감</span>
-        ) : (
-          isNew && <span class="new-badge">NEW</span>
-        )}
         <span class="list-title">{title}</span>
+        {badges.map((b) => <span class={`${b.type}-badge`}>{b.label}</span>)}
       </span>
       <span class="list-desc">{description}</span>
     </span>
@@ -89,7 +94,7 @@ const isBudgetLimited = deadline === 'budget-limited';
   .list-row:hover .list-title { color: var(--primary); }
   .list-date { flex-shrink: 0; width: 2.7rem; font-size: 0.78rem; color: var(--muted); }
   .list-body { flex: 1; min-width: 0; }
-  .list-title-row { display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.25rem; }
+  .list-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.25rem; }
   .list-title { font-size: 1.05rem; font-weight: 700; color: var(--ink); transition: color 0.15s; }
   .list-desc { display: block; font-size: 0.88rem; color: var(--muted); line-height: 1.5; }
   .list-metric { flex-shrink: 0; font-size: 0.88rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
@@ -131,6 +136,15 @@ const isBudgetLimited = deadline === 'budget-limited';
     font-size: 0.68rem; font-weight: 700; color: #b45309; background: #fffbeb;
     padding: 0.16rem 0.5rem; border-radius: 10px;
   }
+  /* 지역 배지: NEW보다도 더 보조적인 정보성 태그라 채움 없이 아웃라인만 준다
+     (경고성 마감·소진시마감 > 정보성 NEW > 정보성 지역 순으로 시각적 무게를 낮춘다). */
+  .regional-badge {
+    flex-shrink: 0;
+    font-size: 0.68rem; font-weight: 600; color: var(--muted);
+    background: transparent; border: 1px solid var(--line);
+    padding: 0.14rem 0.5rem; border-radius: 10px;
+  }
+  .badge-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: -0.35rem; }
   .post-card.is-expired,
   .list-row.is-expired { opacity: 0.72; }
   .post-date { margin-left: auto; font-size: 0.8rem; color: var(--muted); }

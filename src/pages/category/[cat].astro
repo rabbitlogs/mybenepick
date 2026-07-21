@@ -110,6 +110,7 @@ const pageHref = (p) => (p === 1 ? basePath : `${basePath}/${p}`);
             pubDate={post.data.pubDate}
             metric={post.data.metric}
             deadline={post.data.deadline}
+            contentTags={post.data.contentTags}
           />
           {i === 3 && ADSENSE_ENABLED && <AdSenseList />}
         </>

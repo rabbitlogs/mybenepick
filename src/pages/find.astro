@@ -166,26 +166,43 @@ const postData = posts.map((post) => {
         return true;
       }
 
+      const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+
       function isExpired(deadline) {
         if (!deadline || deadline === 'ongoing' || deadline === 'budget-limited') return false;
-        const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
         return startOfDay(new Date()) > startOfDay(deadline);
       }
 
-      function renderRow(p) {
+      // NEW 배지: pubDate 기준 7일간(발행 당일 포함). PostCard.astro의 로직과 동일하게 맞춘다.
+      const NEW_BADGE_DAYS = 7;
+      function isNew(pubDate) {
+        const diffDays = Math.floor((startOfDay(new Date()) - startOfDay(pubDate)) / (1000 * 60 * 60 * 24));
+        return diffDays >= 0 && diffDays <= NEW_BADGE_DAYS;
+      }
+
+      // 배지는 하나만 고르지 않고 해당되는 걸 전부 모은다.
+      // 경고성(마감·소진시마감)을 먼저·더 강조, 정보성(NEW·지역)을 뒤에 배치한다(PostCard.astro와 동일 순서).
+      function getBadges(p) {
         const expired = isExpired(p.deadline);
-        const budgetLimited = p.deadline === 'budget-limited';
-        let statusBadge = '';
-        if (expired) statusBadge = '<span class="expired-badge">마감</span>';
-        else if (budgetLimited) statusBadge = '<span class="budget-badge">소진 시 마감</span>';
+        const budgetLimited = !expired && p.deadline === 'budget-limited';
+        const badges = [];
+        if (expired) badges.push('<span class="expired-badge">마감</span>');
+        if (budgetLimited) badges.push('<span class="budget-badge">소진 시 마감</span>');
+        if (isNew(p.pubDate)) badges.push('<span class="new-badge">NEW</span>');
+        if (p.contentTags.includes('regional')) badges.push('<span class="regional-badge">지역</span>');
+        return { expired, html: badges.join('') };
+      }
+
+      function renderRow(p) {
+        const { expired, html: badgeHtml } = getBadges(p);
         return `
           <a href="${p.href}" class="list-row${expired ? ' is-expired' : ''}">
             <span class="list-date">${formatShortDate(p.pubDate)}</span>
             <span class="list-body">
               <span class="list-title-row">
                 <span class="cat-badge" data-cat="${p.category}">${p.catLabel}</span>
-                ${statusBadge}
                 <span class="list-title">${p.title}</span>
+                ${badgeHtml}
               </span>
               <span class="list-desc">${p.description}</span>
             </span>
@@ -362,7 +379,7 @@ const postData = posts.map((post) => {
     #find-list .list-row:hover .list-title { color: var(--primary); }
     #find-list .list-date { flex-shrink: 0; width: 2.7rem; font-size: 0.78rem; color: var(--muted); }
     #find-list .list-body { flex: 1; min-width: 0; }
-    #find-list .list-title-row { display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.25rem; }
+    #find-list .list-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.25rem; }
     #find-list .list-title { font-size: 1.05rem; font-weight: 700; color: var(--ink); transition: color 0.15s; }
     #find-list .list-desc { display: block; font-size: 0.88rem; color: var(--muted); line-height: 1.5; }
     #find-list .list-metric { flex-shrink: 0; font-size: 0.88rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
@@ -384,6 +401,16 @@ const postData = posts.map((post) => {
     #find-list .budget-badge {
       flex-shrink: 0; font-size: 0.68rem; font-weight: 700; color: #b45309; background: #fffbeb;
       padding: 0.16rem 0.5rem; border-radius: 10px;
+    }
+    #find-list .new-badge {
+      flex-shrink: 0; font-size: 0.68rem; font-weight: 700; color: #16a34a; background: #f0fdf4;
+      padding: 0.16rem 0.5rem; border-radius: 10px;
+    }
+    /* 정보성 태그라 채움 없이 아웃라인만 준다 — 경고성 배지보다 시각적 무게를 낮춘다 (PostCard.astro와 동일) */
+    #find-list .regional-badge {
+      flex-shrink: 0; font-size: 0.68rem; font-weight: 600; color: var(--muted);
+      background: transparent; border: 1px solid var(--line);
+      padding: 0.14rem 0.5rem; border-radius: 10px;
     }
     #find-list .list-row.is-expired { opacity: 0.72; }
 
