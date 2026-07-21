@@ -116,8 +116,8 @@ const latestUpdateStr = latestUpdate.toLocaleDateString('ko-KR', { year: 'numeri
     .hero-eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 700; color: var(--accent); margin: 0 0 0.9rem; }
     .hero-eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
     .hero h1 { font-family: var(--font-display); font-weight: 800; font-size: 2.1rem; line-height: 1.35; letter-spacing: -0.02em; margin: 0 0 1rem; color: var(--ink); }
-    .hero-sub { font-size: 1.1rem; color: var(--muted); margin: 0 0 1.6rem; }
-    .hero-note { font-size: 0.82rem; color: var(--muted); margin: 0.9rem 0 0; }
+    .hero-sub { font-size: 1.1rem; color: var(--muted); margin: 0 0 1.6rem; text-wrap: balance; }
+    .hero-note { font-size: 0.82rem; color: var(--muted); margin: 0.9rem 0 0; text-wrap: balance; }
     .mobile-br { display: none; }
 
     .update-card {
@@ -176,7 +176,6 @@ const latestUpdateStr = latestUpdate.toLocaleDateString('ko-KR', { year: 'numeri
       .hero h1 { font-size: 1.7rem; }
       .mobile-br { display: inline; }
       .hero-search-placeholder { display: none; }
-      .latest-header { justify-content: center; text-align: center; }
       .post-grid { grid-template-columns: 1fr; }
     }
   </style>
