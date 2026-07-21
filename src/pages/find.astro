@@ -180,16 +180,25 @@ const postData = posts.map((post) => {
         return diffDays >= 0 && diffDays <= NEW_BADGE_DAYS;
       }
 
+      const NON_DATE_DEADLINE_VALUES = ['ongoing', 'budget-limited'];
+
       // 배지는 하나만 고르지 않고 해당되는 걸 전부 모은다.
-      // 경고성(마감·소진시마감)을 먼저·더 강조, 정보성(NEW·지역)을 뒤에 배치한다(PostCard.astro와 동일 순서).
+      // 경고성(마감·소진시마감·마감예정)을 먼저·더 강조, 정보성(NEW·지역·상시)을 뒤에 배치한다(PostCard.astro와 동일 순서).
       function getBadges(p) {
         const expired = isExpired(p.deadline);
         const budgetLimited = !expired && p.deadline === 'budget-limited';
+        const ongoing = p.deadline === 'ongoing';
+        const hasUpcomingDeadline = p.deadline && !NON_DATE_DEADLINE_VALUES.includes(p.deadline) && !expired;
         const badges = [];
         if (expired) badges.push('<span class="expired-badge">마감</span>');
         if (budgetLimited) badges.push('<span class="budget-badge">소진 시 마감</span>');
+        if (hasUpcomingDeadline) {
+          const d = new Date(p.deadline);
+          badges.push(`<span class="upcoming-badge">~${d.getMonth() + 1}월${d.getDate()}일마감</span>`);
+        }
         if (isNew(p.pubDate)) badges.push('<span class="new-badge">NEW</span>');
         if (p.contentTags.includes('regional')) badges.push('<span class="regional-badge">지역</span>');
+        if (ongoing) badges.push('<span class="ongoing-badge">상시</span>');
         return { expired, html: badges.join('') };
       }
 
@@ -411,6 +420,17 @@ const postData = posts.map((post) => {
       flex-shrink: 0; font-size: 0.68rem; font-weight: 600; color: var(--muted);
       background: transparent; border: 1px solid var(--line);
       padding: 0.14rem 0.5rem; border-radius: 10px;
+    }
+    /* 상시 배지: 지역 배지와 같은 급의 보조 정보성 태그 (PostCard.astro와 동일) */
+    #find-list .ongoing-badge {
+      flex-shrink: 0; font-size: 0.68rem; font-weight: 600; color: #15803d;
+      background: transparent; border: 1px solid #bbf7d0;
+      padding: 0.14rem 0.5rem; border-radius: 10px;
+    }
+    /* 마감 예정 배지: 소진시마감과 같은 경고성 계열, 색만 구분 (PostCard.astro와 동일) */
+    #find-list .upcoming-badge {
+      flex-shrink: 0; font-size: 0.68rem; font-weight: 700; color: #b91c1c; background: #fef2f2;
+      padding: 0.16rem 0.5rem; border-radius: 10px;
     }
     #find-list .list-row.is-expired { opacity: 0.72; }
 

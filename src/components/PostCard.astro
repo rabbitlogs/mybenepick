@@ -38,18 +38,27 @@ const isExpired = deadline && !NON_DATE_DEADLINE_VALUES.includes(deadline) && st
 // 예산·인원 캡이 있어 소진 시 조기 마감될 수 있는 글. 실시간 소진 여부는 판별하지 않고,
 // 이 값이 붙은 글에는 안내 배지를 상시·고정으로 노출한다(ongoing과 구분 — 6-6 참고).
 const isBudgetLimited = deadline === 'budget-limited';
+// 상시 모집(예산·인원 캡 없이 항상 접수). 경고성이 아니라 정보성이라 다른 배지보다 톤을 낮춘다.
+const isOngoing = deadline === 'ongoing';
+// 마감일이 있고 아직 지나지 않은 글: "~M월D일마감" 형태로 카운트다운성 정보를 보여준다.
+const hasUpcomingDeadline = deadline && !NON_DATE_DEADLINE_VALUES.includes(deadline) && !isExpired;
+const upcomingDeadlineLabel = hasUpcomingDeadline
+  ? `~${new Date(deadline).getMonth() + 1}월${new Date(deadline).getDate()}일마감`
+  : null;
 
 // 지역 한정 배지: contentTags에 "regional"이 있으면 표시.
 const isRegional = contentTags.includes('regional');
 
 // 배지는 하나만 뜨는 게 아니라 해당되는 걸 전부 보여준다.
-// 경고성(마감·소진시마감)을 먼저·더 강조해서 배치하고, 정보성(NEW·지역)은 뒤에 배치한다.
-// 마감과 소진시마감은 같은 deadline 필드에서 나오는 상호배타 상태라 동시에 뜨지 않는다.
+// 경고성(마감·소진시마감·마감예정)을 먼저·더 강조해서 배치하고, 정보성(NEW·지역·상시)은 뒤에 배치한다.
+// 마감·소진시마감·마감예정·상시는 같은 deadline 필드에서 나오는 상호배타 상태라 동시에 뜨지 않는다.
 const badges = [
   isExpired && { type: 'expired', label: '마감' },
   !isExpired && isBudgetLimited && { type: 'budget', label: '소진 시 마감' },
+  hasUpcomingDeadline && { type: 'upcoming', label: upcomingDeadlineLabel },
   isNew && { type: 'new', label: 'NEW' },
   isRegional && { type: 'regional', label: '지역' },
+  isOngoing && { type: 'ongoing', label: '상시' },
 ].filter(Boolean);
 ---
 
@@ -132,12 +141,26 @@ const badges = [
     font-size: 0.68rem; font-weight: 700; color: #b45309; background: #fffbeb;
     padding: 0.16rem 0.5rem; border-radius: 10px;
   }
+  /* 마감 예정(날짜형 deadline, 아직 안 지남): 소진시마감과 같은 경고성 계열이되
+     구분을 위해 색만 달리한다(붉은 계열 — 마감이 다가오고 있다는 긴장감). */
+  .upcoming-badge {
+    flex-shrink: 0;
+    font-size: 0.68rem; font-weight: 700; color: #b91c1c; background: #fef2f2;
+    padding: 0.16rem 0.5rem; border-radius: 10px;
+  }
   /* 지역 배지: NEW보다도 더 보조적인 정보성 태그라 채움 없이 아웃라인만 준다
      (경고성 마감·소진시마감 > 정보성 NEW > 정보성 지역 순으로 시각적 무게를 낮춘다). */
   .regional-badge {
     flex-shrink: 0;
     font-size: 0.68rem; font-weight: 600; color: var(--muted);
     background: transparent; border: 1px solid var(--line);
+    padding: 0.14rem 0.5rem; border-radius: 10px;
+  }
+  /* 상시 배지: 지역 배지와 같은 급의 보조 정보성 태그. 아웃라인만 주되 색만 다르게 구분한다. */
+  .ongoing-badge {
+    flex-shrink: 0;
+    font-size: 0.68rem; font-weight: 600; color: #15803d;
+    background: transparent; border: 1px solid #bbf7d0;
     padding: 0.14rem 0.5rem; border-radius: 10px;
   }
   .post-card.is-expired,
