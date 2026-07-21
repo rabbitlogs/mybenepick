@@ -475,10 +475,10 @@ const faqJsonLd = faqEntities.length > 0 ? {
       height: 3px;
       background: var(--accent);
       z-index: 1000;
-      transition: width 0.1s ease-out;
+      will-change: width;
     }
     @media (max-width: 640px) {
-      .reading-progress { height: 2.5px; }
+      .reading-progress { height: 2.5px; background: #f59e0b; }
     }
   </style>
 
