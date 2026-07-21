@@ -232,9 +232,23 @@ declare module 'astro:content' {
   collection: "blog";
   data: InferEntrySchema<"blog">
 } & { render(): Render[".md"] };
+"public-menstrual-pad-dispenser-pilot-2026.md": {
+	id: "public-menstrual-pad-dispenser-pilot-2026.md";
+  slug: "public-menstrual-pad-dispenser-pilot-2026";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
 "seoul-standup-project-small-business-restart-2026.md": {
 	id: "seoul-standup-project-small-business-restart-2026.md";
   slug: "seoul-standup-project-small-business-restart-2026";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"short-term-parental-leave-2026.md": {
+	id: "short-term-parental-leave-2026.md";
+  slug: "short-term-parental-leave-2026";
   body: string;
   collection: "blog";
   data: InferEntrySchema<"blog">
