@@ -20,10 +20,10 @@ const nav = {
 const t = nav;
 
 // 모바일 가로 스크롤 탭에서 현재 보고 있는 카테고리를 강조하기 위한 활성 slug 계산.
-// /category/{slug} 페이지면 그 slug, /regional이면 'regional', 그 외(홈/글상세 등)는 없음.
+// /category/{slug} 페이지면 그 slug, 그 외(홈/글상세 등)는 없음.
 const pathname = Astro.url.pathname;
 const categoryMatch = pathname.match(/^\/category\/([a-z-]+)/);
-const activeNavKey = categoryMatch ? categoryMatch[1] : (pathname.startsWith('/regional') ? 'regional' : null);
+const activeNavKey = categoryMatch ? categoryMatch[1] : null;
 ---
 
 <!doctype html>
@@ -98,7 +98,6 @@ const activeNavKey = categoryMatch ? categoryMatch[1] : (pathname.startsWith('/r
           <a href="/category/parenting" data-slug="parenting" class:list={[{ 'is-active': activeNavKey === 'parenting' }]}><span class="lbl-full">{t.parenting}</span><span class="lbl-short">{t.parentingShort}</span></a>
           <a href="/category/living" data-slug="living" class:list={[{ 'is-active': activeNavKey === 'living' }]}><span class="lbl-full">{t.living}</span><span class="lbl-short">{t.livingShort}</span></a>
           <a href="/category/self-employed" data-slug="self-employed" class:list={[{ 'is-active': activeNavKey === 'self-employed' }]}><span class="lbl-full">{t.selfEmployed}</span><span class="lbl-short">{t.selfEmployedShort}</span></a>
-          <a href="/regional" data-slug="regional" class:list={[{ 'is-active': activeNavKey === 'regional' }]}><span class="lbl-full">지역별</span><span class="lbl-short">지역별</span></a>
           <a href="/about" class="nav-about"><span class="lbl-full">{t.about}</span><span class="lbl-short">소개문의</span></a>
         </nav>
       </div>
@@ -152,10 +151,14 @@ const activeNavKey = categoryMatch ? categoryMatch[1] : (pathname.startsWith('/r
       .nav {
         order: 3; flex: 1 0 100%;
         display: flex; align-items: center;
-        justify-content: space-between;
+        /* 카테고리를 오른쪽으로 몰고, 항목 사이에 균일한 여백을 준다. */
+        justify-content: flex-end;
+        gap: 1.75rem;
         padding-top: 0.5rem;
         margin-top: 0.5rem;
       }
+      /* "소개 & 문의"는 카테고리군과 시각적으로 분리해 조금 더 띄운다. */
+      .nav a.nav-about { margin-left: 0.75rem; }
       .nav a { text-decoration: none; color: var(--muted); font-size: 0.86rem; font-weight: 500; white-space: nowrap; }
       .nav a:hover { color: var(--primary); }
       .nav a.is-active { color: var(--primary); font-weight: 700; }

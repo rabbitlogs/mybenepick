@@ -1,68 +1,24 @@
 ---
-import { getCollection } from 'astro:content';
-import BaseLayout from '../layouts/BaseLayout.astro';
-import PostCard from '../components/PostCard.astro';
-import AdSenseList from '../components/AdSenseList.astro';
-
-// ⚠️ BaseLayout.astro의 ADSENSE_ENABLED와 함께 켜고 끄세요.
-const ADSENSE_ENABLED = false;
-
-// "지역특화" 태그가 붙은 글만 모아 보여주는 페이지.
-// 카테고리(대상자)와 별개로, 거주지 기준 혜택을 한 곳에서 찾을 수 있게 하는 전용 메뉴.
-const posts = (await getCollection('blog'))
-  .filter((p) => (p.data.contentTags || []).includes('regional'))
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+// 2026-07 개편: '지역별' 메뉴를 없애고, 지역 한정 지원금은 '나에게 맞는 혜택 찾기'(/find)의
+// "지역 한정 지원금만" 필터로 통합했다. 이 페이지는 이미 색인·공유된 /regional 주소가
+// 404가 되지 않도록 남겨둔 리다이렉트 전용 페이지다.
+// 정적 호스팅이라 서버 301 대신 canonical + meta refresh 조합을 쓴다.
+const target = '/find';
 ---
 
-<BaseLayout
-  title="지역별 혜택 — 혜택PICK!!"
-  description="지자체별로 다른 지역 특화 지원금만 모았어요. 거주지 기준으로 놓치기 쉬운 혜택을 확인하세요."
-  showAds={true}
->
-  <section class="cat-list" style="padding-top: 1.2rem;">
-    <h1 style="font-size: 2rem; margin: 0 0 0.6rem;">지역별 혜택</h1>
-    <p style="font-size: 0.98rem; color: var(--muted); line-height: 1.7; margin: 0 0 1.8rem;">
-      지자체별로 다른 지역 특화 지원금만 모았어요. 거주지 기준으로 확인해보세요.
-    </p>
-    {posts.length === 0 && (
-      <p style="color: var(--muted); padding: 2rem 0;">아직 등록된 글이 없어요. 곧 채워질 예정이에요.</p>
-    )}
-    {posts.map((post, i) => (
-      <>
-        <PostCard
-          href={`/blog/${post.id.replace('.md', '')}`}
-          title={post.data.title}
-          description={post.data.description}
-          category={post.data.category}
-          pubDate={post.data.pubDate}
-          metric={post.data.metric}
-          deadline={post.data.deadline}
-          contentTags={post.data.contentTags}
-        />
-        {(i + 1) % 4 === 0 && i !== posts.length - 1 && ADSENSE_ENABLED && <AdSenseList />}
-      </>
-    ))}
-  </section>
-
-  {ADSENSE_ENABLED && (
-  <script is:inline>
-    document.addEventListener('DOMContentLoaded', () => {
-      const slots = document.querySelectorAll('.cat-list .ad-slot');
-      slots.forEach((slot) => {
-        try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
-        const ins = slot.querySelector('ins.adsbygoogle');
-        if (!ins) return;
-        let tries = 0;
-        const checker = setInterval(() => {
-          tries++;
-          const status = ins.getAttribute('data-ad-status');
-          const iframe = ins.querySelector('iframe');
-          if (status === 'unfilled') { slot.remove(); clearInterval(checker); }
-          else if (iframe && iframe.offsetHeight > 0) { clearInterval(checker); }
-          else if (tries >= 12) { slot.remove(); clearInterval(checker); }
-        }, 250);
-      });
-    });
-  </script>
-  )}
-</BaseLayout>
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>이동합니다 — 혜택PICK!!</title>
+    <meta name="robots" content="noindex, follow" />
+    <link rel="canonical" href={`https://mybenepick.com${target}`} />
+    <meta http-equiv="refresh" content={`0; url=${target}`} />
+    <script is:inline set:html={`location.replace(${JSON.stringify(target)});`} />
+  </head>
+  <body style="font-family: system-ui, sans-serif; padding: 3rem 1.5rem; text-align: center; color: #334155;">
+    <p>지역별 지원금은 «나에게 맞는 혜택 찾기»로 옮겨졌어요.</p>
+    <p><a href={target}>자동으로 이동하지 않으면 여기를 눌러주세요</a></p>
+  </body>
+</html>
