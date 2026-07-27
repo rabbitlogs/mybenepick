@@ -4,7 +4,7 @@ description: "2026년 6월 17일부터 노령연금 감액 기준이 월 319만�
 pubDate: "2026-07-13"
 metric: "519만원"
 deadline: "ongoing"
-category: "senior"
+category: "living"
 contentTags: ["new"]
 eligibility:
   ageRange: ["60plus"]

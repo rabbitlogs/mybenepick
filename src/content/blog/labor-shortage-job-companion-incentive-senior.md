@@ -4,7 +4,7 @@ description: "제조업·운수창고업에 취업한 50-64세 중장년에게 �
 pubDate: "2026-07-04"
 metric: "최대 360만원"
 deadline: "budget-limited"
-category: "senior"
+category: "living"
 contentTags: ["new"]
 eligibility:
   ageRange: ["50s", "60plus"]

@@ -4,7 +4,7 @@ description: "국토부, 공동담보 전세사기 피해주택도 경·공매 �
 pubDate: "2026-07-08"
 metric: "경매차익 선지급"
 deadline: "ongoing"
-category: "housing"
+category: "living"
 contentTags: ["new"]
 eligibility:
   incomeLevel: "any"

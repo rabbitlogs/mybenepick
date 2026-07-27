@@ -4,7 +4,7 @@ description: "2026년 6월 15일부터 민영주택에도 신생아 특별공급
 pubDate: "2026-07-12"
 metric: "혼인기간 요건 폐지"
 deadline: "ongoing"
-category: "housing"
+category: "living"
 contentTags: ["new"]
 eligibility:
   incomeLevel: "any"

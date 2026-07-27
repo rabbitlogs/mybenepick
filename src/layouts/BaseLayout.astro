@@ -11,13 +11,10 @@ const ogImageUrl = image || 'https://mybenepick.com/og-thumbnail.jpg';
 const canonicalUrl = new URL(Astro.url.pathname, 'https://mybenepick.com').toString();
 
 const nav = {
-  youth: '청년', youthShort: '청년',
-  jobStartup: '취업·창업', jobStartupShort: '취업창업',
+  youth: '청년·취업', youthShort: '청년취업',
   parenting: '육아·출산', parentingShort: '육아출산',
-  housing: '주거', housingShort: '주거',
+  living: '생활·주거', livingShort: '생활주거',
   selfEmployed: '소상공인', selfEmployedShort: '소상공인',
-  senior: '중장년·시니어', seniorShort: '중장년',
-  common: '전국민 공통', commonShort: '전국민',
   about: '소개 & 문의', privacy: '개인정보처리방침', terms: '이용약관',
 };
 const t = nav;
@@ -98,12 +95,9 @@ const activeNavKey = categoryMatch ? categoryMatch[1] : (pathname.startsWith('/r
         </div>
         <nav class="nav">
           <a href="/category/youth" data-slug="youth" class:list={[{ 'is-active': activeNavKey === 'youth' }]}><span class="lbl-full">{t.youth}</span><span class="lbl-short">{t.youthShort}</span></a>
-          <a href="/category/job-startup" data-slug="job-startup" class:list={[{ 'is-active': activeNavKey === 'job-startup' }]}><span class="lbl-full">{t.jobStartup}</span><span class="lbl-short">{t.jobStartupShort}</span></a>
           <a href="/category/parenting" data-slug="parenting" class:list={[{ 'is-active': activeNavKey === 'parenting' }]}><span class="lbl-full">{t.parenting}</span><span class="lbl-short">{t.parentingShort}</span></a>
-          <a href="/category/housing" data-slug="housing" class:list={[{ 'is-active': activeNavKey === 'housing' }]}><span class="lbl-full">{t.housing}</span><span class="lbl-short">{t.housingShort}</span></a>
+          <a href="/category/living" data-slug="living" class:list={[{ 'is-active': activeNavKey === 'living' }]}><span class="lbl-full">{t.living}</span><span class="lbl-short">{t.livingShort}</span></a>
           <a href="/category/self-employed" data-slug="self-employed" class:list={[{ 'is-active': activeNavKey === 'self-employed' }]}><span class="lbl-full">{t.selfEmployed}</span><span class="lbl-short">{t.selfEmployedShort}</span></a>
-          <a href="/category/senior" data-slug="senior" class:list={[{ 'is-active': activeNavKey === 'senior' }]}><span class="lbl-full">{t.senior}</span><span class="lbl-short">{t.seniorShort}</span></a>
-          <a href="/category/common" data-slug="common" class:list={[{ 'is-active': activeNavKey === 'common' }]}><span class="lbl-full">{t.common}</span><span class="lbl-short">{t.commonShort}</span></a>
           <a href="/regional" data-slug="regional" class:list={[{ 'is-active': activeNavKey === 'regional' }]}><span class="lbl-full">지역별</span><span class="lbl-short">지역별</span></a>
           <a href="/about" class="nav-about"><span class="lbl-full">{t.about}</span><span class="lbl-short">소개문의</span></a>
         </nav>

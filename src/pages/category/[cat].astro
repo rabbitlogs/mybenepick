@@ -3,80 +3,86 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostCard from '../../components/PostCard.astro';
 import AdSenseList from '../../components/AdSenseList.astro';
-import { CATEGORY_NAMES_LONG } from '../../data/categories.js';
+import { CATEGORY_NAMES_LONG, LEGACY_CATEGORY_REDIRECTS } from '../../data/categories.js';
 
 // ⚠️ BaseLayout.astro의 ADSENSE_ENABLED와 함께 켜고 끄세요.
 const ADSENSE_ENABLED = false;
 
 const POSTS_PER_PAGE = 8;
-const CATEGORIES = ['youth', 'job-startup', 'parenting', 'housing', 'self-employed', 'senior', 'common'];
+const CATEGORIES = ['youth', 'parenting', 'living', 'self-employed'];
 
 export async function getStaticPaths() {
   const { getCollection } = await import('astro:content');
+  const { LEGACY_CATEGORY_REDIRECTS } = await import('../../data/categories.js');
   const allPosts = await getCollection('blog');
-  const cats = ['youth', 'job-startup', 'parenting', 'housing', 'self-employed', 'senior', 'common'];
-  const perPage = 8;
+  const cats = ['youth', 'parenting', 'living', 'self-employed'];
 
   const paths = [];
   for (const cat of cats) {
     const posts = allPosts
       .filter((p) => p.data.category === cat)
       .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
-    const totalPages = Math.max(1, Math.ceil(posts.length / perPage));
 
-    for (let page = 1; page <= totalPages; page++) {
-      paths.push({
-        params: { cat, page: page === 1 ? undefined : String(page) },
-        props: {
-          cat,
-          page,
-          totalPages,
-          posts: posts.slice((page - 1) * perPage, page * perPage),
-          total: posts.length,
-        },
-      });
-    }
+    // 현재 글 수(카테고리당 4~9건)에서는 한 페이지에 전부 담는다.
+    // 카테고리가 더 커지면 이 라우트를 [...cat].astro로 바꿔 페이지네이션을 되살릴 것.
+    paths.push({
+      params: { cat },
+      props: { cat, posts, total: posts.length, redirectTo: null },
+    });
   }
+
+  // 2026-07 개편으로 사라진 구 slug는 원래 주소를 유지한 채 새 카테고리로 넘긴다.
+  for (const [oldSlug, newSlug] of Object.entries(LEGACY_CATEGORY_REDIRECTS)) {
+    paths.push({
+      params: { cat: oldSlug },
+      props: { cat: newSlug, posts: [], total: 0, redirectTo: `/category/${newSlug}` },
+    });
+  }
+
   return paths;
 }
 
-const { cat, page, totalPages, posts, total } = Astro.props;
+const { cat, posts, total, redirectTo } = Astro.props;
 const catName = CATEGORY_NAMES_LONG;
 const catDesc = {
   youth: [
-    '청년을 위한 지원금과 제도를 모았어요.',
-    '청년내일저축계좌 같은 자산형성, 자격조건과 신청방법을 다룹니다.',
-  ],
-  'job-startup': [
-    '구직, 취업, 창업 준비 관련 지원금과 제도를 모았어요.',
-    '국민취업지원제도, 청년·중장년 창업지원금 같은 정보를 다룹니다.',
+    '청년의 취업·창업·자산형성을 돕는 지원금과 제도를 모았어요.',
+    '국민취업지원제도, 내일배움카드, 청년미래적금 같은 정보를 다룹니다.',
   ],
   parenting: [
     '육아와 출산 관련 지원금과 제도를 모았어요.',
-    '한부모가족 지원, 아동수당, 부모급여 등을 정리합니다.',
+    '육아휴직급여, 아동수당, 돌봄서비스 등을 정리합니다.',
   ],
-  housing: [
-    '전세·월세, 내 집 마련 관련 지원금과 제도를 모았어요.',
-    '전세자금대출, 주거급여, LH 임대주택 같은 정보를 다룹니다.',
+  living: [
+    '주거·노후·생활비까지, 일상에 바로 쓰이는 지원제도를 모았어요.',
+    '주거급여와 청약, 국민연금, 에너지바우처 같은 정보를 다룹니다.',
   ],
   'self-employed': [
     '소상공인·자영업자를 위한 지원금과 제도를 모았어요.',
-    '창업 초기 운영자금, 노란우산공제 같은 실질적인 정보를 다룹니다.',
-  ],
-  senior: [
-    '중장년과 시니어를 위한 지원금과 제도를 모았어요.',
-    '국민연금, 은퇴 준비, 노후 관련 정책을 다룹니다.',
-  ],
-  common: [
-    '소득이나 나이 상관없이 전국민이 대상인 지원금을 모았어요.',
-    '에너지 바우처, 재난지원금 같은 보편 지원 제도를 다룹니다.',
+    '경영안정 바우처, 정책자금 대환대출, 노란우산공제 등을 다룹니다.',
   ],
 };
 
-const basePath = `/category/${cat}`;
-const pageHref = (p) => (p === 1 ? basePath : `${basePath}/${p}`);
+const target = redirectTo;
 ---
 
+{target ? (
+  <html lang="ko">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>이동합니다 — 혜택PICK!!</title>
+      <meta name="robots" content="noindex, follow" />
+      <link rel="canonical" href={`https://mybenepick.com${target}`} />
+      <meta http-equiv="refresh" content={`0; url=${target}`} />
+      <script is:inline set:html={`location.replace(${JSON.stringify(target)});`} />
+    </head>
+    <body style="font-family: system-ui, sans-serif; padding: 3rem 1.5rem; text-align: center; color: #334155;">
+      <p>카테고리가 «{catName[cat]}»으로 통합됐어요.</p>
+      <p><a href={target}>자동으로 이동하지 않으면 여기를 눌러주세요</a></p>
+    </body>
+  </html>
+) : (
 <BaseLayout title={`${catName[cat]} — 혜택PICK!!`} description={catDesc[cat].join(' ')} showAds={true}>
   <section class="cat-list" style="padding-top: 1.2rem;">
     <nav class="breadcrumb" aria-label="이동 경로">
@@ -118,19 +124,6 @@ const pageHref = (p) => (p === 1 ? basePath : `${basePath}/${p}`);
       {posts.length > 0 && ADSENSE_ENABLED && <AdSenseList />}
     </div>
 
-    {totalPages > 1 && (
-      <nav class="pagination" aria-label="페이지 이동">
-        {page > 1 && (
-          <a href={pageHref(page - 1)} class="page-arrow" aria-label="이전 페이지">‹</a>
-        )}
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-          <a href={pageHref(p)} class="page-num" class:list={[{ active: p === page }]} aria-current={p === page ? 'page' : undefined}>{p}</a>
-        ))}
-        {page < totalPages && (
-          <a href={pageHref(page + 1)} class="page-arrow" aria-label="다음 페이지">›</a>
-        )}
-      </nav>
-    )}
   </section>
 
   {ADSENSE_ENABLED && (
@@ -191,3 +184,4 @@ const pageHref = (p) => (p === 1 ? basePath : `${basePath}/${p}`);
     .page-arrow { border-color: var(--line); font-size: 1.1rem; }
   </style>
 </BaseLayout>
+)}

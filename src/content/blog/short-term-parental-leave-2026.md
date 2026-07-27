@@ -4,7 +4,7 @@ description: 2026년 8월 20일부터 자녀 방학이나 갑작스러운 휴교
 pubDate: 2026-07-21
 metric: 1주 단위 분할 사용
 deadline: ongoing
-category: parenting
+category: "parenting"
 contentTags:
   - new
 eligibility:

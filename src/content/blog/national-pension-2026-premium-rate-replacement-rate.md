@@ -4,7 +4,7 @@ description: "2026년부터 국민연금 보험료율이 9%에서 매년 0.5%p�
 pubDate: "2026-07-09"
 metric: "보험료율 인상"
 deadline: "ongoing"
-category: "senior"
+category: "living"
 contentTags: ["new"]
 eligibility:
   ageRange: ["40s", "50s", "60plus"]

@@ -10,8 +10,10 @@ const blog = defineCollection({
     // 바뀌었을 때 이 필드를 갱신하면 dateModified(JSON-LD)와 RSS에 반영되어 구글이
     // "최신 정보로 갱신됨"을 인지할 수 있다. 생략하면 pubDate와 동일하게 취급.
     updatedDate: z.coerce.date().optional(),
-    // 대상자·상황 기준 1차 분류 (7개)
-    category: z.enum(['youth', 'job-startup', 'parenting', 'housing', 'self-employed', 'senior', 'common']),
+    // 대상자·상황 기준 1차 분류 (4개)
+    // youth: 청년·취업(구 youth + job-startup) / parenting: 육아·출산
+    // living: 생활·주거(구 housing + senior + common) / self-employed: 소상공인
+    category: z.enum(['youth', 'parenting', 'living', 'self-employed']),
     // 콘텐츠 성격 태그 (복수 선택 가능 — 예: 신설·변경이면서 지역특화일 수 있음)
     contentTags: z.array(z.enum(['new', 'regional', 'deep-guide'])).optional(),
     // ── "나에게 맞는 혜택 찾기" 매칭용 메타데이터 ──

@@ -7,7 +7,13 @@ import { remarkHighlight, remarkInlineToc, remarkSummaryBox, remarkFaq, remarkTl
 
 export default defineConfig({
   site: 'https://mybenepick.com',
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      // 2026-07 카테고리 개편으로 생긴 구 slug 리다이렉트 페이지는 색인 대상이 아니다.
+      filter: (page) =>
+        !/\/category\/(job-startup|housing|senior|common)\/?$/.test(page),
+    }),
+  ],
   build: {
     inlineStylesheets: 'always',
   },

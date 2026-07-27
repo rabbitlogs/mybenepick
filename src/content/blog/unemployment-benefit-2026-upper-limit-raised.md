@@ -4,7 +4,7 @@ description: "2026년 실업급여(구직급여) 상한액이 6년 만에 인상
 pubDate: "2026-07-06"
 metric: "1일 6.8만원"
 deadline: "ongoing"
-category: "job-startup"
+category: "youth"
 contentTags: ["new"]
 eligibility:
   employmentStatus: ["unemployed"]

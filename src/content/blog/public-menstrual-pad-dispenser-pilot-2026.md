@@ -4,7 +4,7 @@ description: "2026년 7월부터 전국 12개 지역 공공시설에 생리대 �
 pubDate: "2026-07-20"
 metric: "무료 지급"
 deadline: "ongoing"
-category: "common"
+category: "living"
 contentTags: ["new", "regional"]
 eligibility:
   incomeLevel: "any"

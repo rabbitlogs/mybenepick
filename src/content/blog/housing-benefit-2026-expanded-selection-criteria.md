@@ -4,7 +4,7 @@ description: "2026년 주거급여 선정 기준이 넓어졌어요. 기준 중�
 pubDate: "2026-07-03"
 metric: "월 34만원"
 deadline: "ongoing"
-category: "housing"
+category: "living"
 contentTags: ["new"]
 eligibility:
   incomeLevel: "low"

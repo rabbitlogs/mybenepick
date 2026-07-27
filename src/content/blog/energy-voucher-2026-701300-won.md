@@ -4,7 +4,7 @@ description: "2026년 에너지바우처는 하절기·동절기 구분 없이 �
 pubDate: "2026-07-05"
 metric: "최대 70만원"
 deadline: "2026-12-31"
-category: "common"
+category: "living"
 contentTags: ["new"]
 eligibility:
   incomeLevel: "low"

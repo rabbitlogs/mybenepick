@@ -4,7 +4,7 @@ description: "질병·부상으로 일을 못 하는 기간, 상병수당으로 
 pubDate: "2026-07-10"
 metric: "일당 4.7만원"
 deadline: "ongoing"
-category: "common"
+category: "living"
 contentTags: ["new", "regional"]
 eligibility:
   employmentStatus: ["any"]

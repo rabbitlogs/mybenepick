@@ -4,7 +4,7 @@ description: "2026년 국민내일배움카드 변경사항 정리. KDT·특화�
 pubDate: "2026-07-01"
 metric: "자기부담금 신설"
 deadline: "ongoing"
-category: "job-startup"
+category: "youth"
 contentTags: ["new"]
 eligibility:
   employmentStatus: ["any"]
