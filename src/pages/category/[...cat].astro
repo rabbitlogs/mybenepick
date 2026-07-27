@@ -8,41 +8,59 @@ import { CATEGORY_NAMES_LONG, LEGACY_CATEGORY_REDIRECTS } from '../../data/categ
 // ⚠️ BaseLayout.astro의 ADSENSE_ENABLED와 함께 켜고 끄세요.
 const ADSENSE_ENABLED = false;
 
-const POSTS_PER_PAGE = 8;
-const CATEGORIES = ['youth', 'parenting', 'living', 'self-employed'];
+// 한 페이지에 보여줄 글 수. 이 값을 넘기면 /category/{slug}/2 부터 자동으로 페이지가 생긴다.
+const POSTS_PER_PAGE = 12;
 
 export async function getStaticPaths() {
   const { getCollection } = await import('astro:content');
   const { LEGACY_CATEGORY_REDIRECTS } = await import('../../data/categories.js');
   const allPosts = await getCollection('blog');
   const cats = ['youth', 'parenting', 'living', 'self-employed'];
+  const perPage = 12;
 
   const paths = [];
   for (const cat of cats) {
     const posts = allPosts
       .filter((p) => p.data.category === cat)
       .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+    const totalPages = Math.max(1, Math.ceil(posts.length / perPage));
 
-    // 현재 글 수(카테고리당 4~9건)에서는 한 페이지에 전부 담는다.
-    // 카테고리가 더 커지면 이 라우트를 [...cat].astro로 바꿔 페이지네이션을 되살릴 것.
-    paths.push({
-      params: { cat },
-      props: { cat, posts, total: posts.length, redirectTo: null },
-    });
+    for (let page = 1; page <= totalPages; page++) {
+      // 1페이지는 /category/{slug}, 2페이지부터 /category/{slug}/{n}.
+      // rest 파라미터라 배열이 아닌 문자열로 넘겨야 경로가 의도대로 만들어진다.
+      paths.push({
+        params: { cat: page === 1 ? cat : `${cat}/${page}` },
+        props: {
+          cat,
+          page,
+          totalPages,
+          posts: posts.slice((page - 1) * perPage, page * perPage),
+          total: posts.length,
+          redirectTo: null,
+        },
+      });
+    }
   }
 
   // 2026-07 개편으로 사라진 구 slug는 원래 주소를 유지한 채 새 카테고리로 넘긴다.
   for (const [oldSlug, newSlug] of Object.entries(LEGACY_CATEGORY_REDIRECTS)) {
     paths.push({
       params: { cat: oldSlug },
-      props: { cat: newSlug, posts: [], total: 0, redirectTo: `/category/${newSlug}` },
+      props: {
+        cat: newSlug,
+        page: 1,
+        totalPages: 1,
+        posts: [],
+        total: 0,
+        redirectTo: `/category/${newSlug}`,
+      },
     });
   }
 
   return paths;
 }
 
-const { cat, posts, total, redirectTo } = Astro.props;
+const { cat, page, totalPages, posts, total, redirectTo } = Astro.props;
 const catName = CATEGORY_NAMES_LONG;
 const catDesc = {
   youth: [
@@ -64,6 +82,12 @@ const catDesc = {
 };
 
 const target = redirectTo;
+
+const basePath = `/category/${cat}`;
+const pageHref = (p) => (p === 1 ? basePath : `${basePath}/${p}`);
+
+// 2페이지 이상은 제목·설명에 페이지 번호를 붙여 중복 색인을 피한다.
+const pageSuffix = page > 1 ? ` (${page}페이지)` : '';
 ---
 
 {target ? (
@@ -83,10 +107,15 @@ const target = redirectTo;
     </body>
   </html>
 ) : (
-<BaseLayout title={`${catName[cat]} — 혜택PICK!!`} description={catDesc[cat].join(' ')} showAds={true}>
+<BaseLayout title={`${catName[cat]}${pageSuffix} — 혜택PICK!!`} description={catDesc[cat].join(' ')} showAds={true}>
+  <Fragment slot="head">
+    {page > 1 && <link rel="prev" href={pageHref(page - 1)} />}
+    {page < totalPages && <link rel="next" href={pageHref(page + 1)} />}
+  </Fragment>
   <section class="cat-list" style="padding-top: 1.2rem;">
     <nav class="breadcrumb" aria-label="이동 경로">
-      <a href="/">홈</a> / <span class="active">{catName[cat]}</span>
+      <a href="/">홈</a> / {page > 1 ? <a href={basePath}>{catName[cat]}</a> : <span class="active">{catName[cat]}</span>}
+      {page > 1 && <> / <span class="active">{page}페이지</span></>}
     </nav>
     <div class="cat-list-header">
       <div>
@@ -124,6 +153,19 @@ const target = redirectTo;
       {posts.length > 0 && ADSENSE_ENABLED && <AdSenseList />}
     </div>
 
+    {totalPages > 1 && (
+      <nav class="pagination" aria-label="페이지 이동">
+        {page > 1 && (
+          <a href={pageHref(page - 1)} class="page-arrow" aria-label="이전 페이지">‹</a>
+        )}
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+          <a href={pageHref(p)} class="page-num" class:list={[{ active: p === page }]} aria-current={p === page ? 'page' : undefined}>{p}</a>
+        ))}
+        {page < totalPages && (
+          <a href={pageHref(page + 1)} class="page-arrow" aria-label="다음 페이지">›</a>
+        )}
+      </nav>
+    )}
   </section>
 
   {ADSENSE_ENABLED && (
