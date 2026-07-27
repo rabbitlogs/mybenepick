@@ -167,10 +167,12 @@ const activeNavKey = categoryMatch ? categoryMatch[1] : null;
       @media (max-width: 640px) {
         .header-inner { gap: 0.5rem 0.5rem; padding: 0.85rem 0 0; }
 
-        /* 가로 스크롤 탭: 카테고리들을 한 줄로 슬라이드, "소개&문의"는 탭에서 빼고 헤더 아이콘 쪽으로 이동 */
+        /* 카테고리 4개 + 소개&문의 = 5개 탭.
+           기본은 화면 폭에 맞춰 균등 분배하고, 글자가 길어 한 줄에 안 들어가면
+           flex-shrink가 0인 탭들이 넘치면서 자동으로 가로 스크롤로 전환된다. */
         .nav {
-          justify-content: flex-start; flex-wrap: nowrap;
-          gap: 0.4rem;
+          justify-content: space-between; flex-wrap: nowrap;
+          gap: 0.35rem;
           padding: 0 1.25rem 0.75rem;
           margin: 0.5rem -1.25rem 0;
           overflow-x: auto;
@@ -180,28 +182,26 @@ const activeNavKey = categoryMatch ? categoryMatch[1] : null;
         }
         .nav::-webkit-scrollbar { display: none; }
         .nav a {
-          flex: 0 0 auto;
+          /* 남는 공간을 똑같이 나눠 갖되(1 1 auto), 내용보다 작게 줄어들지는 않는다. */
+          flex: 1 1 auto;
+          min-width: fit-content;
+          text-align: center;
           font-size: 0.83rem; font-weight: 600; color: var(--muted);
           background: var(--color-bg-soft);
-          padding: 0.45rem 0.9rem;
+          padding: 0.45rem 0.7rem;
           border-radius: 20px;
         }
         .nav a.is-active { background: var(--primary); color: #fff; }
-        .nav a.nav-about { display: none; }
+        /* 데스크톱에서 준 좌측 여백은 모바일 균등 분배를 깨뜨리므로 해제 */
+        .nav a.nav-about { margin-left: 0; }
         .lbl-full { display: none; }
         .lbl-short { display: inline; }
       }
 
+      /* 2026-07: 카테고리가 4개로 줄면서 "소개 & 문의"가 모바일 탭에 직접 들어갔다.
+         헤더 아이콘은 같은 링크가 두 번 노출되는 셈이라 상시 숨김 처리한다. */
       .m-about-link {
         display: none;
-      }
-      @media (max-width: 640px) {
-        .m-about-link {
-          display: inline-flex; align-items: center; justify-content: center;
-          width: 34px; height: 34px; border-radius: 999px;
-          color: var(--primary);
-        }
-        .m-about-link:hover { background: rgba(30, 58, 95, 0.08); }
       }
 
       .site-footer { margin-top: 3rem; background: var(--footer-bg); color: var(--footer-muted); font-size: 0.85rem; text-align: center; }
