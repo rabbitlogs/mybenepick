@@ -9,14 +9,15 @@ import { CATEGORY_NAMES_LONG, LEGACY_CATEGORY_REDIRECTS } from '../../data/categ
 const ADSENSE_ENABLED = false;
 
 // 한 페이지에 보여줄 글 수. 이 값을 넘기면 /category/{slug}/2 부터 자동으로 페이지가 생긴다.
-const POSTS_PER_PAGE = 12;
+// rabbit-logs와 동일한 기준(8개 + 3·6번째 글 뒤 광고)으로 맞춰 운영한다.
+const POSTS_PER_PAGE = 8;
 
 export async function getStaticPaths() {
   const { getCollection } = await import('astro:content');
   const { LEGACY_CATEGORY_REDIRECTS } = await import('../../data/categories.js');
   const allPosts = await getCollection('blog');
   const cats = ['youth', 'parenting', 'living', 'self-employed'];
-  const perPage = 12;
+  const perPage = 8;
 
   const paths = [];
   for (const cat of cats) {
@@ -147,10 +148,10 @@ const pageSuffix = page > 1 ? ` (${page}페이지)` : '';
             deadline={post.data.deadline}
             contentTags={post.data.contentTags}
           />
-          {i === 3 && ADSENSE_ENABLED && <AdSenseList />}
+          {/* 3번째, 6번째 글 뒤에 광고 (8개 기준 총 2개, 마지막 글 뒤엔 안 붙음) */}
+          {(i === 2 || i === 5) && ADSENSE_ENABLED && <AdSenseList />}
         </>
       ))}
-      {posts.length > 0 && ADSENSE_ENABLED && <AdSenseList />}
     </div>
 
     {totalPages > 1 && (
