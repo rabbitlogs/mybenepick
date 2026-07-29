@@ -2,7 +2,7 @@
 title: "미취업 청년 훈련수당, 비수도권이면 월 50만원"
 description: "K-뉴딜 아카데미가 7월부터 순차 개설돼요. 대기업 등 53개 기업이 참여하며, 출석률에 따라 수도권 월 최대 30만원, 비수도권 월 최대 50만원의 훈련수당을 받을 수 있어요."
 pubDate: "2026-07-27"
-category: "youth"
+category: "job-startup"
 contentTags: ["new"]
 eligibility:
   ageRange: ["20s", "30s"]
