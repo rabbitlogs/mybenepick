@@ -2,7 +2,7 @@
 title: "비아파트 공급 늘어요, 매입임대 문턱 낮아진 이유"
 description: "국토교통부가 7월 20일부터 신축매입임대 사업 문턱을 낮췄어요. 토지비 지원이 80%로 늘고 부분매입도 가능해져, LH 매입임대주택 공급이 빨라질 전망이에요."
 pubDate: "2026-07-29"
-category: "housing"
+category: "living"
 contentTags: ["new"]
 eligibility:
   incomeLevel: "any"

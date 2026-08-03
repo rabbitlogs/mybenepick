@@ -2,7 +2,7 @@
 title: "R&D 사업화, 최대 100억원 보증 새로 생겼어요"
 description: "기술보증기금이 정부 R&D 성과 사업화 전용 'R&D사업화 프로젝트보증'을 신설했어요. 시설자금 포함 최대 100억원, 보증비율 100%까지 우대됩니다."
 pubDate: "2026-07-31"
-category: "job-startup"
+category: "self-employed"
 contentTags: ["new"]
 eligibility:
   incomeLevel: "any"

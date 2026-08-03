@@ -148,6 +148,13 @@ declare module 'astro:content' {
   collection: "blog";
   data: InferEntrySchema<"blog">
 } & { render(): Render[".md"] };
+"charter-bus-diesel-fuel-subsidy-2026.md": {
+	id: "charter-bus-diesel-fuel-subsidy-2026.md";
+  slug: "charter-bus-diesel-fuel-subsidy-2026";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
 "child-allowance-2026-age-9-expansion.md": {
 	id: "child-allowance-2026-age-9-expansion.md";
   slug: "child-allowance-2026-age-9-expansion";
@@ -162,6 +169,13 @@ declare module 'astro:content' {
   collection: "blog";
   data: InferEntrySchema<"blog">
 } & { render(): Render[".md"] };
+"hope-return-package-job-transition-allowance-2026.md": {
+	id: "hope-return-package-job-transition-allowance-2026.md";
+  slug: "hope-return-package-job-transition-allowance-2026";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
 "housing-benefit-2026-expanded-selection-criteria.md": {
 	id: "housing-benefit-2026-expanded-selection-criteria.md";
   slug: "housing-benefit-2026-expanded-selection-criteria";
@@ -172,6 +186,13 @@ declare module 'astro:content' {
 "jeonse-fraud-victim-auction-profit-advance-payment.md": {
 	id: "jeonse-fraud-victim-auction-profit-advance-payment.md";
   slug: "jeonse-fraud-victim-auction-profit-advance-payment";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"k-newdeal-academy-training-allowance-2026.md": {
+	id: "k-newdeal-academy-training-allowance-2026.md";
+  slug: "k-newdeal-academy-training-allowance-2026";
   body: string;
   collection: "blog";
   data: InferEntrySchema<"blog">
@@ -225,6 +246,13 @@ declare module 'astro:content' {
   collection: "blog";
   data: InferEntrySchema<"blog">
 } & { render(): Render[".md"] };
+"non-apartment-new-purchase-rental-supply-expansion-2026.md": {
+	id: "non-apartment-new-purchase-rental-supply-expansion-2026.md";
+  slug: "non-apartment-new-purchase-rental-supply-expansion-2026";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
 "parental-leave-benefit-2026-250-manwon-1-year-6-months.md": {
 	id: "parental-leave-benefit-2026-250-manwon-1-year-6-months.md";
   slug: "parental-leave-benefit-2026-250-manwon-1-year-6-months";
@@ -235,6 +263,13 @@ declare module 'astro:content' {
 "public-menstrual-pad-dispenser-pilot-2026.md": {
 	id: "public-menstrual-pad-dispenser-pilot-2026.md";
   slug: "public-menstrual-pad-dispenser-pilot-2026";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"rd-commercialization-project-guarantee-2026-100-million.md": {
+	id: "rd-commercialization-project-guarantee-2026-100-million.md";
+  slug: "rd-commercialization-project-guarantee-2026-100-million";
   body: string;
   collection: "blog";
   data: InferEntrySchema<"blog">
@@ -270,6 +305,13 @@ declare module 'astro:content' {
 "small-business-stability-voucher-2026-250000-won.md": {
 	id: "small-business-stability-voucher-2026-250000-won.md";
   slug: "small-business-stability-voucher-2026-250000-won";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"summer-vacation-gap-childcare-service-1461-centers.md": {
+	id: "summer-vacation-gap-childcare-service-1461-centers.md";
+  slug: "summer-vacation-gap-childcare-service-1461-centers";
   body: string;
   collection: "blog";
   data: InferEntrySchema<"blog">

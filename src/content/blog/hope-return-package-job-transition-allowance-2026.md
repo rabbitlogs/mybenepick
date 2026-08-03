@@ -2,10 +2,10 @@
 title: "폐업 소상공인 재취업, 전직장려수당 최대 100만원"
 description: "희망리턴패키지 특화취업지원은 폐업(예정) 소상공인이 재취업을 준비하면 교육수당과 전직장려수당을 지원해요. 국민취업지원제도 연계 시 추가 수당도 받을 수 있어요."
 pubDate: "2026-07-29"
-category: "job-startup"
+category: "self-employed"
 contentTags: ["new"]
 eligibility:
-  ageRange: ["20s", "30s", "40s", "50s", "60s"]
+  ageRange: ["20s", "30s", "40s", "50s", "60plus"]
   incomeLevel: "any"
   employmentStatus: ["self-employed", "unemployed"]
 tags: ["희망리턴패키지", "특화취업지원", "전직장려수당", "폐업소상공인재취업", "상시모집"]
